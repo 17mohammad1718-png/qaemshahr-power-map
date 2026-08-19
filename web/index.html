@@ -20,7 +20,7 @@
     font-family:Vazirmatn, "Segoe UI", Tahoma, sans-serif;
     display:flex; flex-direction:column; overflow:hidden;
   }
-  .en{font-family:Consolas, "Courier New", monospace; direction:ltr; unicode-bidi:embed}
+  .en{font-family:Consolas, "Courier New", Vazirmatn, sans-serif; direction:ltr; unicode-bidi:embed}
   #header{
     display:flex; align-items:center; gap:16px; padding:10px 16px;
     background:var(--panel); border-bottom:1px solid var(--line);
@@ -39,6 +39,7 @@
   #mapwrap{flex:1; position:relative; min-height:0}
   #map{position:absolute; inset:0; background:#0a1220}
   .leaflet-container{font-family:inherit; background:#0a1220}
+  .leaflet-control,.leaflet-tooltip,.leaflet-popup{font-family:Vazirmatn, "Segoe UI", Tahoma, sans-serif}
   /* feeder labels */
   .zlbl{
     background:rgba(11,21,38,.88); border:1px solid #334155; color:#e2e8f0;
@@ -146,39 +147,209 @@
   ::-webkit-scrollbar-thumb:hover{background:#5b6f8f}
   ::-webkit-scrollbar-corner{background:#0b1526}
   #panel{scrollbar-width:thin;scrollbar-color:#475569 #0b1526}
-  @media (max-width:640px){
-    #header h1{font-size:14px}
-    #tl-time{font-size:18px; min-width:120px}
-    #legend{max-width:180px; font-size:11px}
+  /* ---------- visual refresh ---------- */
+  :root{
+    --bg:#07111f; --panel:#0d1a2d; --panel2:#13243b; --line:#223752;
+    --txt:#edf6ff; --dim:#8fa7bd; --accent:#55d8ff; --accent-deep:#0e7490;
+    --off:#ff5d68; --obs:#d9364b; --on:#27d98b; --soon:#ffc44d; --future:#60758e;
+    --glass:rgba(10,24,42,.82); --glass-strong:rgba(9,21,37,.95);
   }
+  body{background:radial-gradient(circle at 50% -20%,#123252 0%,var(--bg) 48%,#040a13 100%)}
+  #header{
+    position:relative; z-index:1200; min-height:76px; padding:12px 18px; gap:14px;
+    background:linear-gradient(110deg,rgba(13,30,51,.98),rgba(9,22,39,.94));
+    border-bottom:1px solid rgba(85,216,255,.16); box-shadow:0 10px 30px rgba(0,0,0,.24);
+  }
+  #header::after{content:"";position:absolute;inset:auto 0 0 0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.45}
+  #brand{display:flex;align-items:center;gap:11px;min-width:285px}
+  .brand-mark{
+    width:38px;height:38px;display:grid;place-items:center;border-radius:12px;
+    color:#06283f;background:linear-gradient(145deg,#9af0ff,var(--accent));
+    box-shadow:0 0 0 5px rgba(85,216,255,.08),0 7px 18px rgba(0,153,204,.28);font-size:21px;
+  }
+  #header h1{font-size:18px;letter-spacing:-.2px}
+  #header h1 small{margin-top:2px;color:#91afc6}
+  #live-pill{
+    display:flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid rgba(39,217,139,.22);
+    background:rgba(39,217,139,.08);border-radius:999px;color:#9af0c9;font-size:11px;white-space:nowrap;
+  }
+  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--on);box-shadow:0 0 0 4px rgba(39,217,139,.12);animation:livePulse 1.8s ease-in-out infinite}
+  @keyframes livePulse{0%,100%{box-shadow:0 0 0 3px rgba(39,217,139,.10)}50%{box-shadow:0 0 0 7px rgba(39,217,139,.02)}}
+  #stats{gap:7px}
+  .chip{padding:7px 11px;border-radius:11px;background:rgba(19,36,59,.82);border-color:rgba(133,169,199,.14);box-shadow:inset 0 1px rgba(255,255,255,.04)}
+  .chip b{font-size:13px}
+  .chip .dot{width:7px;height:7px;margin-inline-end:6px}
+  #updated{padding-inline:12px;color:#9cb3c7}
+  #mapwrap{background:radial-gradient(circle at 50% 35%,rgba(21,62,83,.17),transparent 52%)}
+  #map{background:#06101c}
+  .leaflet-tile-pane{filter:brightness(.54) saturate(.62) contrast(1.16)}
+  .leaflet-control-zoom{border:0!important;box-shadow:0 8px 22px rgba(0,0,0,.3)!important}
+  .leaflet-control-zoom a{background:rgba(10,25,43,.88)!important;color:#c6edff!important;border:1px solid rgba(133,169,199,.18)!important}
+  .leaflet-control-zoom a:hover{background:#173955!important;color:#fff!important}
+  #map .leaflet-top.leaflet-right{top:110px;right:16px}
+  #map .leaflet-top.leaflet-right .leaflet-control{margin-top:0}
+  .leaflet-control-attribution{background:rgba(6,16,29,.72)!important;color:#8da6bd!important;border-radius:7px 0 0 0}
+  .leaflet-control-attribution a{color:#76dfff!important}
+  .leaflet-tooltip{background:rgba(7,20,35,.94);border:1px solid rgba(85,216,255,.3);color:#effaff;box-shadow:0 7px 20px rgba(0,0,0,.35);font-size:12px}
+  .leaflet-tooltip-top:before{border-top-color:rgba(85,216,255,.3)}
+  path.leaflet-interactive{transition:fill-opacity .18s ease,stroke-width .18s ease,filter .18s ease}
+  .zlbl{height:23px;min-width:40px;padding:2px 7px;border-radius:8px;background:rgba(7,20,35,.9);border:1px solid rgba(159,201,226,.38);color:#e9f8ff;box-shadow:0 4px 12px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;gap:4px;transition:opacity .16s ease,transform .16s ease}
+  .zlbl::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 7px var(--accent)}
+  .zlbl.my{background:linear-gradient(145deg,#fff19a,#f8d74e);color:#18230d;border-color:#fff0a1;box-shadow:0 0 0 3px rgba(253,224,71,.14),0 5px 16px rgba(253,224,71,.25)}
+  .zlbl.my::before{background:#6c7e00;box-shadow:none}
+  #map-badge{
+    position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:900;pointer-events:none;
+    display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 16px;border-radius:14px;
+    background:rgba(7,20,35,.78);border:1px solid rgba(133,201,226,.2);box-shadow:0 8px 24px rgba(0,0,0,.24);backdrop-filter:blur(12px);white-space:nowrap;
+  }
+  #map-badge strong{font-size:13px;color:#e9faff}
+  #map-badge span{font-size:10px;color:#8faec4}
+  #map-actions{position:absolute;top:16px;inset-inline-end:16px;z-index:1000;display:flex;flex-direction:column;gap:7px;align-items:stretch}
+  #map-actions button{position:static!important;min-width:132px;padding:9px 13px;border-radius:11px;background:rgba(8,23,40,.88);border:1px solid rgba(133,169,199,.2);color:#eaf8ff;box-shadow:0 7px 20px rgba(0,0,0,.28);backdrop-filter:blur(10px);transition:transform .16s ease,background .16s ease,border-color .16s ease}
+  #map-actions button:hover{transform:translateY(-1px);background:#143650;border-color:rgba(85,216,255,.52)}
+  #map-actions #minebtn{background:linear-gradient(145deg,#a6f2ff,#55d8ff);color:#06283f;border-color:#8cecff;box-shadow:0 8px 22px rgba(0,170,220,.24)}
+  #map-actions #minebtn:hover{background:#baf5ff}
+  #map-actions #editbtn{display:none}
+  #map-side{position:absolute;top:16px;inset-inline-start:16px;z-index:1000;width:258px;display:grid;gap:10px;pointer-events:none}
+  #map-side>*{pointer-events:auto}
+  #legend{position:static;width:100%;max-width:none;padding:12px 13px;border-radius:14px;border:1px solid rgba(133,169,199,.16);background:var(--glass);box-shadow:0 9px 26px rgba(0,0,0,.28);backdrop-filter:blur(14px)}
+  #legend h3{display:flex;align-items:center;gap:7px;margin-bottom:9px;font-size:12px;color:#9deaff}
+  #legend h3::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  .lg{gap:8px;margin:5px 0;color:#bfd0df}
+  .sw{width:18px;height:11px;border-radius:4px}
+  #panel{top:16px;inset-inline-end:16px;width:min(382px,calc(100% - 32px));padding:17px;border-radius:17px;background:var(--glass-strong);border:1px solid rgba(133,201,226,.23);box-shadow:0 18px 45px rgba(0,0,0,.46);backdrop-filter:blur(18px)}
+  #panel.open{animation:panelIn .2s ease-out}
+  @keyframes panelIn{from{opacity:0;transform:translateY(-7px) scale(.98)}to{opacity:1;transform:none}}
+  #panel .panel-kicker{display:flex;align-items:center;gap:7px;color:#8eb0c5;font-size:10px;margin-bottom:5px}
+  #panel .panel-kicker .kicker-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  #panel .panel-title{font-size:17px;line-height:1.55;padding-inline-end:22px;color:#f2fbff}
+  #panel .panel-sub{color:#8ca8bb;font-size:11px;margin-top:2px;margin-bottom:13px}
+  #panel .panel-status{display:flex;align-items:center;gap:11px;padding:11px 12px;margin-bottom:11px;border:1px solid rgba(133,169,199,.16);border-radius:13px;background:rgba(18,39,62,.65)}
+  #panel .panel-status.state-planned_off{border-color:rgba(255,93,104,.45);background:rgba(126,31,44,.22)}
+  #panel .panel-status.state-observed_off{border-color:rgba(217,54,75,.58);background:rgba(126,20,38,.28)}
+  #panel .panel-status.state-on{border-color:rgba(39,217,139,.36);background:rgba(18,93,68,.2)}
+  #panel .panel-status.state-soon{border-color:rgba(255,196,77,.5);background:rgba(126,82,19,.2)}
+  #panel .status-icon{width:31px;height:31px;display:grid;place-items:center;flex:0 0 auto;border-radius:10px;background:rgba(255,255,255,.09);font-size:15px}
+  #panel .status-caption{display:block;color:#8ca8bb;font-size:10px;margin-bottom:2px}
+  #panel .status-value{font-size:14px;font-weight:800}
+  #panel .panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+  #panel .metric{padding:9px 10px;border-radius:11px;background:rgba(18,39,62,.58);border:1px solid rgba(133,169,199,.12)}
+  #panel .metric-label{display:block;color:#83a1b8;font-size:10px;margin-bottom:4px}
+  #panel .metric-value{display:block;color:#eaf9ff;font-size:13px;font-weight:700}
+  #panel .panel-section{padding-top:10px;border-top:1px solid rgba(133,169,199,.13)}
+  #panel .section-title{display:flex;align-items:center;justify-content:space-between;color:#b9d5e5;font-size:11px;font-weight:800;margin-bottom:7px}
+  #panel .schedule-pills{display:flex;flex-wrap:wrap;gap:5px}
+  #panel .schedule-pill{padding:4px 8px;border-radius:7px;background:rgba(255,196,77,.13);border:1px solid rgba(255,196,77,.3);color:#ffd982;font:11px Consolas,"Courier New",monospace;direction:ltr}
+  #panel .schedule-empty{color:#7f9aae;font-size:11px}
+  #panel .area-list{display:flex;flex-wrap:wrap;gap:5px;list-style:none;margin:0;padding:0}
+  #panel .area-list li{padding:4px 7px;border-radius:7px;background:rgba(85,216,255,.08);border:1px solid rgba(85,216,255,.14);color:#a6c5d6;font-size:10px}
+  #panel .event-list{margin:0;padding:0 17px 0 0;color:#a7c2d2;font-size:10px;line-height:1.8}
+  #panel .note{padding:8px 9px;margin-top:12px;border-radius:9px;background:rgba(255,196,77,.08);border:1px solid rgba(255,196,77,.16);color:#e9c875;font-size:10px}
+  #panel .close{top:12px;inset-inline-start:11px;width:29px;height:29px;border-radius:9px;background:rgba(255,255,255,.06);font-size:16px;transition:background .15s,color .15s}
+  #panel .close:hover{background:rgba(255,255,255,.14);color:#fff}
+  #timeline{position:relative;z-index:1100;padding:12px 18px 14px;background:linear-gradient(180deg,rgba(13,29,49,.98),rgba(8,19,34,.98));border-top:1px solid rgba(85,216,255,.14);box-shadow:0 -10px 28px rgba(0,0,0,.18)}
+  #tl-top{align-items:center;gap:12px}
+  #tl-date{gap:6px}
+  .tbtn{padding:7px 13px;border-radius:10px;background:rgba(19,42,66,.78);border-color:rgba(133,169,199,.16);color:#9bb6c8}
+  .tbtn:hover{background:#1a405d;color:#eafaff}
+  .tbtn.active{background:linear-gradient(145deg,#a6f2ff,#55d8ff);color:#06283f;border-color:#8cecff;box-shadow:0 5px 14px rgba(0,170,220,.18)}
+  #tl-time-block{display:flex;flex-direction:column;align-items:center;min-width:105px;margin-inline-start:auto}
+  #tl-time-label{font-size:9px;color:#7695aa;margin-bottom:-2px}
+  #tl-time{font-size:25px;min-width:105px;color:#8eeaff;text-shadow:0 0 18px rgba(85,216,255,.25)}
+  #playbtn{width:42px;height:42px;background:linear-gradient(145deg,#a6f2ff,#55d8ff);box-shadow:0 6px 16px rgba(0,170,220,.2);transition:transform .15s ease,box-shadow .15s ease}
+  #playbtn:hover{transform:scale(1.05);box-shadow:0 9px 22px rgba(0,170,220,.3)}
+  #tl-hint{font-size:10px;color:#7896aa}
+  .timeline-track{display:flex;align-items:center;gap:9px;margin-top:2px}
+  .track-label{font:10px Consolas,"Courier New",monospace;color:#6e899d;direction:ltr}
+  #tl-slider{height:6px;flex:1;accent-color:var(--accent)}
+  #tl-slider::-webkit-slider-runnable-track{height:6px;border-radius:99px;background:linear-gradient(90deg,#183c58,#2e6980)}
+  #tl-slider::-webkit-slider-thumb{width:17px;height:17px;margin-top:-5.5px;border:3px solid #082033;border-radius:50%;background:#9defff;box-shadow:0 0 0 3px rgba(85,216,255,.22),0 2px 8px rgba(0,0,0,.35)}
+  #toast{bottom:82px;left:50%;inset-inline-start:auto;transform:translateX(-50%);background:rgba(8,32,50,.95);border-color:rgba(85,216,255,.6);box-shadow:0 8px 24px rgba(0,0,0,.32);backdrop-filter:blur(10px)}
+  @media (max-width:900px){
+    #header{padding:10px 13px}
+    #brand{min-width:240px}
+    #stats{margin-inline-start:auto}
+    #map-side{width:225px}
+    #panel{width:min(350px,calc(100% - 28px));inset-inline-end:14px;top:14px}
+  }
+  @media (max-width:640px){
+    #header{min-height:0;padding:10px 11px;gap:8px}
+    #brand{min-width:0;flex:1;gap:8px}
+    .brand-mark{width:32px;height:32px;border-radius:10px;font-size:17px}
+    #header h1{font-size:14px;line-height:1.35}
+    #header h1 small{font-size:9px;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    #live-pill{padding:6px 8px;font-size:9px}
+    #stats{width:100%;margin:0;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
+    #stats::-webkit-scrollbar{display:none}
+    .chip{padding:6px 9px;font-size:10px}
+    #updated{font-size:9px}
+    #map-badge{top:10px;padding:6px 11px;border-radius:11px}
+    #map-badge strong{font-size:11px}
+    #map-badge span{font-size:9px}
+    #map-actions{top:auto;bottom:12px;inset-inline-end:11px;flex-direction:row}
+    #map .leaflet-top.leaflet-right{top:10px;right:11px}
+    #map-actions button{min-width:0;padding:9px 10px;font-size:11px}
+    #map-actions #fitbtn{font-size:0;width:40px}
+    #map-actions #fitbtn::before{content:"⌖";font-size:19px}
+    #map-side{top:10px;inset-inline-start:10px;width:calc(100% - 20px);max-width:224px;gap:7px}
+    #legend{display:none}
+    #panel{top:auto;bottom:10px;inset-inline-end:10px;width:calc(100% - 20px);max-height:58%;padding:14px;border-radius:15px}
+    #panel .panel-title{font-size:15px}
+    #timeline{padding:9px 11px 11px}
+    #tl-top{display:grid;grid-template-columns:1fr auto auto;gap:7px}
+    #tl-date{grid-column:1/-1;overflow-x:auto;scrollbar-width:none}
+    #tl-date::-webkit-scrollbar{display:none}
+    .tbtn{white-space:nowrap;padding:6px 10px;font-size:11px}
+    #tl-time-block{grid-column:2;grid-row:2;min-width:72px}
+    #tl-time{font-size:20px;min-width:72px}
+    #tl-time-label{font-size:8px}
+    #playbtn{grid-column:3;grid-row:2;width:38px;height:38px}
+    #tl-hint{grid-column:1;grid-row:2;font-size:9px;line-height:1.4}
+    .timeline-track{gap:5px}
+  }
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
 </style>
 </head>
 <body>
 
 <header id="header">
-  <h1>⚡ نقشه لحظه‌ای قطعی برق قائم‌شهر
-    <small>نسخه آنلاین — اسنپ‌شات هر ۱۰ دقیقه · منبع: سامانه رسمی توزیع برق مازندران — مرزها تقریبی‌اند</small>
-  </h1>
+  <div id="brand">
+    <div class="brand-mark">⚡</div>
+    <h1>نقشه لحظه‌ای قطعی برق قائم‌شهر
+      <small>وضعیت فیدرها روی نقشه · مرزها تقریبی‌اند</small>
+    </h1>
+  </div>
+  <div id="live-pill"><span class="live-dot"></span><span id="live-label">داده در حال پایش</span></div>
   <div id="stats">
-    <span class="chip"><span class="dot" style="background:var(--off)"></span>قطع: <b id="st-off" class="en">0</b></span>
-    <span class="chip"><span class="dot" style="background:var(--on)"></span>وصل: <b id="st-on" class="en">0</b></span>
-    <span class="chip"><span class="dot" style="background:var(--soon)"></span>به‌زودی: <b id="st-soon" class="en">0</b></span>
-    <span class="chip"><span class="dot" style="background:var(--future)"></span>نامشخص: <b id="st-unk" class="en">0</b></span>
+    <span class="chip"><span class="dot" style="background:var(--off)"></span>قطع <b id="st-off" class="en">0</b></span>
+    <span class="chip"><span class="dot" style="background:var(--on)"></span>وصل <b id="st-on" class="en">0</b></span>
+    <span class="chip"><span class="dot" style="background:var(--soon)"></span>به‌زودی <b id="st-soon" class="en">0</b></span>
+    <span class="chip"><span class="dot" style="background:var(--future)"></span>نامشخص <b id="st-unk" class="en">0</b></span>
     <span class="chip" id="updated">—</span>
   </div>
 </header>
 
 <div id="mapwrap">
   <div id="map"></div>
-  <button id="minebtn" title="بزرگنمایی به محدوده خانه شما (فیدر 402)">🏠 خانه من</button>
-  <button id="editbtn" title="ویرایش مرز مناطق">✏️ ویرایش مناطق</button>
-  <div id="legend">
-    <h3>راهنما</h3>
-    <div class="lg"><span class="sw" style="background:var(--off)"></span>قطع برنامه‌ریزی‌شده</div>
-    <div class="lg"><span class="sw" style="background:var(--obs)"></span>قطع گزارش‌شده (زنده)</div>
-    <div class="lg"><span class="sw" style="background:var(--soon)"></span>خاموشی در ۲ ساعت آینده</div>
-    <div class="lg"><span class="sw" style="background:var(--on)"></span>وصل</div>
-    <div class="lg"><span class="sw" style="background:var(--future)"></span>آینده / بدون برنامه</div>
+  <div id="map-badge">
+    <strong id="map-badge-title">نمای زنده فیدرها</strong>
+    <span id="map-badge-sub">در حال آماده‌سازی نقشه…</span>
+  </div>
+  <div id="map-actions">
+    <button id="minebtn" title="بزرگنمایی به محدوده خانه شما (فیدر 402)">🏠 خانه من</button>
+    <button id="fitbtn" title="نمایش همه فیدرها">⌖ همه فیدرها</button>
+    <button id="editbtn" title="ویرایش مرز مناطق">✏️ ویرایش مناطق</button>
+  </div>
+  <div id="map-side">
+    <div id="legend">
+      <h3>راهنمای وضعیت</h3>
+      <div class="lg"><span class="sw" style="background:var(--off)"></span>قطع برنامه‌ریزی‌شده</div>
+      <div class="lg"><span class="sw" style="background:var(--obs)"></span>قطع گزارش‌شده (زنده)</div>
+      <div class="lg"><span class="sw" style="background:var(--soon)"></span>خاموشی در ۲ ساعت آینده</div>
+      <div class="lg"><span class="sw" style="background:var(--on)"></span>وصل</div>
+      <div class="lg"><span class="sw" style="background:var(--future)"></span>آینده / بدون برنامه</div>
+    </div>
   </div>
   <div id="panel"></div>
   <div id="editbar">
@@ -192,11 +363,15 @@
 <div id="timeline">
   <div id="tl-top">
     <div id="tl-date"></div>
-    <button id="playbtn" title="پخش">▶</button>
-    <div id="tl-time" class="en">--:--</div>
-    <span id="tl-hint">اسلایدر را بکشید تا وضعیت هر لحظه از امروز/فردا را ببینید</span>
+    <span id="tl-hint">برای دیدن وضعیت لحظه‌ای، زمان را روی نوار حرکت دهید</span>
+    <div id="tl-time-block"><span id="tl-time-label">زمان انتخاب‌شده</span><div id="tl-time" class="en">--:--</div></div>
+    <button id="playbtn" title="پخش خط زمانی">▶</button>
   </div>
-  <input type="range" id="tl-slider" min="0" max="1439" value="0" step="1">
+  <div class="timeline-track">
+    <span class="track-label">00:00</span>
+    <input type="range" id="tl-slider" min="0" max="1439" value="0" step="1" aria-label="انتخاب زمان روز">
+    <span class="track-label">24:00</span>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -204,20 +379,21 @@
 "use strict";
 /* ---------- state ---------- */
 const COLORS = {
-  planned_off:"#ef4444", observed_off:"#b91c1c", on:"#22c55e",
-  soon:"#f59e0b", future:"#475569", unknown:"#334155"
+  planned_off:"#ff5d68", observed_off:"#d9364b", on:"#27d98b",
+  soon:"#ffc44d", future:"#60758e", unknown:"#34495e"
 };
 const STATE_FA = {
   planned_off:"قطع برنامه‌ریزی‌شده", observed_off:"قطع گزارش‌شده (زنده)",
   on:"وصل", soon:"خاموشی در ۲ ساعت آینده", future:"آینده / بدون برنامه", unknown:"نامشخص"
 };
-const STROKE_PALETTE = ["#60a5fa","#34d399","#fbbf24","#f472b6","#a78bfa","#2dd4bf",
-                        "#fb7185","#4ade80","#f97316","#facc15","#22d3ee","#c084fc"];
+const STROKE_PALETTE = ["#28536a","#2f6656","#6b5827","#65445c","#51477b","#245c63",
+                        "#6e3d49","#3c6249","#70482c","#6d5a23","#1e5a68","#5b4774"];
 const MY_FEEDER = "402";
 const AREA = 31;
 let map, zones=[], activePlans={}, weekdays={}, hist={}, colorArr={};
 let curDate="", curMinute=0, tNowMin=0, liveNow=null, playing=false, playTimer=null;
 let selectedFeeder=null, labelMarkers={}, zonesMeta=null, snapshotData=null;
+let territoryPolys={};
 /* editor state */
 let editMode=false, editFeeder=null, editVerts=[], vertMarkers=[], edgeMarkers=[], backupZones=null;
 
@@ -225,6 +401,25 @@ let editMode=false, editFeeder=null, editVerts=[], vertMarkers=[], edgeMarkers=[
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2,"0");
 function fmtMin(m){ return pad(Math.floor(m/60))+":"+pad(m%60); }
+function esc(value){
+  const entities={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"};
+  return String(value ?? "").replace(/[&<>\"']/g, ch => entities[ch]);
+}
+const CODE_STATE = {0:"on",1:"planned_off",2:"observed_off",3:"soon",4:"future",5:"unknown"};
+const CODE_STATE_FA = {0:"وصل",1:"قطع برنامه‌ریزی‌شده",2:"قطع گزارش‌شده",3:"به‌زودی",4:"آینده",5:"بدون برنامه"};
+function codeState(code){ return CODE_STATE[code] || "unknown"; }
+function codeStateFa(code){ return CODE_STATE_FA[code] || "نامشخص"; }
+function currentCode(z){ return colorArr[z.feeder] ? colorArr[z.feeder][curMinute] : 5; }
+function shortFeederName(name){ return String(name || "").replace(/^فیدر\s*\d+\s*[—-]\s*/, ""); }
+function prepareMapZones(rawZones){
+  const mapped=(rawZones||[]).map(z=>({...z, polygon:(z.polygon||[]).map(p=>[+p[0],+p[1]])}));
+  const feeder402=mapped.find(z=>z.feeder===MY_FEEDER);
+  const feeder382=mapped.find(z=>z.feeder==="382");
+  if(feeder402 && feeder382){
+    [feeder402.polygon, feeder382.polygon]=[feeder382.polygon, feeder402.polygon];
+  }
+  return mapped;
+}
 function toast(msg){
   const t=$("toast"); t.textContent=msg; t.style.display="block";
   clearTimeout(t._h); t._h=setTimeout(()=>t.style.display="none", 3000);
@@ -243,14 +438,59 @@ function centroidOf(poly){
   for(const p of poly){ a+=p[0]; b+=p[1]; }
   return [a/n, b/n];
 }
+function openPolygon(poly){
+  const points=(poly||[]).map(p=>[+p[0],+p[1]]);
+  if(points.length>1){
+    const first=points[0], last=points[points.length-1];
+    if(first[0]===last[0] && first[1]===last[1]) points.pop();
+  }
+  return points;
+}
+function clipHalfPlane(poly,a,b,c){
+  if(poly.length<3) return [];
+  const result=[];
+  const inside=p=>a*p[0]+b*p[1] <= c+1e-10;
+  const intersection=(s,e)=>{
+    const ds=a*s[0]+b*s[1]-c, de=a*e[0]+b*e[1]-c;
+    const t=ds/(ds-de);
+    return [s[0]+(e[0]-s[0])*t, s[1]+(e[1]-s[1])*t];
+  };
+  for(let i=0;i<poly.length;i++){
+    const s=poly[i], e=poly[(i+1)%poly.length];
+    const sin=inside(s), ein=inside(e);
+    if(sin && ein) result.push(e);
+    else if(sin && !ein) result.push(intersection(s,e));
+    else if(!sin && ein) result.push(intersection(s,e),e);
+  }
+  return result;
+}
+function buildTerritories(){
+  const centers=zones.map(z=>({feeder:z.feeder, point:centroidOf(openPolygon(z.polygon))}));
+  const territories={};
+  for(const z of zones){
+    const own=centers.find(c=>c.feeder===z.feeder);
+    let poly=openPolygon(z.polygon);
+    if(own){
+      for(const other of centers){
+        if(other===own) continue;
+        const [ix,iy]=own.point, [jx,jy]=other.point;
+        const a=2*(jx-ix), b=2*(jy-iy), c=jx*jx+jy*jy-ix*ix-iy*iy;
+        poly=clipHalfPlane(poly,a,b,c);
+        if(poly.length<3) break;
+      }
+    }
+    territories[z.feeder]=poly.length>=3 ? poly.concat([poly[0]]) : z.polygon;
+  }
+  return territories;
+}
 
 /* ---------- map init ---------- */
 function initMap(){
-  map = L.map("map", {zoomControl:true}).setView([36.465, 52.862], 13);
+  map = L.map("map", {zoomControl:false}).setView([36.465, 52.862], 13);
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom:18, attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
   }).addTo(map);
-  L.control.zoom({position:"bottomright"}).addTo(map);
+  L.control.zoom({position:"topright"}).addTo(map);
 }
 
 /* ---------- zone state at minute ---------- */
@@ -305,20 +545,34 @@ function buildColorArr(){
 /* ---------- draw ---------- */
 const polyLayers={};
 function drawZones(){
+  territoryPolys=buildTerritories();
   for(const z of zones){
-    const latlngs = z.polygon.map(p=>[p[0],p[1]]);
+    const territory=territoryPolys[z.feeder]||z.polygon;
+    const latlngs=territory.map(p=>[p[0],p[1]]);
     const layer = L.polygon(latlngs, {
-      color:strokeOf(z), weight:1.6, opacity:.95, fillOpacity:.35
+      className:z.feeder===MY_FEEDER ? "my-zone" : "zone-shape",
+      color:strokeOf(z), weight:z.feeder===MY_FEEDER?2.3:1.05, opacity:.84, fillOpacity:.25
     }).addTo(map);
-    layer.bindTooltip(`<b>${z.name}</b><br><span class="en">فیدر ${z.feeder}</span>`, {direction:"top"});
+    layer.bindTooltip(`<b>${esc(z.name)}</b><br><span>فیدر <span class="en">${esc(z.feeder)}</span></span>`, {direction:"top"});
     layer.on("click", ()=>{ if(editMode){ startEditZone(z); } else { selectZone(z); } });
+    layer.on("mouseover", ()=>{
+      if(!editMode){
+        if(z.feeder!==MY_FEEDER && labelMarkers[z.feeder]) labelMarkers[z.feeder].setOpacity(1);
+        if(selectedFeeder!==z.feeder) layer.setStyle({weight:2.2, fillOpacity:.42});
+      }
+    });
+    layer.on("mouseout", ()=>{
+      if(!editMode){
+        if(z.feeder!==MY_FEEDER && labelMarkers[z.feeder]) labelMarkers[z.feeder].setOpacity(0);
+        applyColors();
+      }
+    });
     polyLayers[z.feeder]=layer;
-    // feeder number label at centroid
     const ctr=centroidOf(z.polygon);
     const my=z.feeder===MY_FEEDER;
-    const icon=L.divIcon({className:"zlbl"+(my?" my":""), html:`<span class="en">${z.feeder}</span>`,
-                          iconSize:[34,20], iconAnchor:[17,10]});
-    labelMarkers[z.feeder]=L.marker(ctr,{icon, interactive:false, zIndexOffset: my?2200:2000}).addTo(map);
+    const icon=L.divIcon({className:"zlbl"+(my?" my":""), html:`<span class="en">${esc(z.feeder)}</span>`,
+                          iconSize:[42,23], iconAnchor:[21,11.5]});
+    labelMarkers[z.feeder]=L.marker(ctr,{icon, interactive:false, opacity:my?1:0, zIndexOffset: my?2200:2000}).addTo(map);
   }
 }
 function applyColors(){
@@ -327,9 +581,9 @@ function applyColors(){
     const layer=polyLayers[z.feeder]; if(!layer) continue;
     const code = colorArr[z.feeder][curMinute];
     layer.setStyle({
-      fillColor: idxColor[code], fillOpacity: (selectedFeeder===z.feeder || editFeeder===z.feeder)?.55:.35,
-      color: (z.feeder===MY_FEEDER)? "#fde047" : strokeOf(z),
-      weight: (z.feeder===MY_FEEDER||selectedFeeder===z.feeder)? 3 : 1.6
+      fillColor: idxColor[code], fillOpacity: (selectedFeeder===z.feeder || editFeeder===z.feeder)?.48:.24,
+      color: (z.feeder===MY_FEEDER)? "#b9932e" : strokeOf(z),
+      weight: (z.feeder===MY_FEEDER||selectedFeeder===z.feeder)? 2.6 : 1.05
     });
     if(selectedFeeder && selectedFeeder!==z.feeder && editMode===false && !myZone(z)) layer.setStyle({fillOpacity:.12});
   }
@@ -346,39 +600,42 @@ function selectZone(z){
 function renderStats(){
   let off=0, on=0, soon=0, unk=0;
   for(const z of zones){
-    const c = colorArr[z.feeder][curMinute];
+    const c = currentCode(z);
     if(c===1||c===2) off++; else if(c===0) on++; else if(c===3) soon++; else unk++;
   }
   $("st-off").textContent=off; $("st-on").textContent=on;
   $("st-soon").textContent=soon; $("st-unk").textContent=unk;
 }
+function refreshSelectedPanel(){
+  if(selectedFeeder){
+    const z=zones.find(x=>x.feeder===selectedFeeder);
+    if(z) openPanel(z);
+  }
+}
 
 /* ---------- panel ---------- */
 function openPanel(z){
   const p=$("panel");
-  const pt = (activePlans[curDate]||{})[AREA]||{};
-  const timesToday = (pt[z.feeder]||[]).join("، ") || "—";
-  const timesTmrw = ((activePlans[zonesMeta.tomorrow]||{})[AREA]||{})[z.feeder]||[];
-  const obs = (hist.observed||{})[z.feeder]||[];
-  const isMy = z.feeder===MY_FEEDER;
-  let state=stateNow(z);
-  let html = `<button class="close" onclick="closePanel()">✕</button>
-    <h3>${z.name}${isMy?" <span style='color:#fde047'>★</span>":""}</h3>
-    <div class="sub">امور برق قائم‌شهر — کد فیدر: <span class="en">${z.feeder}</span></div>
-    <div class="row"><span class="lbl">وضعیت فعلی</span><span class="badge" style="background:${COLORS[state]}22;color:${COLORS[state]};border:1px solid ${COLORS[state]}">${STATE_FA[state]}</span></div>
-    <div class="row"><span class="lbl">برنامه امروز</span><span class="en">${timesToday}</span></div>
-    <div class="row"><span class="lbl">برنامه فردا</span><span class="en">${timesTmrw.join("، ")||"—"}</span></div>`;
-  if(obs.length){
-    html += `<div class="row"><span class="lbl">گزارش‌های زنده</span><span class="en">${obs.length} مورد</span></div><ul>`;
-    for(const o of obs.slice(-4)){
-      html += `<li><span class="en">${o.time||""}</span> — ${o.addr||""} ${o.reason?`(${o.reason})`:""}</li>`;
-    }
-    html += `</ul>`;
-  }
-  if(z.areas && z.areas.length){
-    html += `<div class="row" style="margin-top:6px"><span class="lbl">محله‌های تحت پوشش</span></div><ul>${z.areas.map(a=>`<li>${a}</li>`).join("")}</ul>`;
-  }
-  html += `<div class="note">⚠ مرز تقریبی است — برای ویرایش مرزها، نسخه محلی (server.py) را باز کنید.</div>`;
+  const pt=(activePlans[curDate]||{})[AREA]||{};
+  const timesToday=pt[z.feeder]||[];
+  const timesTmrw=((activePlans[zonesMeta.tomorrow]||{})[AREA]||{})[z.feeder]||[];
+  const obs=(hist.observed||{})[z.feeder]||[];
+  const isMy=z.feeder===MY_FEEDER;
+  const state=stateNow(z), color=COLORS[state]||COLORS.unknown;
+  const todayPills=timesToday.length?timesToday.map(t=>`<span class="schedule-pill">${esc(t)}</span>`).join(""):"<span class=\"schedule-empty\">برنامه‌ای ثبت نشده</span>";
+  const tomorrowPills=timesTmrw.length?timesTmrw.map(t=>`<span class="schedule-pill">${esc(t)}</span>`).join(""):"<span class=\"schedule-empty\">برنامه‌ای ثبت نشده</span>";
+  const eventHtml=obs.length?`<div class="panel-section"><div class="section-title"><span>گزارش‌های زنده</span><span><span class="en">${obs.length}</span> مورد</span></div><ul class="event-list">${obs.slice(-3).map(o=>`<li><span class="en">${esc(o.time||"")}</span> — ${esc(o.addr||"")} ${o.reason?`(${esc(o.reason)})`:""}</li>`).join("")}</ul></div>`:"";
+  const areasHtml=z.areas&&z.areas.length?`<div class="panel-section"><div class="section-title">محله‌های تحت پوشش</div><ul class="area-list">${z.areas.map(a=>`<li>${esc(a)}</li>`).join("")}</ul></div>`:"";
+  const html=`<button class="close" aria-label="بستن" onclick="closePanel()">✕</button>
+    <div class="panel-kicker"><span class="kicker-dot"></span><span>امور برق قائم‌شهر · فیدر <span class="en">${esc(z.feeder)}</span>${isMy?" · ★ خانه شما":""}</span></div>
+    <div class="panel-title">${esc(shortFeederName(z.name))}</div>
+    <div class="panel-sub">نمایش وضعیت، برنامه خاموشی و محله‌های تحت پوشش</div>
+    <div class="panel-status state-${esc(state)}" style="color:${color}"><span class="status-icon">${state==="on"?"✓":state==="observed_off"?"!":state==="planned_off"?"◼":"◌"}</span><div><span class="status-caption">وضعیت فعلی</span><strong class="status-value">${esc(STATE_FA[state]||"نامشخص")}</strong></div></div>
+    <div class="panel-grid"><div class="metric"><span class="metric-label">برنامه امروز</span><strong class="metric-value en">${timesToday.length?timesToday.join(" · "):"—"}</strong></div><div class="metric"><span class="metric-label">برنامه فردا</span><strong class="metric-value en">${timesTmrw.length?timesTmrw.join(" · "):"—"}</strong></div></div>
+    <div class="panel-section"><div class="section-title"><span>امروز</span><span class="en">${esc(curDate)}</span></div><div class="schedule-pills">${todayPills}</div></div>
+    <div class="panel-section"><div class="section-title"><span>فردا</span><span class="en">${esc(zonesMeta.tomorrow)}</span></div><div class="schedule-pills">${tomorrowPills}</div></div>
+    ${eventHtml}${areasHtml}
+    <div class="note">⚠ مرز این فیدر تقریبی است و از روی داده متنی سامانه رسمی ساخته شده.</div>`;
   p.innerHTML=html; p.classList.add("open");
 }
 function stateNow(z){
@@ -389,6 +646,12 @@ function stateNow(z){
   return "unknown";
 }
 function closePanel(){ $("panel").classList.remove("open"); selectedFeeder=null; applyColors(); }
+function closePanelFromMap(e){
+  if(editMode || !selectedFeeder) return;
+  const target=e && e.originalEvent && e.originalEvent.target;
+  if(target && target.closest && target.closest(".leaflet-interactive")) return;
+  closePanel();
+}
 
 /* ---------- timeline ---------- */
 function buildDateButtons(){
@@ -413,13 +676,15 @@ async function setDate(date){
   curMinute = date===zonesMeta.today ? tNowMin : 0;
   $("tl-slider").value = curMinute;
   $("tl-time").textContent = fmtMin(curMinute);
-  applyColors(); renderStats();
+  updateMapBadge();
+  applyColors(); renderStats(); refreshSelectedPanel();
 }
 function tick(){
   curMinute=(curMinute+1)%1440;
   $("tl-slider").value=curMinute;
   $("tl-time").textContent=fmtMin(curMinute);
-  applyColors(); renderStats();
+  updateMapBadge();
+  applyColors(); renderStats(); refreshSelectedPanel();
 }
 function togglePlay(){
   playing=!playing;
@@ -568,16 +833,26 @@ function refreshNow(){
   }
   buildColorArr();
   const meta=snapshotData.meta||{};
-  $("updated").innerHTML = `اسنپشات: <span class="en">${new Date(snapshotData.ts*1000).toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"})}</span> · poll: ${meta.poll_ok?"✓":"✗"} <span class="en">${meta.snapshots||0}</span> اسنپشات`;
-  applyColors(); renderStats();
+  const stamp=new Date(snapshotData.ts*1000).toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"});
+  $("updated").innerHTML = `آخرین داده <span class="en">${stamp}</span> · ${meta.poll_ok?"✓ سالم":"✗ خطا"}`;
+  $("live-label").textContent = meta.poll_ok ? "پایش فعال داده‌ها" : "آخرین poll با خطا مواجه شد";
+  updateMapBadge();
+  applyColors(); renderStats(); refreshSelectedPanel();
+}
+function updateMapBadge(){
+  if(!zonesMeta || !$("map-badge-title")) return;
+  const dayLabel=curDate===zonesMeta.today?"امروز":"فردا";
+  $("map-badge-title").textContent=`${zones.length} فیدر · ${dayLabel}`;
+  $("map-badge-sub").textContent=`مرزبندی بدون هم‌پوشانی · ساعت ${fmtMin(curMinute)} · تقریبی`;
 }
 
 /* ---------- boot ---------- */
 (async function boot(){
   initMap();
+  map.on("click", closePanelFromMap);
   zonesMeta = await (await fetch("snapshot.json",{cache:"no-store"})).json();
   snapshotData = zonesMeta;
-  zones = zonesMeta.zones;
+  zones = prepareMapZones(zonesMeta.zones);
   activePlans = zonesMeta.active;
   weekdays = zonesMeta.weekdays;
   curDate = zonesMeta.today;
@@ -588,12 +863,20 @@ function refreshNow(){
     if(playing) togglePlay();
     curMinute=+e.target.value;
     $("tl-time").textContent=fmtMin(curMinute);
-    applyColors(); renderStats();
+    updateMapBadge();
+    applyColors(); renderStats(); refreshSelectedPanel();
   });
   $("playbtn").addEventListener("click", togglePlay);
   $("minebtn").addEventListener("click", ()=>{
     const z = zones.find(x=>x.feeder===MY_FEEDER);
-    if(z){ map.flyTo([z.polygon[0][0], z.polygon[0][1]], 14); openPanel(z); toast("محدوده خانه شما — فیدر 402"); }
+    if(z){ map.flyTo(centroidOf(z.polygon), 14, {duration:.45}); selectedFeeder=null; selectZone(z); toast("محدوده خانه شما — فیدر 402"); }
+  });
+  $("fitbtn").addEventListener("click", ()=>{
+    if(!zones.length) return;
+    const bounds=L.latLngBounds([]);
+    zones.forEach(z=>z.polygon.forEach(p=>bounds.extend([p[0],p[1]])));
+    map.fitBounds(bounds.pad(.04), {padding:[20,20], duration:.5});
+    toast("نمای همه فیدرها");
   });
   $("editbtn").addEventListener("click", ()=>{ editMode? exitEdit(false) : enterEdit(); });
   $("savebtn").addEventListener("click", saveZones);
