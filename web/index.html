@@ -157,7 +157,7 @@
 
 <header id="header">
   <h1>⚡ نقشه لحظه‌ای قطعی برق قائم‌شهر
-    <small>منبع: سامانه رسمی توزیع برق مازندران — مرزها تقریبی‌اند</small>
+    <small>نسخه آنلاین — اسنپ‌شات هر ۱۰ دقیقه · منبع: سامانه رسمی توزیع برق مازندران — مرزها تقریبی‌اند</small>
   </h1>
   <div id="stats">
     <span class="chip"><span class="dot" style="background:var(--off)"></span>قطع: <b id="st-off" class="en">0</b></span>
@@ -217,7 +217,7 @@ const MY_FEEDER = "402";
 const AREA = 31;
 let map, zones=[], activePlans={}, weekdays={}, hist={}, colorArr={};
 let curDate="", curMinute=0, tNowMin=0, liveNow=null, playing=false, playTimer=null;
-let selectedFeeder=null, labelMarkers={}, zonesMeta=null;
+let selectedFeeder=null, labelMarkers={}, zonesMeta=null, snapshotData=null;
 /* editor state */
 let editMode=false, editFeeder=null, editVerts=[], vertMarkers=[], edgeMarkers=[], backupZones=null;
 
@@ -231,7 +231,8 @@ function toast(msg){
 }
 function inInterval(intervals, m){
   if(!intervals) return null;
-  for(const [s,e] of intervals){
+  for(const it of intervals){
+    const s=it[0] ?? it.s, e=it[1] ?? it.e;
     if(m>=s && (e===null || m<e)) return true;
   }
   return false;
@@ -377,7 +378,7 @@ function openPanel(z){
   if(z.areas && z.areas.length){
     html += `<div class="row" style="margin-top:6px"><span class="lbl">محله‌های تحت پوشش</span></div><ul>${z.areas.map(a=>`<li>${a}</li>`).join("")}</ul>`;
   }
-  html += `<div class="note">⚠ مرز تقریبی است — دکمه «✏️ ویرایش مناطق» را بزنید و رأس‌ها را بکشید.</div>`;
+  html += `<div class="note">⚠ مرز تقریبی است — برای ویرایش مرزها، نسخه محلی (server.py) را باز کنید.</div>`;
   p.innerHTML=html; p.classList.add("open");
 }
 function stateNow(z){
@@ -406,7 +407,7 @@ async function setDate(date){
     const ds=[zonesMeta.today, zonesMeta.tomorrow][i];
     b.classList.toggle("active", ds===date);
   });
-  hist = await (await fetch(`/api/history?date=${date}&area=${AREA}`)).json();
+  hist = snapshotData.history[date===zonesMeta.today?"today":"tomorrow"];
   tNowMin = date===zonesMeta.today ? hist.t_now_minute : -1;
   buildColorArr();
   curMinute = date===zonesMeta.today ? tNowMin : 0;
@@ -542,27 +543,40 @@ async function saveZones(){
 }
 function cancelEdit(){ exitEdit(true); toast("تغییرات لغو شد"); }
 
-/* ---------- live refresh ---------- */
-async function refreshNow(){
-  try{
-    liveNow = await (await fetch("/api/now")).json();
-    const meta=liveNow.meta;
-    $("updated").innerHTML = `به‌روزرسانی: <span class="en">${new Date(liveNow.ts*1000).toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"})}</span> · poll: ${meta.poll_ok?"✓":"✗"} <span class="en">${meta.snapshots||0}</span> اسنپ‌شات`;
-    hist = await (await fetch(`/api/history?date=${curDate}&area=${AREA}`)).json();
-    const prevTNow = tNowMin;
-    tNowMin = curDate===zonesMeta.today ? hist.t_now_minute : -1;
-    buildColorArr();
-    if(curDate===zonesMeta.today && curMinute===prevTNow && curMinute!==tNowMin){
+/* ---------- live refresh (static: computed from the embedded snapshot) ---------- */
+function computeNowStates(minute){
+  const hasData = Object.keys(hist.planned||{}).length>0 || Object.keys(hist.observed||{}).length>0;
+  return zones.map(z=>{
+    const f=z.feeder;
+    if(inInterval((hist.observed||{})[f]||[], minute)) return {feeder:f, name:z.name, area:AREA, state:"observed_off"};
+    if(inInterval((hist.planned||{})[f]||[], minute)) return {feeder:f, name:z.name, area:AREA, state:"planned_off"};
+    return {feeder:f, name:z.name, area:AREA, state: hasData?"on":"unknown"};
+  });
+}
+function refreshNow(){
+  const d=new Date();
+  const nowMin=d.getHours()*60+d.getMinutes();
+  if(curDate===zonesMeta.today){
+    liveNow = {ts:Date.now()/1000, minute:nowMin, zones:computeNowStates(nowMin)};
+    const prevTNow=tNowMin;
+    tNowMin=nowMin;
+    if(curMinute===prevTNow && curMinute!==tNowMin){
       curMinute=tNowMin; $("tl-slider").value=curMinute; $("tl-time").textContent=fmtMin(curMinute);
     }
-    applyColors(); renderStats();
-  }catch(e){ $("updated").textContent="خطا در به‌روزرسانی"; }
+  } else {
+    liveNow=null; tNowMin=-1;
+  }
+  buildColorArr();
+  const meta=snapshotData.meta||{};
+  $("updated").innerHTML = `اسنپشات: <span class="en">${new Date(snapshotData.ts*1000).toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"})}</span> · poll: ${meta.poll_ok?"✓":"✗"} <span class="en">${meta.snapshots||0}</span> اسنپشات`;
+  applyColors(); renderStats();
 }
 
 /* ---------- boot ---------- */
 (async function boot(){
   initMap();
-  zonesMeta = await (await fetch("/api/zones")).json();
+  zonesMeta = await (await fetch("snapshot.json",{cache:"no-store"})).json();
+  snapshotData = zonesMeta;
   zones = zonesMeta.zones;
   activePlans = zonesMeta.active;
   weekdays = zonesMeta.weekdays;
@@ -584,6 +598,7 @@ async function refreshNow(){
   $("editbtn").addEventListener("click", ()=>{ editMode? exitEdit(false) : enterEdit(); });
   $("savebtn").addEventListener("click", saveZones);
   $("cancelbtn").addEventListener("click", cancelEdit);
+  $("editbtn").style.display="none"; // editing zones is local-server only
   refreshNow();
   setInterval(refreshNow, 60000);
 })();
