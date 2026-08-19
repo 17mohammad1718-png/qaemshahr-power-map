@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+
+# Local AI IDE workspace
+.freebuff/
+
+# Polling data — 3.5MB+ and growing; NOT part of the repo
+data/history.jsonl
+data/*.jsonl
+data/zones-backup-*.json
+data/last_daily_report.txt
+
+# Scratch
+*.tmp
+web/snapshot.json.tmp
