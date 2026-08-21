@@ -282,8 +282,8 @@ def main():
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8765
     t = threading.Thread(target=_poll_loop, daemon=True)
     t.start()
-    srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
-    print(f"[server] http://127.0.0.1:{port}  (poll every {POLL_SECONDS}s)")
+    srv = ThreadingHTTPServer(("0.0.0.0", port), Handler)
+    print(f"[server] http://0.0.0.0:{port}  (poll every {POLL_SECONDS}s)")
     try:
         srv.serve_forever()
     except KeyboardInterrupt:
