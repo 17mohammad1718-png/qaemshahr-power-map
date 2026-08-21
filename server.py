@@ -24,6 +24,7 @@ import fetch_poll
 BASE = os.path.dirname(os.path.abspath(__file__))
 HISTORY = os.path.join(BASE, "data", "history.jsonl")
 ZONES = os.path.join(BASE, "data", "zones.json")
+SAVED = os.path.join(BASE, "data", "saved.json")
 INDEX = os.path.join(BASE, "web", "index.html")
 POLL_SECONDS = int(os.environ.get("POLL_SECONDS", "300"))
 AREAS = [31, 32, 34]
@@ -47,6 +48,25 @@ def load_zones():
             return json.load(f)
     except FileNotFoundError:
         return []
+
+
+def load_saved():
+    try:
+        with open(SAVED, encoding="utf-8") as f:
+            data = json.load(f)
+            if isinstance(data, list):
+                return [str(x) for x in data if isinstance(x, str) and x.strip()]
+            return []
+    except FileNotFoundError:
+        return []
+    except Exception:
+        return []
+
+
+def save_saved(feeders):
+    os.makedirs(os.path.dirname(SAVED), exist_ok=True)
+    with open(SAVED, "w", encoding="utf-8") as f:
+        json.dump(feeders, f, ensure_ascii=False)
 
 
 def _poll_loop():
@@ -86,10 +106,12 @@ def build_now():
                        "poll_ok": _last_poll.get("ok"),
                        "poll_msg": _last_poll.get("msg"),
                        "snapshots": len(hist)}}
+    all_unmapped = []
     for area in AREAS:
         plan = status_model.plan_windows(hist, area, date)
         obs, unmapped = status_model.observed_intervals(hist, area, date)
         result["unmapped"] += len(unmapped)
+        all_unmapped.extend(unmapped)
         area_has = has_data and bool(plan or obs)
         for z in zones:
             if z.get("area") != area:
@@ -109,6 +131,7 @@ def build_now():
         "on": st.count("on"),
         "unknown": st.count("unknown"),
     }
+    result["unmapped_details"] = all_unmapped
     return result
 
 
@@ -138,6 +161,7 @@ def build_history(date, area):
             "planned": {f: [list(w) for w in wins] for f, wins in plan.items()},
             "observed": {f: [[r["s"], r["e"]] for r in recs]
                          for f, recs in obs.items()},
+            "unmapped": unmapped,
             "unmapped_count": len(unmapped),
             "t_now_minute": status_model.minutes_now(date)}
 
@@ -197,6 +221,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(build_zones_payload())
         if p == "/api/now":
             return self._send(build_now())
+        if p == "/api/saved":
+            return self._send(load_saved())
         if p == "/api/history":
             q = parse_qs(parsed.query)
             date = (q.get("date") or [jalali.today_str()])[0]
@@ -206,6 +232,29 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         parsed = urlparse(self.path)
+        if parsed.path == "/api/saved":
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                raw = self.rfile.read(length).decode("utf-8")
+                data = json.loads(raw)
+                if not isinstance(data, list):
+                    raise ValueError("saved must be a list")
+                cleaned = [str(x).strip() for x in data if isinstance(x, str) and str(x).strip()]
+                # keep only valid feeder codes that exist
+                zones = load_zones()
+                valid = {z.get("feeder") for z in zones}
+                cleaned = [c for c in cleaned if c in valid]
+                # deduplicate preserve order
+                seen = set()
+                out = []
+                for c in cleaned:
+                    if c not in seen:
+                        seen.add(c)
+                        out.append(c)
+                save_saved(out)
+                return self._send({"ok": True, "count": len(out), "saved": out})
+            except Exception as ex:
+                return self._send({"ok": False, "error": str(ex)[:200]}, code=400)
         if parsed.path != "/api/zones":
             self.send_error(404)
             return

@@ -10,6 +10,7 @@ data/history.jsonl
 data/*.jsonl
 data/zones-backup-*.json
 data/last_daily_report.txt
+data/saved.json
 
 # Scratch
 *.tmp
