@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>⚡ نقشه لحظه‌ای قطعی برق قائم‌شهر</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192x192.png">
+<meta name="theme-color" content="#0b1526">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="قطعی برق قائمشهر">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vazirmatn@33.003/Vazirmatn-font-face.css">
 <style>
@@ -148,6 +155,29 @@
   .lv-card .lv-title .en{color:var(--dim); font-weight:400; font-size:11px; margin-inline-start:auto}
   .lv-card .lv-times{font-size:11px; color:var(--dim); margin-top:6px}
   .lv-card .lv-count{font-size:11.5px; margin-top:5px; color:var(--txt)}
+  /* ---- phase 2: PWA install popup + iOS refresh ---- */
+  #a2hs-popup{position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(16px);
+    z-index:2100; display:flex; align-items:center; gap:12px; padding:14px 16px;
+    width:min(430px, calc(100vw - 28px)); background:rgba(13,26,45,.98);
+    border:1px solid rgba(85,216,255,.35); border-radius:16px;
+    box-shadow:0 18px 44px rgba(0,0,0,.5); opacity:0; pointer-events:none; transition:all .25s ease}
+  #a2hs-popup.show{opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0)}
+  #a2hs-popup img{width:48px; height:48px; border-radius:12px; flex:0 0 auto}
+  #a2hs-txt{flex:1}
+  #a2hs-txt h4{font-size:13.5px; margin-bottom:2px}
+  #a2hs-txt p{font-size:11.5px; color:var(--dim); margin:0 0 6px}
+  #a2hs-txt label{font-size:10.5px; color:var(--dim); display:flex; align-items:center; gap:5px; cursor:pointer}
+  #a2hs-install{background:var(--accent); color:#06283f; border:none; border-radius:10px;
+    padding:8px 16px; font-weight:700; font-family:inherit; cursor:pointer; font-size:12.5px; flex:0 0 auto}
+  #a2hs-install:hover{filter:brightness(1.1)}
+  #a2hs-close{position:absolute; top:6px; inset-inline-end:6px; background:none; border:none;
+    color:var(--dim); cursor:pointer; font-size:12px; padding:4px}
+  #a2hs-ios{display:none; font-size:11.5px; color:var(--txt); line-height:2; flex:1}
+  #a2hs-ios b{color:var(--accent)}
+  #ios-refresh{position:fixed; bottom:16px; inset-inline-end:14px; z-index:2050; display:none;
+    background:#059669; color:#fff; border:none; border-radius:10px; padding:10px 14px; font-size:13px;
+    font-family:inherit; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.3)}
+  #ios-refresh:hover{background:#047857}
   /* detail panel */
   #panel{
     position:absolute; top:12px; inset-inline-end:12px; z-index:1001;
@@ -423,6 +453,21 @@
     </div>
     <div class="lv-body"></div>
   </div>
+  <div id="a2hs-popup" aria-hidden="true" role="dialog" aria-label="نصب برنامه">
+    <button id="a2hs-close" aria-label="بستن">✕</button>
+    <img src="icons/icon-144x144.png" alt="نقشه قطعی برق قائم‌شهر">
+    <div id="a2hs-txt">
+      <h4>📱 نصب نقشه قطعی برق</h4>
+      <p>برای دسترسی سریع، به صفحه اصلی گوشی خود اضافه کنید.</p>
+      <label><input type="checkbox" id="a2hs-never"> دیگر این پیام را نشان نده</label>
+    </div>
+    <button id="a2hs-install">نصب برنامه</button>
+    <div id="a2hs-ios">
+      <div>۱. در مرورگر سافاری دکمه <b>Share</b> را بزنید</div>
+      <div>۲. <b>Add to Home Screen</b> را انتخاب کنید</div>
+    </div>
+  </div>
+  <button id="ios-refresh" title="پاک‌سازی کش و دریافت داده جدید">🔄 داده جدید</button>
   <div id="map-side">
     <div id="legend">
       <h3>راهنمای وضعیت</h3>
@@ -1227,6 +1272,92 @@ function renderList(){
 }
 function focusFromList(f){ toggleList(false); focusFeeder(f); }
 
+/* ---------- phase2: PWA — نصب، آفلاین، iOS refresh ---------- */
+let deferredPrompt=null;
+function isMobileUA(){
+  const ua=navigator.userAgent.toLowerCase();
+  return /iphone|ipad|ipod|android|mobile/.test(ua) ||
+    (navigator.maxTouchPoints>1 && /macintosh|intel mac/.test(ua));
+}
+function isStandalone(){
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true;
+}
+function hideA2hs(){
+  const p=$("a2hs-popup"); if(!p) return;
+  p.classList.remove("show"); p.setAttribute("aria-hidden","true");
+}
+function initA2hsPopup(){
+  const p=$("a2hs-popup"); if(!p) return;
+  const install=$("a2hs-install"), iosBox=$("a2hs-ios"), close=$("a2hs-close");
+  const test=location.search.includes("test_pwa=1");
+  if(!test){
+    try{ if(localStorage.getItem("a2hsNeverShow")==="true") return; }catch{}
+    if(isStandalone()) return;
+    const t=+(localStorage.getItem("a2hsDismissedTime")||0);
+    if(t && (Date.now()-t)/3.6e6 < 24) return;   /* کوول‌داون ۲۴ ساعته */
+    if(!isMobileUA()) return;                     /* فقط موبایل/تبلت */
+  }
+  const show=()=>{
+    const ua=navigator.userAgent.toLowerCase();
+    const isIOS=/iphone|ipad|ipod/.test(ua) || (navigator.maxTouchPoints>1 && /macintosh/.test(ua));
+    const isAndroid=/android/.test(ua);
+    if(isIOS){
+      const safari=/^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      if(!safari && !test) return;
+      install.style.display="none"; iosBox.style.display="block"; $("a2hs-txt").style.display="none";
+    } else if(isAndroid){
+      install.style.display="block"; iosBox.style.display="none";
+    }
+    p.classList.add("show"); p.setAttribute("aria-hidden","false");
+  };
+  setTimeout(show, 3000);
+  close.addEventListener("click", ()=>{
+    const never=$("a2hs-never");
+    try{
+      if(never && never.checked) localStorage.setItem("a2hsNeverShow","true");
+      else localStorage.setItem("a2hsDismissedTime", String(Date.now()));
+    }catch{}
+    hideA2hs();
+  });
+  install.addEventListener("click", ()=>{
+    if(deferredPrompt){
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; hideA2hs(); });
+    } else {
+      toast("از منوی مرورگر، گزینه Install app یا Add to Home screen را بزنید");
+      hideA2hs();
+    }
+  });
+}
+function initIosRefresh(){
+  const ua=navigator.userAgent;
+  const iosPwa=/iphone|ipad|ipod/i.test(ua) && window.navigator.standalone===true;
+  if(!iosPwa) return;
+  const b=$("ios-refresh"); b.style.display="block";
+  b.addEventListener("click", async ()=>{
+    toast("پاک‌سازی کش و بارگذاری مجدد…");
+    try{ if("caches" in window){ (await caches.keys()).forEach(n=>caches.delete(n)); } }catch{}
+    try{
+      if("serviceWorker" in navigator){
+        (await navigator.serviceWorker.getRegistrations()).forEach(r=>r.unregister());
+      }
+    }catch{}
+    location.href=location.pathname+"?v="+Date.now();
+  });
+}
+function initPwa(){
+  if("serviceWorker" in navigator){
+    const reg=()=>navigator.serviceWorker.register("sw.js").catch(()=>{});
+    if(document.readyState==="complete") reg();
+    else window.addEventListener("load", reg);
+  }
+  window.addEventListener("beforeinstallprompt", (e)=>{ e.preventDefault(); deferredPrompt=e; });
+  window.addEventListener("appinstalled", ()=>{ deferredPrompt=null; hideA2hs(); });
+  window.addEventListener("pageshow", (e)=>{ if(e.persisted) window.location.reload(); });
+  initA2hsPopup();
+  initIosRefresh();
+}
+
 /* ---------- boot ---------- */
 (async function boot(){
   initMap();
@@ -1235,6 +1366,10 @@ function focusFromList(f){ toggleList(false); focusFeeder(f); }
   zonesMeta = await snapResp.json();
   snapshotData = zonesMeta;
   syncServerClock(snapResp, zonesMeta);
+  if(snapResp.headers && snapResp.headers.get("X-From-Cache")==="1"){
+    $("live-label").textContent="آفلاین — آخرین داده ذخیره‌شده";
+    toast("حالت آفلاین: آخرین داده ذخیره‌شده نمایش داده می‌شود");
+  }
   zones = prepareMapZones(zonesMeta.zones);
   activePlans = zonesMeta.active;
   weekdays = zonesMeta.weekdays;
@@ -1270,6 +1405,7 @@ function focusFromList(f){ toggleList(false); focusFeeder(f); }
   renderMinebar();
   $("locbtn").addEventListener("click", locateMe);
   $("listbtn").addEventListener("click", ()=>toggleList());
+  initPwa();
   refreshNow();
   setInterval(refreshNow, 30000);
 })();
