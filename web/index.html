@@ -89,6 +89,65 @@
   #tl-slider{width:100%; accent-color:var(--accent); cursor:pointer}
   #tl-hint{font-size:11px; color:var(--dim)}
   #clock-sync{font-size:10px; color:#7f9db5; margin-top:2px; cursor:help; white-space:nowrap}
+  /* ---- phase 1: search / saved zones / gps / list view ---- */
+  #qsearch-wrap{position:relative; flex:1 1 180px; max-width:320px; min-width:150px}
+  #qsearch{width:100%; padding:8px 30px 8px 12px; border-radius:10px; border:1px solid var(--line);
+    background:var(--panel2); color:var(--txt); font-family:inherit; font-size:13px; outline:none; transition:border-color .15s}
+  #qsearch:focus{border-color:var(--accent)}
+  #qsearch::placeholder{color:var(--dim)}
+  #qsearch-clear{position:absolute; inset-inline-end:4px; top:50%; transform:translateY(-50%);
+    border:none; background:none; color:var(--dim); cursor:pointer; font-size:13px; display:none; padding:4px}
+  #qsearch-clear:hover{color:var(--txt)}
+  .qsug{position:absolute; top:calc(100% + 6px); inset-inline:0; background:rgba(13,26,45,.98);
+    border:1px solid var(--line); border-radius:12px; box-shadow:0 14px 34px rgba(0,0,0,.45);
+    z-index:1700; overflow:hidden; display:none}
+  .qsug.open{display:block}
+  .qsug .qs-empty{padding:10px 12px; color:var(--dim); font-size:12px}
+  .qs-item{display:flex; flex-direction:column; gap:2px; padding:8px 12px; cursor:pointer;
+    border-bottom:1px solid rgba(31,47,77,.6)}
+  .qs-item:last-child{border-bottom:none}
+  .qs-item:hover,.qs-item.focused{background:rgba(56,189,248,.12)}
+  .qs-item .qs-name{font-size:12.5px; color:var(--txt)}
+  .qs-item .qs-name mark{background:transparent; color:var(--accent); font-weight:700}
+  .qs-item .qs-sub{font-size:10.5px; color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  #minebar{display:none; align-items:center; gap:8px; padding:6px 14px; overflow-x:auto;
+    background:var(--panel); border-bottom:1px solid var(--line); scrollbar-width:thin}
+  #minebar.open{display:flex}
+  #minebar .mb-label{font-size:11px; color:var(--dim); white-space:nowrap}
+  .mb-chip{display:flex; align-items:center; gap:6px; white-space:nowrap; background:var(--panel2);
+    border:1px solid var(--line); border-radius:999px; padding:3px 10px; font-size:12px; color:var(--txt);
+    cursor:pointer; font-family:inherit; transition:border-color .15s}
+  .mb-chip:hover{border-color:var(--accent)}
+  .mb-chip .mb-dot{width:8px; height:8px; border-radius:50%; flex:0 0 auto}
+  .mb-chip .en{font-size:11px; color:var(--dim)}
+  .starbtn{margin-inline-start:auto; background:var(--panel2); border:1px solid var(--line); color:#fde047;
+    border-radius:8px; cursor:pointer; font-size:12px; padding:3px 10px; font-family:inherit}
+  .starbtn:hover{border-color:var(--accent)}
+  .sc{background:var(--panel2); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin:10px 0 2px}
+  .sc-badge{display:inline-flex; align-items:center; gap:6px; font-weight:700; font-size:14.5px}
+  .sc-sub{display:block; font-size:11px; color:var(--dim); margin-top:3px}
+  .sc-count{font-size:13px; margin-top:9px; color:var(--txt); font-weight:600}
+  .sc-bar{height:7px; background:rgba(31,47,77,.9); border-radius:99px; overflow:hidden; margin-top:7px}
+  .sc-bar i{display:block; height:100%; border-radius:99px; transition:width .4s ease}
+  .sc-times{display:flex; justify-content:space-between; font-size:11px; color:var(--dim); margin-top:5px}
+  #listview{position:absolute; inset:0; z-index:1300; background:rgba(7,15,27,.985); display:none;
+    flex-direction:column; overflow:hidden}
+  #listview.open{display:flex}
+  .lv-head{display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); background:var(--panel); flex-wrap:wrap}
+  .lv-head h3{font-size:14px}
+  .lv-head .lv-sub{font-size:11px; color:var(--dim)}
+  .lv-close{margin-inline-start:auto; background:var(--panel2); color:var(--txt); border:1px solid var(--line);
+    border-radius:9px; padding:5px 12px; cursor:pointer; font-family:inherit; font-size:12px}
+  .lv-close:hover{border-color:var(--accent)}
+  .lv-body{flex:1; overflow-y:auto; padding:12px 16px; display:grid; gap:10px;
+    grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); align-content:start}
+  .lv-card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px 12px;
+    cursor:pointer; transition:border-color .15s, transform .15s}
+  .lv-card:hover{border-color:var(--accent); transform:translateY(-1px)}
+  .lv-card .lv-title{display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:700}
+  .lv-card .lv-title .en{color:var(--dim); font-weight:400; font-size:11px; margin-inline-start:auto}
+  .lv-card .lv-times{font-size:11px; color:var(--dim); margin-top:6px}
+  .lv-card .lv-count{font-size:11.5px; margin-top:5px; color:var(--txt)}
   /* detail panel */
   #panel{
     position:absolute; top:12px; inset-inline-end:12px; z-index:1001;
@@ -292,6 +351,11 @@
     #map-actions button{min-width:0;padding:9px 10px;font-size:11px}
     #map-actions #fitbtn{font-size:0;width:40px}
     #map-actions #fitbtn::before{content:"⌖";font-size:19px}
+    #map-actions #locbtn{font-size:0;width:40px}
+    #map-actions #locbtn::before{content:"📍";font-size:17px}
+    #map-actions #listbtn{font-size:0;width:40px}
+    #map-actions #listbtn::before{content:"📋";font-size:16px}
+    #qsearch-wrap{order:9;flex-basis:100%;max-width:none}
     #map-side{top:10px;inset-inline-start:10px;width:calc(100% - 20px);max-width:224px;gap:7px}
     #legend{display:none}
     #panel{top:auto;bottom:10px;inset-inline-end:10px;width:calc(100% - 20px);max-height:58%;padding:14px;border-radius:15px}
@@ -322,6 +386,11 @@
     </h1>
   </div>
   <div id="live-pill"><span class="live-dot"></span><span id="live-label">داده در حال پایش</span></div>
+  <div id="qsearch-wrap">
+    <input id="qsearch" type="text" autocomplete="off" spellcheck="false"
+           placeholder="🔍 جستجوی محله، خیابان یا شماره فیدر…" aria-label="جستجوی فیدر">
+    <button id="qsearch-clear" type="button" title="پاک کردن جستجو">✕</button>
+  </div>
   <div id="stats">
     <span class="chip"><span class="dot" style="background:var(--off)"></span>قطع <b id="st-off" class="en">0</b></span>
     <span class="chip"><span class="dot" style="background:var(--on)"></span>وصل <b id="st-on" class="en">0</b></span>
@@ -331,6 +400,8 @@
   </div>
 </header>
 
+<div id="minebar"></div>
+
 <div id="mapwrap">
   <div id="map"></div>
   <div id="map-badge">
@@ -338,9 +409,19 @@
     <span id="map-badge-sub">در حال آماده‌سازی نقشه…</span>
   </div>
   <div id="map-actions">
+    <button id="listbtn" title="نمایش فهرست متنی همه فیدرها">📋 فهرست</button>
+    <button id="locbtn" title="یافتن فیدر محل شما با GPS">📍 موقعیت من</button>
     <button id="minebtn" title="بزرگنمایی به محدوده خانه شما (فیدر 402)">🏠 خانه من</button>
     <button id="fitbtn" title="نمایش همه فیدرها">⌖ همه فیدرها</button>
     <button id="editbtn" title="ویرایش مرز مناطق">✏️ ویرایش مناطق</button>
+  </div>
+  <div id="listview">
+    <div class="lv-head">
+      <h3>📋 فهرست وضعیت فیدرها</h3>
+      <span class="lv-sub" id="lv-sub"></span>
+      <button class="lv-close" onclick="toggleList(false)">🗺 بازگشت به نقشه</button>
+    </div>
+    <div class="lv-body"></div>
   </div>
   <div id="map-side">
     <div id="legend">
@@ -434,6 +515,100 @@ function syncServerClock(resp, snap){
     toast(`اختلاف ساعت دستگاه شما با زمان واقعی حدود ${driftMin} دقیقه است — زمان‌ها بر مبنای ساعت سرور نمایش داده می‌شوند`);
   }
 }
+/* ---------- phase1 core (pure logic; no DOM) ---------- */
+function toFaDigits(s){ return String(s??"").replace(/[0-9]/g, d=>"۰۱۲۳۴۵۶۷۸۹"[+d]); }
+function normalizeFaCore(str, keepLen){
+  let out = String(str??"")
+    .replace(/[يى]/g,"ی").replace(/ك/g,"ک")
+    .replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه")
+    .replace(/[\u064B-\u0652\u0670\u0640]/g, keepLen?"\u0001":"")  /* اعراب + تطویل */
+    .replace(/[\u200c\u200e\u200f]/g, keepLen?"\u0002":"")          /* نیم‌فاصله + نشانه‌ها */
+    .replace(/[۰-۹]/g, d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+    .replace(/[٠-٩]/g, d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d))
+    .toLowerCase();
+  /* فاصله‌ها: در حالت مچ حذف می‌شوند («ترک‌محله» = «ترک محله»)، در حالت هایلایت با حفظ طول جایگزین */
+  out = keepLen ? out.replace(/\s/g,"\u0002") : out.replace(/\s+/g,"");
+  return out;
+}
+function normalizeFa(s){ return normalizeFaCore(s,false); }
+function normalizeFaPos(s){ return normalizeFaCore(s,true); }
+function queryKeywords(q){ return String(q??"").split(/\s+/).map(w=>normalizeFa(w)).filter(Boolean); }
+function feederHay(z){ return normalizeFa(`${z.feeder} ${z.name||""} ${(z.areas||[]).join(" ")}`); }
+function matchKws(hay, kws){ return kws.length>0 && kws.every(k=>k.length>0 && hay.includes(k)); }
+function searchZones(zs, q){
+  const kws = queryKeywords(q);
+  if(!kws.length) return [];
+  return zs.filter(z=>matchKws(feederHay(z), kws)).slice(0,8);
+}
+function highlightParts(orig, kws){
+  const pos = normalizeFaPos(orig);
+  const flags = new Array(pos.length).fill(false);
+  for(const kw of kws){
+    const pkw = normalizeFaPos(kw); if(!pkw) continue;
+    let i = pos.indexOf(pkw);
+    while(i!==-1){ for(let k=i;k<i+pkw.length;k++) flags[k]=true; i=pos.indexOf(pkw, i+pkw.length); }
+  }
+  let html="", run=false;
+  for(let i=0;i<orig.length;i++){
+    const want=flags[i];
+    if(want && !run){ html+="<mark>"; run=true; }
+    if(!want && run){ html+="</mark>"; run=false; }
+    html += esc(orig[i]);
+  }
+  if(run) html+="</mark>";
+  return html || esc(orig);
+}
+function pointInPoly(pt, poly){
+  let inside=false;
+  for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+    const yi=poly[i][0], xi=poly[i][1], yj=poly[j][0], xj=poly[j][1];
+    if(((yi>pt[0])!==(yj>pt[0])) && (pt[1] < (xj-xi)*(pt[0]-yi)/(yj-yi)+xi)) inside=!inside;
+  }
+  return inside;
+}
+function distKm(a,b){
+  const R=6371, dLat=(b[0]-a[0])*Math.PI/180, dLon=(b[1]-a[1])*Math.PI/180;
+  const la1=a[0]*Math.PI/180, la2=b[0]*Math.PI/180;
+  const h=Math.sin(dLat/2)**2 + Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+function windowsOf(feeder){
+  const plan=((hist||{}).planned||{})[feeder]||[];
+  const obs=((hist||{}).observed||{})[feeder]||[];
+  const ws=[];
+  for(const r of obs) ws.push({s:(r.s??r[0]), e:(r.e??r[1]), type:"obs", addr:r.addr, reason:r.reason});
+  for(const w of plan) ws.push({s:(w[0]??w.s), e:(w[1]??w.e), type:"plan"});
+  ws.sort((a,b)=>a.s-b.s);
+  return ws;
+}
+function cardInfo(z, minute){
+  const code = colorArr[z.feeder] ? colorArr[z.feeder][minute] : 5;
+  const ws = windowsOf(z.feeder);
+  const active = ws.find(w=>minute>=w.s && minute<w.e && w.type==="obs")
+              || ws.find(w=>minute>=w.s && minute<w.e);
+  const next = ws.find(w=>w.s>minute);
+  return {code, active, next, windows:ws};
+}
+function cardBadge(code){
+  if(code===2) return {icon:"🔴", big:"برق رفت :(", sub:"قطع گزارش‌شده (زنده)"};
+  if(code===1) return {icon:"🔴", big:"برق رفت :(", sub:"قطع برنامه‌ریزی‌شده"};
+  if(code===3) return {icon:"🟡", big:"آماده باش :|", sub:"خاموشی نزدیک است"};
+  if(code===4) return {icon:"🗓", big:"برنامه‌ریزی‌شده", sub:"بعدتر در این روز"};
+  if(code===0) return {icon:"🟢", big:"وصل :)", sub:"بدون قطعی فعال"};
+  return {icon:"⚪", big:"بدون برنامه", sub:"داده‌ای ثبت نشده"};
+}
+function stateColor(code){
+  return code===2?COLORS.observed_off : code===1?COLORS.planned_off : code===3?COLORS.soon
+       : code===0?COLORS.on : COLORS.unknown;
+}
+function fmtCountdownFa(mins){
+  if(!isFinite(mins) || mins<0) mins=0;
+  const h=Math.floor(mins/60), m=mins%60;
+  if(h>0 && m>0) return `${toFaDigits(h)} ساعت و ${toFaDigits(m)} دقیقه`;
+  if(h>0) return `${toFaDigits(h)} ساعت`;
+  return `${toFaDigits(m)} دقیقه`;
+}
+function severityRank(code){ return code===2?0 : code===1?1 : code===3?2 : code===4?3 : code===0?4 : 5; }
 function esc(value){
   const entities={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"};
   return String(value ?? "").replace(/[&<>\"']/g, ch => entities[ch]);
@@ -654,16 +829,17 @@ function openPanel(z){
   const timesTmrw=((activePlans[zonesMeta.tomorrow]||{})[AREA]||{})[z.feeder]||[];
   const obs=(hist.observed||{})[z.feeder]||[];
   const isMy=z.feeder===MY_FEEDER;
-  const state=stateNow(z), color=COLORS[state]||COLORS.unknown;
+  const savedNow=getSaved().includes(z.feeder);
   const todayPills=timesToday.length?timesToday.map(t=>`<span class="schedule-pill">${esc(t)}</span>`).join(""):"<span class=\"schedule-empty\">برنامه‌ای ثبت نشده</span>";
   const tomorrowPills=timesTmrw.length?timesTmrw.map(t=>`<span class="schedule-pill">${esc(t)}</span>`).join(""):"<span class=\"schedule-empty\">برنامه‌ای ثبت نشده</span>";
   const eventHtml=obs.length?`<div class="panel-section"><div class="section-title"><span>گزارش‌های زنده</span><span><span class="en">${obs.length}</span> مورد</span></div><ul class="event-list">${obs.slice(-3).map(o=>`<li><span class="en">${esc(o.time||"")}</span> — ${esc(o.addr||"")} ${o.reason?`(${esc(o.reason)})`:""}</li>`).join("")}</ul></div>`:"";
   const areasHtml=z.areas&&z.areas.length?`<div class="panel-section"><div class="section-title">محله‌های تحت پوشش</div><ul class="area-list">${z.areas.map(a=>`<li>${esc(a)}</li>`).join("")}</ul></div>`:"";
   const html=`<button class="close" aria-label="بستن" onclick="closePanel()">✕</button>
-    <div class="panel-kicker"><span class="kicker-dot"></span><span>امور برق قائم‌شهر · فیدر <span class="en">${esc(z.feeder)}</span>${isMy?" · ★ خانه شما":""}</span></div>
+    <div class="panel-kicker"><span class="kicker-dot"></span><span>امور برق قائم‌شهر · فیدر <span class="en">${esc(z.feeder)}</span>${isMy?" · ★ خانه شما":""}</span>
+      <button class="starbtn" onclick="toggleSaved('${esc(z.feeder)}')" title="افزودن/حذف از مناطق من">${savedNow?"★ ذخیره شد":"☆ ذخیره"}</button></div>
     <div class="panel-title">${esc(shortFeederName(z.name))}</div>
     <div class="panel-sub">نمایش وضعیت، برنامه خاموشی و محله‌های تحت پوشش</div>
-    <div class="panel-status state-${esc(state)}" style="color:${color}"><span class="status-icon">${state==="on"?"✓":state==="observed_off"?"!":state==="planned_off"?"◼":"◌"}</span><div><span class="status-caption">وضعیت فعلی</span><strong class="status-value">${esc(STATE_FA[state]||"نامشخص")}</strong></div></div>
+    ${statusCardHtml(z, curMinute)}
     <div class="panel-grid"><div class="metric"><span class="metric-label">برنامه امروز</span><strong class="metric-value en">${timesToday.length?timesToday.join(" · "):"—"}</strong></div><div class="metric"><span class="metric-label">برنامه فردا</span><strong class="metric-value en">${timesTmrw.length?timesTmrw.join(" · "):"—"}</strong></div></div>
     <div class="panel-section"><div class="section-title"><span>امروز</span><span class="en">${esc(curDate)}</span></div><div class="schedule-pills">${todayPills}</div></div>
     <div class="panel-section"><div class="section-title"><span>فردا</span><span class="en">${esc(zonesMeta.tomorrow)}</span></div><div class="schedule-pills">${tomorrowPills}</div></div>
@@ -711,13 +887,16 @@ async function setDate(date){
   $("tl-time").textContent = fmtMin(curMinute);
   updateMapBadge();
   applyColors(); renderStats(); refreshSelectedPanel();
+  renderMinebar();
+  if($("listview").classList.contains("open")) renderList();
 }
 function tick(){
   curMinute=(curMinute+1)%1440;
   $("tl-slider").value=curMinute;
   $("tl-time").textContent=fmtMin(curMinute);
   updateMapBadge();
-  applyColors(); renderStats(); refreshSelectedPanel();
+  applyColors(); renderStats(); refreshSelectedPanel(); renderMinebar();
+  if($("listview").classList.contains("open")) renderList();
 }
 function togglePlay(){
   playing=!playing;
@@ -870,6 +1049,8 @@ function refreshNow(){
   $("live-label").textContent = meta.poll_ok ? "پایش فعال داده‌ها" : "آخرین poll با خطا مواجه شد";
   updateMapBadge();
   applyColors(); renderStats(); refreshSelectedPanel();
+  renderMinebar();
+  if($("listview").classList.contains("open")) renderList();
 }
 function updateMapBadge(){
   if(!zonesMeta || !$("map-badge-title")) return;
@@ -877,6 +1058,174 @@ function updateMapBadge(){
   $("map-badge-title").textContent=`${zones.length} فیدر · ${dayLabel}`;
   $("map-badge-sub").textContent=`مرزبندی بدون هم‌پوشانی · ساعت ${fmtMin(curMinute)} · تقریبی`;
 }
+
+/* ---------- phase1: status card / saved zones / search / gps / list ---------- */
+function statusCardHtml(z, minute){
+  const ci=cardInfo(z, minute);
+  const b=cardBadge(ci.code);
+  const color=stateColor(ci.code);
+  let countHtml="", barHtml="", timesHtml="";
+  if(ci.active){
+    const total=Math.max(1, ci.active.e-ci.active.s), el=minute-ci.active.s;
+    const pct=Math.max(2, Math.min(100, Math.round(el/total*100)));
+    countHtml=`<div class="sc-count">⏳ ${fmtCountdownFa(ci.active.e-minute)} تا وصل شدن</div>`;
+    barHtml=`<div class="sc-bar"><i style="width:${pct}%;background:${color}"></i></div>`;
+    timesHtml=`<div class="sc-times"><span>شروع ${fmtMin(ci.active.s)}</span><span>پایان تقریبی ${fmtMin(ci.active.e)}</span></div>`;
+  } else if(ci.next){
+    countHtml=`<div class="sc-count">🔔 ${fmtCountdownFa(ci.next.s-minute)} تا شروع</div>`;
+    barHtml=`<div class="sc-bar"><i style="width:0%;background:${COLORS.soon}"></i></div>`;
+    timesHtml=`<div class="sc-times"><span>شروع ${fmtMin(ci.next.s)}</span><span>پایان تقریبی ${fmtMin(ci.next.e)}</span></div>`;
+  } else if(ci.code===0){
+    barHtml=`<div class="sc-bar"><i style="width:100%;background:${COLORS.on}"></i></div>`;
+  }
+  const sub=ci.active&&ci.active.type==="obs" ? "قطع گزارش‌شده (زنده)" : b.sub;
+  return `<div class="sc">
+    <span class="sc-badge" style="color:${color}">${b.icon} ${b.big}</span>
+    <span class="sc-sub">${sub} · در زمان انتخاب‌شده روی نوار زمان</span>
+    ${countHtml}${barHtml}${timesHtml}
+  </div>`;
+}
+/* ⭐ مناطق من */
+const SAVED_KEY="qaem_saved_feeders_v1";
+function getSaved(){
+  try{ const a=JSON.parse(localStorage.getItem(SAVED_KEY)); return Array.isArray(a)?a.filter(x=>typeof x==="string"):[]; }
+  catch{ return []; }
+}
+function toggleSaved(feeder){
+  let a=getSaved();
+  if(a.includes(feeder)) a=a.filter(x=>x!==feeder); else a.push(feeder);
+  try{ localStorage.setItem(SAVED_KEY, JSON.stringify(a)); }catch{}
+  renderMinebar();
+  if(selectedFeeder===feeder){ const z=zones.find(x=>x.feeder===feeder); if(z) openPanel(z); }
+  toast(a.includes(feeder)?`فیدر ${toFaDigits(feeder)} به «مناطق من» اضافه شد ⭐`:`فیدر ${toFaDigits(feeder)} از «مناطق من» حذف شد`);
+}
+function renderMinebar(){
+  const bar=$("minebar"); if(!bar) return;
+  const a=getSaved();
+  if(!a.length){ bar.classList.remove("open"); bar.innerHTML=""; return; }
+  bar.classList.add("open");
+  bar.innerHTML=`<span class="mb-label">⭐ مناطق من:</span>`+a.map(f=>{
+    const z=zones.find(x=>x.feeder===f); if(!z) return "";
+    return `<button class="mb-chip" onclick="focusFeeder('${esc(f)}')" title="${esc(z.name)}">
+      <span class="mb-dot" style="background:${stateColor(currentCode(z))}"></span>
+      <span class="en">${esc(f)}</span><span>${esc(shortFeederName(z.name).slice(0,24))}</span></button>`;
+  }).join("");
+}
+function focusFeeder(feeder){
+  const z=zones.find(x=>x.feeder===feeder); if(!z) return;
+  map.flyTo(centroidOf(z.polygon), 14, {duration:.5});
+  selectedFeeder=feeder; openPanel(z); applyColors();
+}
+/* 🔍 جستجو */
+let qsIndex=-1;
+function hideSug(){ const b=$("qsug"); if(b) b.classList.remove("open"); qsIndex=-1; }
+function renderSug(q){
+  const box=$("qsug"); if(!box) return;
+  const kws=queryKeywords(q);
+  if(!kws.length){ hideSug(); return; }
+  const res=searchZones(zones, q);
+  if(!res.length){
+    box.innerHTML=`<div class="qs-empty">🔍 چیزی پیدا نشد — نام محله، خیابان یا شماره فیدر را امتحان کنید</div>`;
+    box.classList.add("open"); return;
+  }
+  box.innerHTML=res.map(z=>{
+    const hl=highlightParts(shortFeederName(z.name), kws);
+    const sub=esc((z.areas||[]).slice(0,3).join("، ")||z.name);
+    return `<div class="qs-item" data-f="${esc(z.feeder)}">
+      <span class="qs-name"><span class="en">${esc(z.feeder)}</span> — ${hl}</span>
+      <span class="qs-sub">${sub}</span></div>`;
+  }).join("");
+  box.classList.add("open");
+  box.querySelectorAll(".qs-item").forEach(el=>{
+    el.addEventListener("pointerdown", ev=>{
+      ev.preventDefault();
+      const f=el.dataset.f;
+      hideSug();
+      const inp=$("qsearch"); inp.value=""; $("qsearch-clear").style.display="none";
+      focusFeeder(f);
+    });
+  });
+}
+function initSearch(){
+  const inp=$("qsearch"), wrap=$("qsearch-wrap"), clear=$("qsearch-clear");
+  const box=document.createElement("div"); box.className="qsug"; box.id="qsug"; wrap.appendChild(box);
+  inp.addEventListener("input", ()=>{
+    clear.style.display = inp.value ? "block" : "none";
+    qsIndex=-1; renderSug(inp.value);
+  });
+  inp.addEventListener("keydown", e=>{
+    const items=[...box.querySelectorAll(".qs-item")];
+    if(e.key==="ArrowDown" || e.key==="ArrowUp"){
+      e.preventDefault();
+      if(!items.length) return;
+      qsIndex = e.key==="ArrowDown" ? Math.min(qsIndex+1, items.length-1) : Math.max(qsIndex-1, 0);
+      items.forEach((el,i)=>el.classList.toggle("focused", i===qsIndex));
+      items[qsIndex].scrollIntoView({block:"nearest"});
+    } else if(e.key==="Enter"){
+      const pick = qsIndex>=0 ? items[qsIndex] : items[0];
+      if(pick){ e.preventDefault(); pick.dispatchEvent(new Event("pointerdown")); }
+    } else if(e.key==="Escape"){ hideSug(); inp.blur(); }
+  });
+  inp.addEventListener("blur", ()=>setTimeout(hideSug, 160));
+  clear.addEventListener("click", ()=>{ inp.value=""; clear.style.display="none"; hideSug(); inp.focus(); });
+}
+/* 📍 موقعیت من (GPS) */
+let locMarker=null;
+function locateMe(){
+  if(!navigator.geolocation){ toast("مرورگر شما موقعیت‌یابی را پشتیبانی نمی‌کند"); return; }
+  toast("در حال یافتن موقعیت شما…");
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const pt=[pos.coords.latitude, pos.coords.longitude];
+    if(locMarker) map.removeLayer(locMarker);
+    locMarker=L.circleMarker(pt,{radius:7,color:"#38bdf8",weight:2,fillColor:"#38bdf8",fillOpacity:.55}).addTo(map);
+    const hit=zones.find(z=>pointInPoly(pt, z.polygon));
+    if(hit){
+      map.flyTo(pt, 14, {duration:.6});
+      focusFeeder(hit.feeder);
+      toast(`موقعیت شما: فیدر ${toFaDigits(hit.feeder)} — ${shortFeederName(hit.name)}`);
+    } else {
+      let best=null, bd=1e9;
+      for(const z of zones){ const d=distKm(pt, centroidOf(z.polygon)); if(d<bd){ bd=d; best=z; } }
+      if(best){
+        map.flyTo(pt, 12, {duration:.6});
+        toast(`خارج از محدوده فیدرها — نزدیک‌ترین: فیدر ${toFaDigits(best.feeder)} (~${toFaDigits(bd.toFixed(1))} کیلومتر)`);
+      }
+    }
+  }, err=>{
+    toast(err.code===1 ? "دسترسی به موقعیت رد شد" : "موقعیت در دسترس نیست");
+  }, {enableHighAccuracy:true, timeout:12000, maximumAge:60000});
+}
+/* 📋 نمای فهرستی */
+function toggleList(force){
+  const lv=$("listview");
+  const open = (force!==undefined) ? !!force : !lv.classList.contains("open");
+  lv.classList.toggle("open", open);
+  $("listbtn").textContent = open ? "🗺 نقشه" : "📋 فهرست";
+  if(open) renderList();
+}
+function renderList(){
+  const lv=$("listview"); const body=lv.querySelector(".lv-body"); if(!body) return;
+  $("lv-sub").textContent=`${curDate===zonesMeta.today?"امروز":"فردا"} · ساعت ${fmtMin(curMinute)} · ${toFaDigits(zones.length)} فیدر`;
+  const rows=zones.map(z=>({z, ci:cardInfo(z, curMinute)}))
+    .sort((a,b)=> severityRank(a.ci.code)-severityRank(b.ci.code)
+      || ((a.ci.next?a.ci.next.s:1e9)-(b.ci.next?b.ci.next.s:1e9))
+      || ((+a.z.feeder||0)-(+b.z.feeder||0)));
+  body.innerHTML=rows.map(({z,ci})=>{
+    const b=cardBadge(ci.code);
+    const times=ci.windows.length
+      ? ci.windows.map(w=>`${fmtMin(w.s)}–${fmtMin(w.e)}${w.type==="obs"?" ⚡":""}`).join(" · ")
+      : "بدون برنامه ثبت‌شده";
+    const cnt = ci.active ? `⏳ ${fmtCountdownFa(ci.active.e-curMinute)} تا وصل شدن`
+              : ci.next ? `🔔 ${fmtCountdownFa(ci.next.s-curMinute)} تا شروع`
+              : (ci.code===0 ? "🟢 وصل" : "—");
+    return `<div class="lv-card" onclick="focusFromList('${esc(z.feeder)}')">
+      <div class="lv-title"><span class="mb-dot" style="background:${stateColor(ci.code)}"></span>
+        ${esc(shortFeederName(z.name))}<span class="en">فیدر ${esc(z.feeder)}</span></div>
+      <div class="lv-times">${esc(times)}</div>
+      <div class="lv-count">${b.icon} ${cnt}</div></div>`;
+  }).join("");
+}
+function focusFromList(f){ toggleList(false); focusFeeder(f); }
 
 /* ---------- boot ---------- */
 (async function boot(){
@@ -902,8 +1251,9 @@ function updateMapBadge(){
   });
   $("playbtn").addEventListener("click", togglePlay);
   $("minebtn").addEventListener("click", ()=>{
-    const z = zones.find(x=>x.feeder===MY_FEEDER);
-    if(z){ map.flyTo(centroidOf(z.polygon), 14, {duration:.45}); selectedFeeder=null; selectZone(z); toast("محدوده خانه شما — فیدر 402"); }
+    const target = getSaved()[0] || MY_FEEDER;
+    const z = zones.find(x=>x.feeder===target);
+    if(z){ map.flyTo(centroidOf(z.polygon), 14, {duration:.45}); selectedFeeder=target; openPanel(z); applyColors(); toast(`محدوده خانه شما — فیدر ${target}`); }
   });
   $("fitbtn").addEventListener("click", ()=>{
     if(!zones.length) return;
@@ -916,8 +1266,12 @@ function updateMapBadge(){
   $("savebtn").addEventListener("click", saveZones);
   $("cancelbtn").addEventListener("click", cancelEdit);
   $("editbtn").style.display="none"; // editing zones is local-server only
+  initSearch();
+  renderMinebar();
+  $("locbtn").addEventListener("click", locateMe);
+  $("listbtn").addEventListener("click", ()=>toggleList());
   refreshNow();
-  setInterval(refreshNow, 60000);
+  setInterval(refreshNow, 30000);
 })();
 </script>
 </body>
