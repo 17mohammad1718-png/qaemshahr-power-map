@@ -48,6 +48,7 @@ def _hist_block(hist, date):
                 for r in recs]
             for f, recs in obs.items()
         },
+        "unmapped": unmapped,
         "unmapped_count": len(unmapped),
     }
 
