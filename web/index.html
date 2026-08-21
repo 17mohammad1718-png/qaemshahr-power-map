@@ -154,17 +154,6 @@
   #home-grid{flex:1; overflow-y:auto; padding:14px 16px; display:grid; gap:10px;
     grid-template-columns:repeat(auto-fill,minmax(255px,1fr)); align-content:start}
   #home-empty{grid-column:1/-1; text-align:center; color:var(--dim); padding:44px 12px; font-size:13px; line-height:2.2}
-  #unmapped-banner{display:none; margin:10px 16px 0; padding:12px 14px; border-radius:12px;
-    background:rgba(217,54,75,.12); border:1px solid rgba(217,54,75,.38); color:#ffd7d7; font-size:12px; line-height:1.9}
-  #unmapped-banner.open{display:block}
-  #unmapped-banner h4{font-size:12.5px; margin-bottom:6px; color:#ff8a8a}
-  #unmapped-banner ul{margin:0; padding-inline-start:18px}
-  #unmapped-banner li{margin:3px 0}
-  #unmapped-map{position:absolute; bottom:90px; inset-inline-start:16px; z-index:1000; max-width:300px;
-    background:rgba(40,12,18,.88); border:1px solid rgba(217,54,75,.45); border-radius:12px;
-    padding:10px 12px; font-size:11px; color:#ffd7d7; display:none; backdrop-filter:blur(10px)}
-  #unmapped-map.open{display:block}
-  #unmapped-map h4{font-size:11px; color:#ff8a8a; margin-bottom:5px}
   .lv-card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px 12px;
     cursor:pointer; transition:border-color .15s, transform .15s}
   .lv-card:hover{border-color:var(--accent); transform:translateY(-1px)}
@@ -459,7 +448,6 @@
     <div id="home-date" class="datebtns"></div>
     <span id="home-sub">در حال دریافت…</span>
   </div>
-  <div id="unmapped-banner"></div>
   <div id="home-grid"></div>
 </main>
 
@@ -472,7 +460,7 @@
   </div>
   <div id="map-actions">
     <button id="locbtn" title="یافتن فیدر محل شما با GPS">📍 موقعیت من</button>
-    <button id="minebtn" title="بزرگنمایی به محدوده خانه شما (فیدر 402)">🏠 خانه من</button>
+    <button id="minebtn" title="بزرگنمایی به فیدر 402">🏠 خانه من</button>
     <button id="fitbtn" title="نمایش همه فیدرها">⌖ همه فیدرها</button>
     <button id="editbtn" title="ویرایش مرز مناطق">✏️ ویرایش مناطق</button>
   </div>
@@ -482,10 +470,9 @@
       <div class="lg"><span class="sw" style="background:var(--off)"></span>قطع برنامه‌ریزی‌شده</div>
       <div class="lg"><span class="sw" style="background:var(--obs)"></span>قطع گزارش‌شده (زنده)</div>
       <div class="lg"><span class="sw" style="background:var(--soon)"></span>خاموشی در ۲ ساعت آینده</div>
-      <div class="lg"><span class="sw" style="background:var(--on)"></span>وصل (بدون برنامه = وصل مثل baboliha)</div>
-      <div class="lg"><span class="sw" style="background:var(--future)"></span>نامشخص واقعی (بدون داده)</div>
+      <div class="lg"><span class="sw" style="background:var(--on)"></span>وصل</div>
+      <div class="lg"><span class="sw" style="background:var(--future)"></span>بدون برنامه</div>
     </div>
-    <div id="unmapped-map"></div>
   </div>
   <div id="panel"></div>
   <div id="editbar">
@@ -805,7 +792,7 @@ function zoneColor(z, m){
   if(!hasAnyData) return COLORS.unknown;
   if(m < tNowMin) return COLORS.on;
   for(const [s] of plan){ if(s>m && s-m<=120) return COLORS.soon; }
-  return COLORS.on; // بدون برنامه یا آینده دور = وصل مثل baboliha
+  return COLORS.on; // بدون برنامه یا آینده دور = وصل
 }
 
 function buildColorArr(){
@@ -823,7 +810,7 @@ function buildColorArr(){
       else{
         let soon=false;
         for(const [s] of plan){ if(s>m && s-m<=120){ soon=true; break; } }
-        // مثل baboliha.ir: بدون برنامه یا آینده دور = وصل (سبز)
+        // بدون برنامه یا آینده دور = وصل (سبز)
         arr[m] = soon?3 : 0;
       }
     }
@@ -919,7 +906,7 @@ function openPanel(z){
   const eventHtml=obs.length?`<div class="panel-section"><div class="section-title"><span>گزارش‌های زنده</span><span><span class="en">${obs.length}</span> مورد</span></div><ul class="event-list">${obs.slice(-3).map(o=>`<li><span class="en">${esc(o.time||"")}</span> — ${esc(o.addr||"")} ${o.reason?`(${esc(o.reason)})`:""}</li>`).join("")}</ul></div>`:"";
   const areasHtml=z.areas&&z.areas.length?`<div class="panel-section"><div class="section-title">محله‌های تحت پوشش</div><ul class="area-list">${z.areas.map(a=>`<li>${esc(a)}</li>`).join("")}</ul></div>`:"";
   const html=`<button class="close" aria-label="بستن" onclick="closePanel()">✕</button>
-    <div class="panel-kicker"><span class="kicker-dot"></span><span>امور برق قائم‌شهر · فیدر <span class="en">${esc(z.feeder)}</span>${isMy?" · ★ خانه شما":""}</span>
+    <div class="panel-kicker"><span class="kicker-dot"></span><span>امور برق قائم‌شهر · فیدر <span class="en">${esc(z.feeder)}</span></span>
       <button class="starbtn" onclick="toggleSaved('${esc(z.feeder)}')" title="افزودن/حذف از مناطق من">${savedNow?"★ ذخیره شد":"☆ ذخیره"}</button></div>
     <div class="panel-title">${esc(shortFeederName(z.name))}</div>
     <div class="panel-sub">نمایش وضعیت، برنامه خاموشی و محله‌های تحت پوشش</div>
@@ -973,7 +960,7 @@ async function setDate(date){
   $("tl-time").textContent = fmtMin(curMinute);
   updateMapBadge();
   applyColors(); renderStats(); refreshSelectedPanel();
-  renderMinebar(); renderUnmapped();
+  renderMinebar();
   if(curView==="home") renderHome();
 }
 function tick(){
@@ -1136,7 +1123,7 @@ function refreshNow(){
   $("live-label").textContent = meta.poll_ok ? "پایش فعال داده‌ها" : "آخرین poll با خطا مواجه شد";
   updateMapBadge();
   applyColors(); renderStats(); refreshSelectedPanel();
-  renderMinebar(); renderUnmapped();
+  renderMinebar();
   if(curView==="home") renderHome();
 }
 function updateMapBadge(){
@@ -1172,7 +1159,7 @@ function statusCardHtml(z, minute){
     ${countHtml}${barHtml}${timesHtml}
   </div>`;
 }
-/* ⭐ مناطق من - مثل baboliha.ir ولی با سینک سروری */
+/* ⭐ مناطق من */
 const SAVED_KEY="qaem_saved_feeders_v1";
 function getSaved(){
   try{ const a=JSON.parse(localStorage.getItem(SAVED_KEY)); return Array.isArray(a)?a.filter(x=>typeof x==="string"):[]; }
@@ -1198,10 +1185,10 @@ async function syncSavedFromServer(){
       return;
     }
     if(data.length>0){
-      // server wins - مثل baboliha
+      // server wins
       try{ localStorage.setItem(SAVED_KEY, JSON.stringify(data)); }catch{}
       renderMinebar();
-      if(data.length!==local.length) toast(`مناطق من از سرور همگام شد (${toFaDigits(data.length)} فیدر)`);
+      // synced silently
     }
   }catch(e){}
 }
@@ -1212,7 +1199,7 @@ function toggleSaved(feeder){
   pushSavedToServer(a);
   renderMinebar();
   if(selectedFeeder===feeder){ const z=zones.find(x=>x.feeder===feeder); if(z) openPanel(z); }
-  toast(a.includes(feeder)?`فیدر ${toFaDigits(feeder)} به «مناطق من» اضافه شد ⭐`:`فیدر ${toFaDigits(feeder)} از «مناطق من» حذف شد`);
+  // silent
 }
 function renderMinebar(){
   const bar=$("minebar"); if(!bar) return;
@@ -1230,33 +1217,7 @@ function clearAllSaved(){
   try{ localStorage.setItem(SAVED_KEY, JSON.stringify([])); }catch{}
   pushSavedToServer([]);
   renderMinebar();
-  toast("مناطق من پاک شد");
-}
-/* ⚠️ قطعی‌های بدون کد فیدر (unmapped) - ذخیره و نمایش */
-function renderUnmapped(){
-  const um = (hist && (hist.unmapped||[])) || [];
-  const banner = $("unmapped-banner");
-  const mapBox = $("unmapped-map") || (()=>{ const d=document.createElement("div"); d.id="unmapped-map"; $("map-side")?.appendChild(d); return d; })();
-  // اگر المان map وجود نداشت بساز
-  if(!document.getElementById("unmapped-map")){
-    const ms=$("map-side"); if(ms){ const d=document.createElement("div"); d.id="unmapped-map"; ms.appendChild(d); }
-  }
-  const finalMapBox = $("unmapped-map");
-  if(!um.length){
-    if(banner){ banner.classList.remove("open"); banner.innerHTML=""; }
-    if(finalMapBox){ finalMapBox.classList.remove("open"); finalMapBox.innerHTML=""; }
-    return;
-  }
-  const itemsHtml = um.slice(0,6).map(u=>`<li><span class="en">${esc(u.time||"")}</span> — ${esc(u.addr||"بدون آدرس")} ${u.reason?`(${esc(u.reason)})`:""} <small class="en">#${esc(u.outage_number||"")}</small></li>`).join("");
-  const more = um.length>6 ? `<div style="font-size:10px;opacity:.7;margin-top:4px">و ${toFaDigits(um.length-6)} مورد دیگر…</div>` : "";
-  if(banner){
-    banner.classList.add("open");
-    banner.innerHTML = `<h4>⚠️ ${toFaDigits(um.length)} قطعی بدون کد فیدر (ذخیره شد ولی روی نقشه نیست)</h4><ul>${itemsHtml}</ul>${more}<div style="font-size:10px;opacity:.6;margin-top:6px">این‌ها از سامانه رسمی بدون شماره فیدر آمدند - مثل baboliha هم قابل مچ دقیق نیستند، ولی اینجا نمایش داده می‌شوند.</div>`;
-  }
-  if(finalMapBox){
-    finalMapBox.classList.add("open");
-    finalMapBox.innerHTML = `<h4>⚠️ بدون فیدر: ${toFaDigits(um.length)}</h4><div style="max-height:120px;overflow:auto"><ul style="margin:0;padding-inline-start:14px">${itemsHtml}</ul>${more}</div>`;
-  }
+  // silent
 }
 function focusFeeder(feeder){
   const z=zones.find(x=>x.feeder===feeder); if(!z) return;
@@ -1320,7 +1281,7 @@ function initSearch(){
 let locMarker=null;
 function locateMe(){
   if(!navigator.geolocation){ toast("مرورگر شما موقعیت‌یابی را پشتیبانی نمی‌کند"); return; }
-  toast("در حال یافتن موقعیت شما…");
+  // locating
   navigator.geolocation.getCurrentPosition(pos=>{
     const pt=[pos.coords.latitude, pos.coords.longitude];
     if(locMarker) map.removeLayer(locMarker);
@@ -1329,13 +1290,13 @@ function locateMe(){
     if(hit){
       map.flyTo(pt, 14, {duration:.6});
       focusFeeder(hit.feeder);
-      toast(`موقعیت شما: فیدر ${toFaDigits(hit.feeder)} — ${shortFeederName(hit.name)}`);
+      // found
     } else {
       let best=null, bd=1e9;
       for(const z of zones){ const d=distKm(pt, centroidOf(z.polygon)); if(d<bd){ bd=d; best=z; } }
       if(best){
         map.flyTo(pt, 12, {duration:.6});
-        toast(`خارج از محدوده فیدرها — نزدیک‌ترین: فیدر ${toFaDigits(best.feeder)} (~${toFaDigits(bd.toFixed(1))} کیلومتر)`);
+        // out of area
       }
     }
   }, err=>{
@@ -1528,7 +1489,7 @@ function initPwa(){
   $("minebtn").addEventListener("click", ()=>{
     const target = getSaved()[0] || MY_FEEDER;
     const z = zones.find(x=>x.feeder===target);
-    if(z){ map.flyTo(centroidOf(z.polygon), 14, {duration:.45}); selectedFeeder=target; openPanel(z); applyColors(); toast(`محدوده خانه شما — فیدر ${target}`); }
+    if(z){ map.flyTo(centroidOf(z.polygon), 14, {duration:.45}); selectedFeeder=target; openPanel(z); applyColors(); }
   });
   $("fitbtn").addEventListener("click", ()=>{
     if(!zones.length) return;
@@ -1543,7 +1504,6 @@ function initPwa(){
   $("editbtn").style.display="none"; // editing zones is local-server only
   initSearch();
   renderMinebar();
-  renderUnmapped();
   syncSavedFromServer();
   $("locbtn").addEventListener("click", locateMe);
   $("tab-home").addEventListener("click", ()=>showView("home"));
