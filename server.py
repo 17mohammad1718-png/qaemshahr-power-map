@@ -189,6 +189,10 @@ class Handler(BaseHTTPRequestHandler):
         p = parsed.path
         if p in ("/", "/index.html"):
             return self._send_file(INDEX, "text/html; charset=utf-8")
+        if p == "/snapshot.json":
+            # the online static map boots from this file — serve it locally too
+            return self._send_file(os.path.join(BASE, "web", "snapshot.json"),
+                                   "application/json; charset=utf-8")
         if p == "/api/zones":
             return self._send(build_zones_payload())
         if p == "/api/now":

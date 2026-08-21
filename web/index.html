@@ -88,6 +88,7 @@
   }
   #tl-slider{width:100%; accent-color:var(--accent); cursor:pointer}
   #tl-hint{font-size:11px; color:var(--dim)}
+  #clock-sync{font-size:10px; color:#7f9db5; margin-top:2px; cursor:help; white-space:nowrap}
   /* detail panel */
   #panel{
     position:absolute; top:12px; inset-inline-end:12px; z-index:1001;
@@ -364,7 +365,7 @@
   <div id="tl-top">
     <div id="tl-date"></div>
     <span id="tl-hint">برای دیدن وضعیت لحظه‌ای، زمان را روی نوار حرکت دهید</span>
-    <div id="tl-time-block"><span id="tl-time-label">زمان انتخاب‌شده</span><div id="tl-time" class="en">--:--</div></div>
+    <div id="tl-time-block"><span id="tl-time-label">زمان انتخاب‌شده</span><div id="tl-time" class="en">--:--</div><span id="clock-sync" title="زمان‌ها بر اساس ساعت سرور و منطقه‌ی زمانی ایران محاسبه می‌شود — مستقل از ساعت دستگاه شما">🛰 به وقت سرور</span></div>
     <button id="playbtn" title="پخش خط زمانی">▶</button>
   </div>
   <div class="timeline-track">
@@ -392,6 +393,7 @@ const MY_FEEDER = "402";
 const AREA = 31;
 let map, zones=[], activePlans={}, weekdays={}, hist={}, colorArr={};
 let curDate="", curMinute=0, tNowMin=0, liveNow=null, playing=false, playTimer=null;
+let serverOffsetMs=0;  /* device-clock drift, corrected from the server's clock */
 let selectedFeeder=null, labelMarkers={}, zonesMeta=null, snapshotData=null;
 let territoryPolys={};
 /* editor state */
@@ -401,6 +403,37 @@ let editMode=false, editFeeder=null, editVerts=[], vertMarkers=[], edgeMarkers=[
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2,"0");
 function fmtMin(m){ return pad(Math.floor(m/60))+":"+pad(m%60); }
+/* ---------- server-clock sync: times must not depend on the visitor's device clock/timezone ---------- */
+function nowMs(){ return Date.now() + serverOffsetMs; }
+const TEHRAN_MIN = new Intl.DateTimeFormat("en-US",{timeZone:"Asia/Tehran",hour12:false,hour:"2-digit",minute:"2-digit"});
+function tehranMinOfDay(ms){
+  const s = TEHRAN_MIN.format(new Date(ms));
+  const mtc = s.match(/(\d{1,2}):(\d{2})/);
+  if(!mtc) return 0;
+  let h = +mtc[1];
+  if(/PM/i.test(s) && h<12) h+=12;      /* engines that fall back to h12 */
+  if(/AM/i.test(s) && h===12) h=0;
+  return (h%24)*60 + (+mtc[2]);         /* engines that emit 24:xx for midnight */
+}
+function syncServerClock(resp, snap){
+  const httpDate = (resp && resp.headers) ? resp.headers.get("Date") : null;
+  let serverMs = httpDate ? Date.parse(httpDate) : NaN;
+  let mode = "server";                   /* best: HTTP Date header (accurate server clock) */
+  if(!isFinite(serverMs)){ serverMs = (snap && snap.ts ? snap.ts : 0)*1000; mode = "snapshot"; }
+  const off = serverMs - Date.now();
+  if(isFinite(off) && Math.abs(off) <= 86400000){ serverOffsetMs = off; }
+  else { serverOffsetMs = 0; mode = "device"; }   /* nonsense header — trust the device */
+  const el = $("clock-sync");
+  if(el){
+    el.textContent = mode==="device" ? "🕐 به وقت دستگاه"
+                   : mode==="snapshot" ? "🛰 همگام تقریبی"
+                   : "🛰 به وقت سرور";
+  }
+  const driftMin = Math.round(Math.abs(off)/60000);
+  if(mode!=="device" && driftMin>90){
+    toast(`اختلاف ساعت دستگاه شما با زمان واقعی حدود ${driftMin} دقیقه است — زمان‌ها بر مبنای ساعت سرور نمایش داده می‌شوند`);
+  }
+}
 function esc(value){
   const entities={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"};
   return String(value ?? "").replace(/[&<>\"']/g, ch => entities[ch]);
@@ -819,10 +852,9 @@ function computeNowStates(minute){
   });
 }
 function refreshNow(){
-  const d=new Date();
-  const nowMin=d.getHours()*60+d.getMinutes();
+  const nowMin = tehranMinOfDay(nowMs());
   if(curDate===zonesMeta.today){
-    liveNow = {ts:Date.now()/1000, minute:nowMin, zones:computeNowStates(nowMin)};
+    liveNow = {ts:nowMs()/1000, minute:nowMin, zones:computeNowStates(nowMin)};
     const prevTNow=tNowMin;
     tNowMin=nowMin;
     if(curMinute===prevTNow && curMinute!==tNowMin){
@@ -833,7 +865,7 @@ function refreshNow(){
   }
   buildColorArr();
   const meta=snapshotData.meta||{};
-  const stamp=new Date(snapshotData.ts*1000).toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"});
+  const stamp=new Date(snapshotData.ts*1000).toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Tehran"});
   $("updated").innerHTML = `آخرین داده <span class="en">${stamp}</span> · ${meta.poll_ok?"✓ سالم":"✗ خطا"}`;
   $("live-label").textContent = meta.poll_ok ? "پایش فعال داده‌ها" : "آخرین poll با خطا مواجه شد";
   updateMapBadge();
@@ -850,8 +882,10 @@ function updateMapBadge(){
 (async function boot(){
   initMap();
   map.on("click", closePanelFromMap);
-  zonesMeta = await (await fetch("snapshot.json",{cache:"no-store"})).json();
+  const snapResp = await fetch("snapshot.json",{cache:"no-store"});
+  zonesMeta = await snapResp.json();
   snapshotData = zonesMeta;
+  syncServerClock(snapResp, zonesMeta);
   zones = prepareMapZones(zonesMeta.zones);
   activePlans = zonesMeta.active;
   weekdays = zonesMeta.weekdays;
