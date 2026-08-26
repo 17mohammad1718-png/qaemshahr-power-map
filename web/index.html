@@ -2,1596 +2,3106 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
-<title>⚡ نقشه لحظه‌ای قطعی برق قائم‌شهر</title>
-<meta name="description" content="وضعیت لحظه‌ای قطعی و وصل برق فیدرهای قائم‌شهر روی نقشه — برنامه خاموشی امروز و فردا، شمارش معکوس وصل شدن، مناطق من و جستجوی محله. داده از سامانه رسمی توزیع برق مازندران.">
-<meta property="og:site_name" content="نقشه قطعی برق قائم‌شهر">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>⚡ جدول و نقشه قطعی برق قائم‌شهر — برنامه خاموشی امروز و فردا</title>
+<meta name="description" content="جدول و نقشه آنلاین قطعی برق قائم‌شهر — وضعیت لحظه‌ای فیدرها، زمان دقیق شروع و پایان خاموشی، شمارش معکوس تا وصل شدن برق، برنامه امروز و فردا و جستجوی محله.">
+<meta property="og:site_name" content="جدول و نقشه قطعی برق قائم‌شهر">
 <meta property="og:type" content="website">
-<meta property="og:title" content="نقشه لحظه‌ای قطعی برق قائم‌شهر">
-<meta property="og:description" content="وضعیت لحظه‌ای قطعی و وصل برق فیدرهای قائم‌شهر روی نقشه، با برنامه امروز و فردا و شمارش معکوس.">
+<meta property="og:title" content="جدول و نقشه قطعی برق قائم‌شهر">
+<meta property="og:description" content="وضعیت لحظه‌ای قطعی و وصل برق فیدرهای قائم‌شهر روی نقشه و جدول، با برنامه امروز و فردا و شمارش معکوس.">
 <meta property="og:image" content="icons/icon-512x512.png">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-<meta name="theme-color" content="#0b1526">
+<meta name="theme-color" content="#07111f">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="قطعی برق قائمشهر">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vazirmatn@33.003/Vazirmatn-font-face.css">
-<style>
-  :root{
-    --bg:#0b1526; --panel:#111d33; --panel2:#16233d; --line:#1f2f4d;
-    --txt:#e2e8f0; --dim:#94a3b8; --accent:#38bdf8;
-    --off:#ef4444; --obs:#b91c1c; --on:#22c55e; --soon:#f59e0b; --future:#475569;
-  }
-  *{box-sizing:border-box; margin:0; padding:0}
-  html,body{height:100%}
-  @supports (height:100dvh){ html,body{height:100dvh} }  /* موبایل: دقیقاً هماندازه‌ی صفحه‌ی قابل‌دیدن (نوار آدرس جمع/باز) */
-  body{
-    background:var(--bg); color:var(--txt);
-    font-family:Vazirmatn, "Segoe UI", Tahoma, sans-serif;
-    display:flex; flex-direction:column; overflow:hidden;
-    -webkit-text-size-adjust:100%; text-size-adjust:100%;
-  }
-  .en{font-family:Consolas, "Courier New", Vazirmatn, sans-serif; direction:ltr; unicode-bidi:embed}
-  /* موبایل: جلوگیری از زوم ناخواسته با دابل‌تپ روی عناصر تعاملی (زوم پینچ دستی آزاد می‌ماند) */
-  button,.tbtn,.mb-chip,.lv-card,.qs-item,.ebtn,#tl-slider,#qsearch-clear{touch-action:manipulation}
-  #header{
-    display:flex; align-items:center; gap:16px; padding:10px 16px;
-    background:var(--panel); border-bottom:1px solid var(--line);
-    flex-wrap:wrap;
-  }
-  #header h1{font-size:17px; font-weight:700; white-space:nowrap}
-  #header h1 small{display:block; font-size:11px; font-weight:400; color:var(--dim)}
-  #stats{display:flex; gap:8px; flex-wrap:wrap; margin-inline-start:auto}
-  .chip{
-    background:var(--panel2); border:1px solid var(--line); border-radius:8px;
-    padding:4px 10px; font-size:12px; color:var(--dim); white-space:nowrap;
-  }
-  .chip b{color:var(--txt)}
-  .chip .dot{display:inline-block; width:9px; height:9px; border-radius:50%; margin-inline-end:5px; vertical-align:middle}
-  #updated{font-size:11px; color:var(--dim)}
-  #mapwrap{flex:1; position:relative; min-height:0}
-  #map{position:absolute; inset:0; background:#0a1220}
-  .leaflet-container{font-family:inherit; background:#0a1220}
-  .leaflet-control,.leaflet-tooltip,.leaflet-popup{font-family:Vazirmatn, "Segoe UI", Tahoma, sans-serif}
-  /* feeder labels */
-  .zlbl{
-    background:rgba(11,21,38,.88); border:1px solid #334155; color:#e2e8f0;
-    font-family:Consolas, "Courier New", monospace; font-size:11px; font-weight:700;
-    padding:1px 5px; border-radius:6px; text-align:center; min-width:30px;
-    box-shadow:0 1px 4px rgba(0,0,0,.4);
-  }
-  .zlbl.my{background:#fde047; color:#06283f; border-color:#fde047}
-  /* editor vertex + edge markers */
-  .vmark{
-    background:#fde047; border:2px solid #0b1526; border-radius:50%;
-    width:12px; height:12px; box-shadow:0 0 0 2px rgba(253,224,71,.6),0 2px 6px rgba(0,0,0,.5);
-  }
-  .emark{
-    background:#38bdf8; border:1.5px solid #0b1526; border-radius:50%;
-    width:9px; height:9px; box-shadow:0 1px 4px rgba(0,0,0,.5);
-  }
-  /* legend */
-  #legend{
-    position:absolute; top:12px; inset-inline-start:12px; z-index:1000;
-    background:rgba(17,29,51,.92); border:1px solid var(--line); border-radius:10px;
-    padding:10px 12px; font-size:12px; max-width:230px;
-    box-shadow:0 4px 16px rgba(0,0,0,.35);
-  }
-  #legend h3{font-size:12px; margin-bottom:6px; color:var(--accent)}
-  .lg{display:flex; align-items:center; gap:7px; margin:3px 0}
-  .sw{width:16px; height:12px; border-radius:3px; border:1px solid rgba(255,255,255,.15); flex:0 0 auto}
-  /* timeline */
-  #timeline{
-    background:var(--panel); border-top:1px solid var(--line);
-    padding:10px 16px 12px; display:flex; flex-direction:column; gap:8px;
-  }
-  #tl-top{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
-  #tl-date{display:flex; gap:6px}
-  .tbtn{
-    background:var(--panel2); color:var(--dim); border:1px solid var(--line);
-    border-radius:8px; padding:5px 14px; font-size:13px; cursor:pointer;
-    font-family:inherit; transition:all .15s;
-  }
-  .tbtn.active{background:var(--accent); color:#06283f; border-color:var(--accent); font-weight:700}
-  #tl-time{font-size:22px; font-weight:700; color:var(--accent); min-width:150px; text-align:center}
-  #playbtn{
-    width:44px; height:44px; border-radius:50%; border:none; cursor:pointer;
-    background:var(--accent); color:#06283f; font-size:18px; font-weight:700;
-    display:flex; align-items:center; justify-content:center;
-  }
-  #tl-slider{width:100%; accent-color:var(--accent); cursor:pointer}
-  #tl-hint{font-size:11px; color:var(--dim)}
-  #clock-sync{font-size:10px; color:#7f9db5; margin-top:2px; cursor:help; white-space:nowrap}
-  /* ---- phase 1: search / saved zones / gps / list view ---- */
-  #qsearch-wrap{position:relative; flex:1 1 180px; max-width:320px; min-width:150px}
-  #qsearch{width:100%; padding:8px 30px 8px 12px; border-radius:10px; border:1px solid var(--line);
-    background:var(--panel2); color:var(--txt); font-family:inherit; font-size:13px; outline:none; transition:border-color .15s}
-  #qsearch:focus{border-color:var(--accent)}
-  #qsearch::placeholder{color:var(--dim)}
-  #qsearch-clear{position:absolute; inset-inline-end:4px; top:50%; transform:translateY(-50%);
-    border:none; background:none; color:var(--dim); cursor:pointer; font-size:13px; display:none; padding:4px}
-  #qsearch-clear:hover{color:var(--txt)}
-  .qsug{position:absolute; top:calc(100% + 6px); inset-inline:0; background:rgba(13,26,45,.98);
-    border:1px solid var(--line); border-radius:12px; box-shadow:0 14px 34px rgba(0,0,0,.45);
-    z-index:1700; overflow:hidden; display:none}
-  .qsug.open{display:block}
-  .qsug .qs-empty{padding:10px 12px; color:var(--dim); font-size:12px}
-  .qs-item{display:flex; flex-direction:column; gap:2px; padding:8px 12px; cursor:pointer;
-    border-bottom:1px solid rgba(31,47,77,.6)}
-  .qs-item:last-child{border-bottom:none}
-  .qs-item:hover,.qs-item.focused{background:rgba(56,189,248,.12)}
-  .qs-item .qs-name{font-size:12.5px; color:var(--txt)}
-  .qs-item .qs-name mark{background:transparent; color:var(--accent); font-weight:700}
-  .qs-item .qs-sub{font-size:10.5px; color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-  #minebar{display:none; align-items:center; gap:8px; padding:6px 14px; overflow-x:auto;
-    background:var(--panel); border-bottom:1px solid var(--line); scrollbar-width:thin}
-  #minebar.open{display:flex}
-  #minebar .mb-label{font-size:11px; color:var(--dim); white-space:nowrap}
-  .mb-chip{display:flex; align-items:center; gap:6px; white-space:nowrap; background:var(--panel2);
-    border:1px solid var(--line); border-radius:999px; padding:3px 10px; font-size:12px; color:var(--txt);
-    cursor:pointer; font-family:inherit; transition:border-color .15s}
-  .mb-chip:hover{border-color:var(--accent)}
-  .mb-chip .mb-dot{width:8px; height:8px; border-radius:50%; flex:0 0 auto}
-  .mb-chip .en{font-size:11px; color:var(--dim)}
-  .starbtn{margin-inline-start:auto; background:var(--panel2); border:1px solid var(--line); color:#fde047;
-    border-radius:8px; cursor:pointer; font-size:12px; padding:3px 10px; font-family:inherit}
-  .starbtn:hover{border-color:var(--accent)}
-  .sharebtn{background:var(--panel2); border:1px solid var(--line); color:var(--accent);
-    border-radius:8px; cursor:pointer; font-size:12px; padding:3px 10px; font-family:inherit; margin-inline-start:6px}
-  .sharebtn:hover{border-color:var(--accent)}
-  .sc{background:var(--panel2); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin:10px 0 2px}
-  .sc-badge{display:inline-flex; align-items:center; gap:6px; font-weight:700; font-size:14.5px}
-  .sc-sub{display:block; font-size:11px; color:var(--dim); margin-top:3px}
-  .sc-count{font-size:13px; margin-top:9px; color:var(--txt); font-weight:600}
-  .sc-bar{height:7px; background:rgba(31,47,77,.9); border-radius:99px; overflow:hidden; margin-top:7px}
-  .sc-bar i{display:block; height:100%; border-radius:99px; transition:width .4s ease}
-  .sc-times{display:flex; justify-content:space-between; font-size:11px; color:var(--dim); margin-top:5px}
-  /* ---- views: خانه (فهرست) / نقشه ---- */
-  #viewtabs{display:flex; gap:8px; padding:8px 14px; background:var(--panel);
-    border-bottom:1px solid var(--line); justify-content:center}
-  #viewtabs button{flex:0 1 210px; padding:8px 16px; border-radius:10px; border:1px solid var(--line);
-    background:var(--panel2); color:var(--dim); font-family:inherit; font-size:13px; cursor:pointer;
-    transition:all .15s}
-  #viewtabs button.active{background:var(--accent); color:#06283f; border-color:var(--accent); font-weight:700}
-  .view{flex:1; min-height:0; display:flex; flex-direction:column}
-  .view.hidden{display:none}
-  #view-map{overflow:hidden}
-  #home-head{display:flex; align-items:center; gap:10px; padding:10px 16px; flex-wrap:wrap;
-    border-bottom:1px solid var(--line); background:rgba(13,26,45,.6)}
-  #home-date{display:flex; gap:6px}
-  #home-sub{font-size:11px; color:var(--dim); margin-inline-start:auto}
-  #home-grid{flex:1; overflow-y:auto; padding:14px 16px; display:grid; gap:10px;
-    grid-template-columns:repeat(auto-fill,minmax(255px,1fr)); align-content:start}
-  #home-empty{grid-column:1/-1; text-align:center; color:var(--dim); padding:44px 12px; font-size:13px; line-height:2.2}
-  .lv-card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px 12px;
-    cursor:pointer; transition:border-color .15s, transform .15s}
-  .lv-card:hover{border-color:var(--accent); transform:translateY(-1px)}
-  .lv-card .lv-title{display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:700}
-  .lv-card .lv-title .en{color:var(--dim); font-weight:400; font-size:11px; margin-inline-start:auto}
-  .lv-card .lv-times{font-size:11px; color:var(--dim); margin-top:6px}
-  .lv-card .lv-count{font-size:11.5px; margin-top:5px; color:var(--txt)}
-  /* ---- phase 2: PWA install popup + iOS refresh ---- */
-  #a2hs-popup{position:fixed; bottom:calc(18px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%) translateY(16px);
-    z-index:2100; display:flex; align-items:center; gap:12px; padding:14px 16px;
-    width:min(430px, calc(100vw - 28px)); background:rgba(13,26,45,.98);
-    border:1px solid rgba(85,216,255,.35); border-radius:16px;
-    box-shadow:0 18px 44px rgba(0,0,0,.5); opacity:0; pointer-events:none; transition:all .25s ease}
-  #a2hs-popup.show{opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0)}
-  #a2hs-popup img{width:48px; height:48px; border-radius:12px; flex:0 0 auto}
-  #a2hs-txt{flex:1}
-  #a2hs-txt h4{font-size:13.5px; margin-bottom:2px}
-  #a2hs-txt p{font-size:11.5px; color:var(--dim); margin:0 0 6px}
-  #a2hs-txt label{font-size:10.5px; color:var(--dim); display:flex; align-items:center; gap:5px; cursor:pointer}
-  #a2hs-install{background:var(--accent); color:#06283f; border:none; border-radius:10px;
-    padding:8px 16px; font-weight:700; font-family:inherit; cursor:pointer; font-size:12.5px; flex:0 0 auto}
-  #a2hs-install:hover{filter:brightness(1.1)}
-  #a2hs-close{position:absolute; top:6px; inset-inline-end:6px; background:none; border:none;
-    color:var(--dim); cursor:pointer; font-size:12px; padding:4px}
-  #a2hs-ios{display:none; font-size:11.5px; color:var(--txt); line-height:2; flex:1}
-  #a2hs-ios b{color:var(--accent)}
-  #ios-refresh{position:fixed; bottom:calc(16px + env(safe-area-inset-bottom)); inset-inline-end:14px; z-index:2050; display:none;
-    background:#059669; color:#fff; border:none; border-radius:10px; padding:10px 14px; font-size:13px;
-    font-family:inherit; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.3)}
-  #ios-refresh:hover{background:#047857}
-  /* detail panel */
-  #panel{
-    position:absolute; top:12px; inset-inline-end:12px; z-index:1001;
-    width:min(340px, calc(100% - 24px));
-    background:rgba(17,29,51,.96); border:1px solid var(--line); border-radius:12px;
-    padding:14px; font-size:13px; box-shadow:0 8px 30px rgba(0,0,0,.5);
-    display:none; max-height:calc(100% - 24px); overflow-y:auto;
-  }
-  #panel.open{display:block}
-  #panel h3{font-size:15px; margin-bottom:2px}
-  #panel .sub{color:var(--dim); font-size:11px; margin-bottom:10px}
-  #panel .row{display:flex; justify-content:space-between; gap:10px; padding:5px 0; border-bottom:1px dashed var(--line)}
-  #panel .row:last-child{border-bottom:none}
-  #panel .lbl{color:var(--dim); flex:0 0 auto}
-  #panel .badge{padding:2px 10px; border-radius:99px; font-size:12px; font-weight:700; white-space:nowrap}
-  #panel .close{
-    position:absolute; top:8px; inset-inline-start:8px; background:none; border:none;
-    color:var(--dim); font-size:18px; cursor:pointer;
-  }
-  #panel ul{margin:6px 0 0 0; padding-inline-start:18px; color:var(--dim); font-size:12px}
-  #panel .note{margin-top:8px; font-size:11px; color:var(--soon)}
-  /* buttons */
-  #minebtn{
-    position:absolute; top:12px; left:12px; z-index:1000;
-    background:var(--accent); color:#06283f; border:none; border-radius:8px;
-    padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;
-  }
-  #editbtn{
-    position:absolute; top:52px; left:12px; z-index:1000;
-    background:var(--panel2); color:var(--txt); border:1px solid var(--line); border-radius:8px;
-    padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;
-  }
-  #editbtn.on{background:var(--soon); color:#06283f; border-color:var(--soon)}
-  #editbar{
-    position:absolute; bottom:16px; inset-inline-start:50%; transform:translateX(50%);
-    z-index:1100; display:none; gap:8px; align-items:center;
-    background:rgba(11,21,38,.95); border:1px solid var(--line); border-radius:10px;
-    padding:8px 14px; box-shadow:0 6px 20px rgba(0,0,0,.5);
-  }
-  #editbar.open{display:flex}
-  #editbar .hint{font-size:12px; color:var(--dim)}
-  .ebtn{
-    border:none; border-radius:8px; padding:6px 16px; font-size:13px; font-weight:700;
-    cursor:pointer; font-family:inherit;
-  }
-  .ebtn.save{background:var(--on); color:#052e16}
-  .ebtn.cancel{background:var(--panel2); color:var(--txt); border:1px solid var(--line)}
-  #toast{
-    position:absolute; bottom:70px; inset-inline-start:50%; transform:translateX(50%);
-    background:rgba(6,40,63,.95); color:#bae6fd; border:1px solid var(--accent);
-    border-radius:10px; padding:8px 16px; font-size:12px; display:none; z-index:1200;
-  }
-  /* dark scrollbar standard */
-  ::-webkit-scrollbar{width:10px;height:10px}
-  ::-webkit-scrollbar-track{background:#0b1526;border-radius:8px}
-  ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#475569,#334155);border-radius:8px;border:2px solid #0b1526}
-  ::-webkit-scrollbar-thumb:hover{background:#5b6f8f}
-  ::-webkit-scrollbar-corner{background:#0b1526}
-  #panel{scrollbar-width:thin;scrollbar-color:#475569 #0b1526}
-  /* ---------- visual refresh ---------- */
-  :root{
-    --bg:#07111f; --panel:#0d1a2d; --panel2:#13243b; --line:#223752;
-    --txt:#edf6ff; --dim:#8fa7bd; --accent:#55d8ff; --accent-deep:#0e7490;
-    --off:#ff5d68; --obs:#d9364b; --on:#27d98b; --soon:#ffc44d; --future:#60758e;
-    --glass:rgba(10,24,42,.82); --glass-strong:rgba(9,21,37,.95);
-  }
-  body{background:radial-gradient(circle at 50% -20%,#123252 0%,var(--bg) 48%,#040a13 100%)}
-  #header{
-    position:relative; z-index:1200; min-height:76px; padding:12px 18px;
-    padding-top:max(12px, env(safe-area-inset-top)); gap:14px;
-    background:linear-gradient(110deg,rgba(13,30,51,.98),rgba(9,22,39,.94));
-    border-bottom:1px solid rgba(85,216,255,.16); box-shadow:0 10px 30px rgba(0,0,0,.24);
-  }
-  #header::after{content:"";position:absolute;inset:auto 0 0 0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.45}
-  #brand{display:flex;align-items:center;gap:11px;min-width:285px}
-  .brand-mark{
-    width:38px;height:38px;display:grid;place-items:center;border-radius:12px;
-    color:#06283f;background:linear-gradient(145deg,#9af0ff,var(--accent));
-    box-shadow:0 0 0 5px rgba(85,216,255,.08),0 7px 18px rgba(0,153,204,.28);font-size:21px;
-  }
-  #header h1{font-size:18px;letter-spacing:-.2px}
-  #header h1 small{margin-top:2px;color:#91afc6}
-  #live-pill{
-    display:flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid rgba(39,217,139,.22);
-    background:rgba(39,217,139,.08);border-radius:999px;color:#9af0c9;font-size:11px;white-space:nowrap;
-  }
-  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--on);box-shadow:0 0 0 4px rgba(39,217,139,.12);animation:livePulse 1.8s ease-in-out infinite}
-  @keyframes livePulse{0%,100%{box-shadow:0 0 0 3px rgba(39,217,139,.10)}50%{box-shadow:0 0 0 7px rgba(39,217,139,.02)}}
-  #stats{gap:7px}
-  .chip{padding:7px 11px;border-radius:11px;background:rgba(19,36,59,.82);border-color:rgba(133,169,199,.14);box-shadow:inset 0 1px rgba(255,255,255,.04)}
-  .chip b{font-size:13px}
-  .chip .dot{width:7px;height:7px;margin-inline-end:6px}
-  #updated{padding-inline:12px;color:#9cb3c7}
-  #ver-chip{border-color:rgba(85,216,255,.35);color:#9deaff;font-weight:700}
-  #mapwrap{background:radial-gradient(circle at 50% 35%,rgba(21,62,83,.17),transparent 52%)}
-  #map{background:#06101c}
-  .leaflet-tile-pane{filter:brightness(.54) saturate(.62) contrast(1.16)}
-  .leaflet-control-zoom{border:0!important;box-shadow:0 8px 22px rgba(0,0,0,.3)!important}
-  .leaflet-control-zoom a{background:rgba(10,25,43,.88)!important;color:#c6edff!important;border:1px solid rgba(133,169,199,.18)!important}
-  .leaflet-control-zoom a:hover{background:#173955!important;color:#fff!important}
-  #map .leaflet-top.leaflet-right{top:110px;right:16px}
-  #map .leaflet-top.leaflet-right .leaflet-control{margin-top:0}
-  .leaflet-control-attribution{background:rgba(6,16,29,.72)!important;color:#8da6bd!important;border-radius:7px 0 0 0}
-  .leaflet-control-attribution a{color:#76dfff!important}
-  .leaflet-tooltip{background:rgba(7,20,35,.94);border:1px solid rgba(85,216,255,.3);color:#effaff;box-shadow:0 7px 20px rgba(0,0,0,.35);font-size:12px}
-  .leaflet-tooltip-top:before{border-top-color:rgba(85,216,255,.3)}
-  path.leaflet-interactive{transition:fill-opacity .18s ease,stroke-width .18s ease,filter .18s ease}
-  .zlbl{height:23px;min-width:40px;padding:2px 7px;border-radius:8px;background:rgba(7,20,35,.9);border:1px solid rgba(159,201,226,.38);color:#e9f8ff;box-shadow:0 4px 12px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;gap:4px;transition:opacity .16s ease,transform .16s ease}
-  .zlbl::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 7px var(--accent)}
-  .zlbl.my{background:linear-gradient(145deg,#fff19a,#f8d74e);color:#18230d;border-color:#fff0a1;box-shadow:0 0 0 3px rgba(253,224,71,.14),0 5px 16px rgba(253,224,71,.25)}
-  .zlbl.my::before{background:#6c7e00;box-shadow:none}
-  #map-badge{
-    position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:900;pointer-events:none;
-    display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 16px;border-radius:14px;
-    background:rgba(7,20,35,.78);border:1px solid rgba(133,201,226,.2);box-shadow:0 8px 24px rgba(0,0,0,.24);backdrop-filter:blur(12px);white-space:nowrap;
-  }
-  #map-badge strong{font-size:13px;color:#e9faff}
-  #map-badge span{font-size:10px;color:#8faec4}
-  #map-actions{position:absolute;top:16px;inset-inline-end:16px;z-index:1000;display:flex;flex-direction:column;gap:7px;align-items:stretch}
-  #map-actions button{position:static!important;min-width:132px;padding:9px 13px;border-radius:11px;background:rgba(8,23,40,.88);border:1px solid rgba(133,169,199,.2);color:#eaf8ff;box-shadow:0 7px 20px rgba(0,0,0,.28);backdrop-filter:blur(10px);transition:transform .16s ease,background .16s ease,border-color .16s ease}
-  #map-actions button:hover{transform:translateY(-1px);background:#143650;border-color:rgba(85,216,255,.52)}
-  #map-actions #minebtn{background:linear-gradient(145deg,#a6f2ff,#55d8ff);color:#06283f;border-color:#8cecff;box-shadow:0 8px 22px rgba(0,170,220,.24)}
-  #map-actions #minebtn:hover{background:#baf5ff}
-  #map-actions #editbtn{display:none}
-  #map-side{position:absolute;top:16px;inset-inline-start:16px;z-index:1000;width:258px;display:grid;gap:10px;pointer-events:none}
-  #map-side>*{pointer-events:auto}
-  #legend{position:static;width:100%;max-width:none;padding:12px 13px;border-radius:14px;border:1px solid rgba(133,169,199,.16);background:var(--glass);box-shadow:0 9px 26px rgba(0,0,0,.28);backdrop-filter:blur(14px)}
-  #legend h3{display:flex;align-items:center;gap:7px;margin-bottom:9px;font-size:12px;color:#9deaff}
-  #legend h3::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
-  .lg{gap:8px;margin:5px 0;color:#bfd0df}
-  .sw{width:18px;height:11px;border-radius:4px}
-  #panel{top:16px;inset-inline-end:16px;width:min(382px,calc(100% - 32px));padding:17px;border-radius:17px;background:var(--glass-strong);border:1px solid rgba(133,201,226,.23);box-shadow:0 18px 45px rgba(0,0,0,.46);backdrop-filter:blur(18px)}
-  #panel.open{animation:panelIn .2s ease-out}
-  @keyframes panelIn{from{opacity:0;transform:translateY(-7px) scale(.98)}to{opacity:1;transform:none}}
-  #panel .panel-kicker{display:flex;align-items:center;gap:7px;color:#8eb0c5;font-size:10px;margin-bottom:5px}
-  #panel .panel-kicker .kicker-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
-  #panel .panel-title{font-size:17px;line-height:1.55;padding-inline-end:22px;color:#f2fbff}
-  #panel .panel-sub{color:#8ca8bb;font-size:11px;margin-top:2px;margin-bottom:13px}
-  #panel .panel-status{display:flex;align-items:center;gap:11px;padding:11px 12px;margin-bottom:11px;border:1px solid rgba(133,169,199,.16);border-radius:13px;background:rgba(18,39,62,.65)}
-  #panel .panel-status.state-planned_off{border-color:rgba(255,93,104,.45);background:rgba(126,31,44,.22)}
-  #panel .panel-status.state-observed_off{border-color:rgba(217,54,75,.58);background:rgba(126,20,38,.28)}
-  #panel .panel-status.state-on{border-color:rgba(39,217,139,.36);background:rgba(18,93,68,.2)}
-  #panel .panel-status.state-soon{border-color:rgba(255,196,77,.5);background:rgba(126,82,19,.2)}
-  #panel .status-icon{width:31px;height:31px;display:grid;place-items:center;flex:0 0 auto;border-radius:10px;background:rgba(255,255,255,.09);font-size:15px}
-  #panel .status-caption{display:block;color:#8ca8bb;font-size:10px;margin-bottom:2px}
-  #panel .status-value{font-size:14px;font-weight:800}
-  #panel .panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
-  #panel .metric{padding:9px 10px;border-radius:11px;background:rgba(18,39,62,.58);border:1px solid rgba(133,169,199,.12)}
-  #panel .metric-label{display:block;color:#83a1b8;font-size:10px;margin-bottom:4px}
-  #panel .metric-value{display:block;color:#eaf9ff;font-size:13px;font-weight:700}
-  #panel .panel-section{padding-top:10px;border-top:1px solid rgba(133,169,199,.13)}
-  #panel .section-title{display:flex;align-items:center;justify-content:space-between;color:#b9d5e5;font-size:11px;font-weight:800;margin-bottom:7px}
-  #panel .schedule-pills{display:flex;flex-wrap:wrap;gap:5px}
-  #panel .schedule-pill{padding:4px 8px;border-radius:7px;background:rgba(255,196,77,.13);border:1px solid rgba(255,196,77,.3);color:#ffd982;font:11px Consolas,"Courier New",monospace;direction:ltr}
-  #panel .schedule-empty{color:#7f9aae;font-size:11px}
-  #panel .area-list{display:flex;flex-wrap:wrap;gap:5px;list-style:none;margin:0;padding:0}
-  #panel .area-list li{padding:4px 7px;border-radius:7px;background:rgba(85,216,255,.08);border:1px solid rgba(85,216,255,.14);color:#a6c5d6;font-size:10px}
-  #panel .event-list{margin:0;padding:0 17px 0 0;color:#a7c2d2;font-size:10px;line-height:1.8}
-  #panel .note{padding:8px 9px;margin-top:12px;border-radius:9px;background:rgba(255,196,77,.08);border:1px solid rgba(255,196,77,.16);color:#e9c875;font-size:10px}
-  #panel .close{top:12px;inset-inline-start:11px;width:29px;height:29px;border-radius:9px;background:rgba(255,255,255,.06);font-size:16px;transition:background .15s,color .15s}
-  #panel .close:hover{background:rgba(255,255,255,.14);color:#fff}
-  #timeline{position:relative; z-index:1100; padding:12px 18px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(13,29,49,.98),rgba(8,19,34,.98));border-top:1px solid rgba(85,216,255,.14);box-shadow:0 -10px 28px rgba(0,0,0,.18)}
-  #tl-top{align-items:center;gap:12px}
-  #tl-date{gap:6px}
-  .tbtn{padding:7px 13px;border-radius:10px;background:rgba(19,42,66,.78);border-color:rgba(133,169,199,.16);color:#9bb6c8}
-  .tbtn:hover{background:#1a405d;color:#eafaff}
-  .tbtn.active{background:linear-gradient(145deg,#a6f2ff,#55d8ff);color:#06283f;border-color:#8cecff;box-shadow:0 5px 14px rgba(0,170,220,.18)}
-  #tl-time-block{display:flex;flex-direction:column;align-items:center;min-width:105px;margin-inline-start:auto}
-  #tl-time-label{font-size:9px;color:#7695aa;margin-bottom:-2px}
-  #tl-time{font-size:25px;min-width:105px;color:#8eeaff;text-shadow:0 0 18px rgba(85,216,255,.25)}
-  #playbtn{width:42px;height:42px;background:linear-gradient(145deg,#a6f2ff,#55d8ff);box-shadow:0 6px 16px rgba(0,170,220,.2);transition:transform .15s ease,box-shadow .15s ease}
-  #playbtn:hover{transform:scale(1.05);box-shadow:0 9px 22px rgba(0,170,220,.3)}
-  #tl-hint{font-size:10px;color:#7896aa}
-  .timeline-track{display:flex;align-items:center;gap:9px;margin-top:2px}
-  .track-label{font:10px Consolas,"Courier New",monospace;color:#6e899d;direction:ltr}
-  #tl-slider{height:6px;flex:1;accent-color:var(--accent)}
-  #tl-slider::-webkit-slider-runnable-track{height:6px;border-radius:99px;background:linear-gradient(90deg,#183c58,#2e6980)}
-  #tl-slider::-webkit-slider-thumb{width:17px;height:17px;margin-top:-5.5px;border:3px solid #082033;border-radius:50%;background:#9defff;box-shadow:0 0 0 3px rgba(85,216,255,.22),0 2px 8px rgba(0,0,0,.35)}
-  #toast{bottom:calc(82px + env(safe-area-inset-bottom));left:50%;inset-inline-start:auto;transform:translateX(-50%);background:rgba(8,32,50,.95);border-color:rgba(85,216,255,.6);box-shadow:0 8px 24px rgba(0,0,0,.32);backdrop-filter:blur(10px)}
-  @media (max-width:900px){
-    #header{padding:10px 13px}
-    #brand{min-width:240px}
-    #stats{margin-inline-start:auto}
-    #map-side{width:225px}
-    #panel{width:min(350px,calc(100% - 28px));inset-inline-end:14px;top:14px}
-  }
-  @media (max-width:640px){
-    #header{min-height:0;padding:10px 11px;padding-top:max(10px, env(safe-area-inset-top));gap:8px}
-    #brand{min-width:0;flex:1;gap:8px}
-    .brand-mark{width:32px;height:32px;border-radius:10px;font-size:17px}
-    #header h1{font-size:17px;line-height:1.35;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    #header h1 small{font-size:11px;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    #live-pill{padding:6px 8px;font-size:10.5px}
-    #stats{width:100%;margin:0;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
-    #stats::-webkit-scrollbar{display:none}
-    .chip{padding:6px 9px;font-size:12.5px}
-    #updated{font-size:10px}
-    #map-badge{top:10px;padding:6px 11px;border-radius:11px;max-width:calc(100% - 20px)}
-    #map-badge strong{font-size:12.5px}
-    #map-badge span{font-size:10.5px}
-    #map-actions{top:auto;bottom:calc(12px + env(safe-area-inset-bottom));inset-inline-end:11px;flex-direction:row}
-    #map .leaflet-top.leaflet-right{top:10px;right:11px}
-    #map-actions button{min-width:0;min-height:44px;padding:9px 11px;font-size:12px}
-    #map-actions #fitbtn{font-size:0;width:40px}
-    #map-actions #fitbtn::before{content:"⌖";font-size:19px}
-    #map-actions #locbtn{font-size:0;width:40px}
-    #map-actions #locbtn::before{content:"📍";font-size:17px}
-    #qsearch-wrap{order:9;flex-basis:100%;max-width:none}
-    #qsearch{font-size:16px}  /* iOS: زیر ۱۶px موقع فوکوس زوم می‌کند */
-    #viewtabs{padding:7px 10px}
-    #viewtabs button{flex:1 1 0;padding:10px 12px;font-size:13.5px}
-    #map-side{top:10px;inset-inline-start:10px;width:calc(100% - 20px);max-width:224px;gap:7px}
-    #legend{display:none}
-    #panel{top:auto;bottom:calc(10px + env(safe-area-inset-bottom));inset-inline-end:10px;width:calc(100% - 20px);max-height:62%;padding:15px;border-radius:15px;font-size:13.5px}
-    #panel .panel-title{font-size:17px}
-    #panel .panel-kicker{font-size:11px}
-    #panel .panel-sub{font-size:12px}
-    #panel .status-caption{font-size:11px}
-    #panel .status-value{font-size:15.5px}
-    #panel .metric-label{font-size:11px}
-    #panel .metric-value{font-size:14px}
-    #panel .section-title{font-size:12px}
-    #panel .event-list{font-size:11px}
-    #panel .note{font-size:11px}
-    #timeline{padding:9px 11px calc(11px + env(safe-area-inset-bottom))}
-    #tl-top{display:grid;grid-template-columns:1fr auto auto;gap:7px}
-    #tl-date{grid-column:1/-1;overflow-x:auto;scrollbar-width:none}
-    #tl-date::-webkit-scrollbar{display:none}
-    .tbtn{white-space:nowrap;padding:8px 12px;font-size:12.5px}
-    #tl-time-block{grid-column:2;grid-row:2;min-width:72px}
-    #tl-time{font-size:24px;min-width:84px}
-    #tl-time-label{font-size:9.5px}
-    #playbtn{grid-column:3;grid-row:2;width:44px;height:44px;font-size:16px}
-    #tl-hint{grid-column:1;grid-row:2;font-size:11px;line-height:1.5}
-    .timeline-track{gap:5px}
-    .track-label{font-size:11px}
-    .mb-chip{padding:6px 12px;font-size:13px}
-    .qs-item{padding:10px 14px}
-    .qs-item .qs-name{font-size:13.5px}
-    .qs-item .qs-sub{font-size:11.5px}
-    .starbtn,.sharebtn{padding:5px 12px;font-size:13px}
-    .lv-card{padding:12px 14px}
-    .lv-card .lv-title{font-size:14px}
-    .lv-card .lv-times{font-size:12px}
-    .lv-card .lv-count{font-size:12.5px}
-    #home-sub{font-size:12px}
-  }
-  @media (max-width:400px){
-    #header h1 small{max-width:150px}
-    #tl-hint{font-size:10px}
-    .chip{padding:5px 7px;font-size:11px}
-  }
-  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
+<!-- Structured Data for FAQ (SEO) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "جدول قطعی برق قائمشهر امروز را از کجا می‌توان دید؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "جدول و برنامه دقیق خاموشی‌های امروز شهر قائم‌شهر در همین سامانه به صورت لحظه‌ای قابل مشاهده است. کافی است نام محله، خیابان یا شماره فیدر خود را در کادر جستجو وارد کنید."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "برنامه قطعی برق قائمشهر فردا چه زمانی منتشر می‌شود؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "برنامه خاموشی برق قائم‌شهر معمولاً عصر روز قبل توسط شرکت توزیع نیروی برق استان مازندران منتشر شده و بلافاصله در این سامانه در تب فردا در دسترس قرار می‌گیرد."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "شماره تلفن خرابی و اتفاقات برق قائمشهر چند است؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "برای ثبت و اعلام خاموشی‌ها و خرابی شبکه برق قائم‌شهر، می‌توانید با شماره تلفن ۱۲۱ (اتفاقات برق مازندران) به صورت ۲۴ ساعته تماس بگیرید."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "چگونه برنامه خاموشی محله خود در قائمشهر را پیدا کنم؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "با وارد کردن نام خیابان یا محله در کادر جستجو، یا کلیک روی دکمه موقعیت من (GPS) می‌توانید به سرعت برنامه خاموشی دقیق منطقه خود را بیابید."
+      }
+    }
+  ]
+}
+</script>
+
+<style>
+  :root {
+    --bg: #07101e;
+    --bg-card: #0f1c32;
+    --bg-card-hover: #14243f;
+    --bg-card-inner: #162846;
+    --border: rgba(148, 163, 184, 0.16);
+    --border-subtle: rgba(148, 163, 184, 0.08);
+    --border-accent: rgba(56, 189, 248, 0.4);
+    --txt: #f1f5f9;
+    --dim: #94a3b8;
+    --muted: #64748b;
+    --accent: #38bdf8;
+    --accent-glow: rgba(56, 189, 248, 0.2);
+    --off: #ef4444;
+    --off-bg: rgba(239, 68, 68, 0.14);
+    --off-border: rgba(239, 68, 68, 0.35);
+    --obs: #dc2626;
+    --on: #10b981;
+    --on-bg: rgba(16, 185, 129, 0.14);
+    --on-border: rgba(16, 185, 129, 0.35);
+    --soon: #f59e0b;
+    --soon-bg: rgba(245, 158, 11, 0.14);
+    --soon-border: rgba(245, 158, 11, 0.35);
+    --future: #64748b;
+    --future-bg: rgba(100, 116, 139, 0.14);
+    --star: #facc15;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    background: var(--bg);
+    color: var(--txt);
+    font-family: Vazirmatn, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--txt);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .en {
+    font-family: Consolas, "Courier New", Vazirmatn, monospace;
+    direction: ltr;
+    unicode-bidi: embed;
+  }
+
+  button, a, input, .chip, .tbtn, .feeder-card, .faq-head {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ---------- HEADER ---------- */
+  #header {
+    background: linear-gradient(180deg, #0d1e38 0%, #091527 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    padding-top: max(12px, env(safe-area-inset-top));
+    position: sticky;
+    top: 0;
+    z-index: 1200;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .brand-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .brand-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    color: #06283f;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+  }
+
+  .brand-text h1 {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: #fff;
+    line-height: 1.3;
+  }
+
+  .brand-text .update-tag {
+    font-size: 11.5px;
+    color: var(--dim);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  .header-badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-inline-start: auto;
+  }
+
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--on-bg);
+    border: 1px solid var(--on-border);
+    color: #6ee7b7;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+    animation: livePulse 1.8s infinite;
+  }
+
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.25); }
+  }
+
+  /* ---------- SEARCH & TOOLBAR ---------- */
+  .search-section {
+    margin-top: 10px;
+    position: relative;
+  }
+
+  .search-box-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  .search-icon {
+    position: absolute;
+    inset-inline-start: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: var(--dim);
+    pointer-events: none;
+  }
+
+  #qsearch {
+    width: 100%;
+    height: 48px;
+    padding: 0 42px 0 42px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    color: var(--txt);
+    font-family: inherit;
+    font-size: 16px; /* 16px mandatory to avoid iOS zoom */
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+
+  #qsearch:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+    background: #12223c;
+  }
+
+  #qsearch::placeholder {
+    color: var(--dim);
+    font-size: 14px;
+  }
+
+  #qsearch-clear {
+    position: absolute;
+    inset-inline-end: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--dim);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 13px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #qsearch-clear:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Suggestions dropdown */
+  .qsug {
+    position: absolute;
+    top: calc(100% + 6px);
+    inset-inline: 0;
+    background: #0f1c32;
+    border: 1px solid var(--border-accent);
+    border-radius: 14px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+    z-index: 1700;
+    overflow: hidden;
+    display: none;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+
+  .qsug.open { display: block; }
+  .qsug .qs-empty { padding: 14px 16px; color: var(--dim); font-size: 13px; text-align: center; }
+
+  .qs-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 11px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-subtle);
+    transition: background 0.15s;
+  }
+
+  .qs-item:last-child { border-bottom: none; }
+  .qs-item:hover, .qs-item.focused { background: rgba(56, 189, 248, 0.15); }
+  .qs-item .qs-name { font-size: 14px; font-weight: 700; color: var(--txt); }
+  .qs-item .qs-name mark { background: transparent; color: var(--accent); }
+  .qs-item .qs-sub { font-size: 12px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Quick Actions Row */
+  .quick-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .quick-actions::-webkit-scrollbar { display: none; }
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--txt);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .action-btn:hover {
+    border-color: var(--accent);
+    background: var(--bg-card-hover);
+  }
+
+  .action-btn.active {
+    background: var(--accent);
+    color: #06283f;
+    border-color: var(--accent);
+    font-weight: 700;
+  }
+
+  .action-btn .new-badge {
+    background: #ef4444;
+    color: #fff;
+    font-size: 10px;
+    padding: 1px 5px;
+    border-radius: 6px;
+    font-weight: 700;
+  }
+
+  .action-btn .btn-count {
+    background: rgba(255, 255, 255, 0.12);
+    padding: 1px 7px;
+    border-radius: 8px;
+    font-size: 11px;
+  }
+
+  /* View Switcher Tabs (جدول خاموشی / نقشه زنده) */
+  #viewtabs {
+    display: flex;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #091527;
+    border-bottom: 1px solid var(--border);
+    justify-content: center;
+  }
+
+  .view-tab-btn {
+    flex: 1;
+    max-width: 260px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--dim);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: all 0.2s ease;
+  }
+
+  .view-tab-btn.active {
+    background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+    color: #06283f;
+    border-color: #38bdf8;
+    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
+  }
+
+  /* Filter stats pills bar */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: #07101e;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .filter-bar::-webkit-scrollbar { display: none; }
+
+  .filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--dim);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .filter-pill.active {
+    background: var(--bg-card-inner);
+    border-color: var(--accent);
+    color: var(--txt);
+  }
+
+  .filter-pill .f-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .filter-pill b {
+    color: var(--txt);
+    font-family: inherit;
+  }
+
+  /* Saved areas chips bar */
+  #minebar {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #0c182b;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  #minebar.open { display: flex; }
+  #minebar::-webkit-scrollbar { display: none; }
+  .mb-label { font-size: 12px; color: var(--dim); white-space: nowrap; font-weight: 700; }
+
+  .mb-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 12.5px;
+    color: var(--txt);
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    transition: border-color 0.15s;
+    flex-shrink: 0;
+  }
+
+  .mb-chip:hover { border-color: var(--accent); }
+  .mb-chip .mb-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ---------- VIEWS ---------- */
+  .view { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .view.hidden { display: none; }
+
+  /* ---------- HOME / LIST VIEW (Competitor Card Layout) ---------- */
+  #view-home {
+    background: var(--bg);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .home-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 14px 16px 40px;
+    width: 100%;
+  }
+
+  .list-summary-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0 14px;
+    color: var(--dim);
+    font-size: 13px;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .list-summary-bar strong { color: var(--txt); }
+
+  #home-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  @media (min-width: 768px) {
+    #home-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Feeder Card */
+  .feeder-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    position: relative;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .feeder-card:hover {
+    border-color: rgba(56, 189, 248, 0.35);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .status-badge.state-off {
+    background: var(--off-bg);
+    border: 1px solid var(--off-border);
+    color: #fca5a5;
+  }
+
+  .status-badge.state-soon {
+    background: var(--soon-bg);
+    border: 1px solid var(--soon-border);
+    color: #fde047;
+  }
+
+  .status-badge.state-on {
+    background: var(--on-bg);
+    border: 1px solid var(--on-border);
+    color: #86efac;
+  }
+
+  .status-badge.state-future {
+    background: var(--future-bg);
+    border: 1px solid var(--border);
+    color: #cbd5e1;
+  }
+
+  .card-save-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border);
+    color: var(--dim);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s;
+  }
+
+  .card-save-btn:hover {
+    border-color: var(--star);
+    color: var(--star);
+  }
+
+  .card-save-btn.saved {
+    background: rgba(250, 204, 21, 0.15);
+    border-color: rgba(250, 204, 21, 0.4);
+    color: var(--star);
+  }
+
+  .card-day-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--dim);
+    font-weight: 600;
+  }
+
+  .card-title {
+    font-size: 15.5px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.6;
+    letter-spacing: -0.2px;
+  }
+
+  .card-title .feeder-num {
+    color: var(--accent);
+    font-family: Consolas, monospace;
+    font-weight: 800;
+    margin-inline-end: 4px;
+  }
+
+  /* Time range box (شروع - پایان تقریبی) */
+  .card-time-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-card-inner);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin: 2px 0;
+  }
+
+  .time-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .time-label {
+    font-size: 11px;
+    color: var(--dim);
+    font-weight: 500;
+  }
+
+  .time-val {
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    font-family: Consolas, "Courier New", monospace;
+    direction: ltr;
+  }
+
+  .time-arrow {
+    font-size: 14px;
+    color: var(--accent);
+    padding: 0 8px;
+  }
+
+  /* Countdown & status message */
+  .card-countdown {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--txt);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.5;
+  }
+
+  .card-countdown b {
+    color: #fff;
+    font-weight: 800;
+  }
+
+  /* Progress bar */
+  .card-progress {
+    height: 7px;
+    background: rgba(148, 163, 184, 0.15);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .card-progress-bar {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #ef4444 0%, #f59e0b 100%);
+    transition: width 0.4s ease;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-subtle);
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .card-loc {
+    font-size: 11.5px;
+    color: var(--dim);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .card-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-inline-start: auto;
+  }
+
+  .card-btn {
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--txt);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s;
+  }
+
+  .card-btn:hover {
+    border-color: var(--accent);
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--accent);
+  }
+
+  .card-btn.primary {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.35);
+    color: #7dd3fc;
+  }
+
+  .card-btn.primary:hover {
+    background: var(--accent);
+    color: #06283f;
+    border-color: var(--accent);
+  }
+
+  /* Empty search state */
+  #home-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 48px 16px;
+    background: var(--bg-card);
+    border: 1px dashed var(--border);
+    border-radius: 16px;
+    color: var(--dim);
+    font-size: 14px;
+    line-height: 2.2;
+  }
+
+  /* ---------- EMERGENCY 121 CALL CARD ---------- */
+  .emergency-card {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(220, 38, 38, 0.05) 100%);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 16px;
+    padding: 16px;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .emergency-info h3 {
+    font-size: 15px;
+    font-weight: 800;
+    color: #fca5a5;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+
+  .emergency-info p {
+    font-size: 12px;
+    color: var(--dim);
+  }
+
+  .emergency-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ef4444;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+    transition: transform 0.15s, filter 0.15s;
+    white-space: nowrap;
+  }
+
+  .emergency-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+
+  /* ---------- FAQ SECTION (Competitor Style) ---------- */
+  .faq-section {
+    margin-top: 32px;
+  }
+
+  .faq-section h2 {
+    font-size: 17px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .faq-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+
+  .faq-item:hover {
+    border-color: rgba(56, 189, 248, 0.3);
+  }
+
+  .faq-head {
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--txt);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    user-select: none;
+  }
+
+  .faq-arrow {
+    color: var(--dim);
+    font-size: 12px;
+    transition: transform 0.2s ease;
+  }
+
+  .faq-item.open .faq-arrow {
+    transform: rotate(180deg);
+    color: var(--accent);
+  }
+
+  .faq-body {
+    display: none;
+    padding: 0 16px 14px;
+    font-size: 13px;
+    color: #cbd5e1;
+    line-height: 1.9;
+    border-top: 1px solid var(--border-subtle);
+    margin-top: -2px;
+    padding-top: 12px;
+  }
+
+  .faq-item.open .faq-body {
+    display: block;
+  }
+
+  /* ---------- NEARBY CITIES SECTION ---------- */
+  .cities-section {
+    margin-top: 32px;
+  }
+
+  .cities-section h3 {
+    font-size: 15px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cities-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .city-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--dim);
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+
+  .city-chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ---------- FOOTER ---------- */
+  .site-footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 2;
+  }
+
+  .site-footer a { color: var(--accent); text-decoration: none; }
+
+  /* ---------- MAP VIEW (Fullscreen + Bottom Sheet) ---------- */
+  #view-map {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  #mapwrap {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  #map {
+    position: absolute;
+    inset: 0;
+    background: #06101c;
+  }
+
+  .leaflet-container {
+    font-family: inherit;
+    background: #06101c;
+  }
+
+  .leaflet-tile-pane {
+    filter: brightness(0.55) saturate(0.65) contrast(1.15);
+  }
+
+  .leaflet-control-zoom {
+    border: 0 !important;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .leaflet-control-zoom a {
+    background: rgba(15, 28, 50, 0.9) !important;
+    color: #c6edff !important;
+    border: 1px solid var(--border) !important;
+  }
+
+  .leaflet-control-zoom a:hover {
+    background: #1e3a60 !important;
+    color: #fff !important;
+  }
+
+  .leaflet-control-attribution {
+    background: rgba(6, 16, 29, 0.8) !important;
+    color: var(--dim) !important;
+    font-size: 10px !important;
+  }
+
+  .leaflet-control-attribution a { color: var(--accent) !important; }
+
+  /* Feeder labels on map */
+  .zlbl {
+    height: 24px;
+    min-width: 42px;
+    padding: 2px 7px;
+    border-radius: 8px;
+    background: rgba(7, 20, 35, 0.92);
+    border: 1px solid rgba(159, 201, 226, 0.4);
+    color: #e9f8ff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-weight: 700;
+  }
+
+  .zlbl::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .zlbl.my {
+    background: linear-gradient(145deg, #fff19a, #f8d74e);
+    color: #18230d;
+    border-color: #fff0a1;
+  }
+
+  .zlbl.my::before { background: #6c7e00; }
+
+  /* Floating Map Actions */
+  #map-actions {
+    position: absolute;
+    top: 14px;
+    inset-inline-end: 14px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .map-action-btn {
+    height: 42px;
+    padding: 0 14px;
+    border-radius: 12px;
+    background: rgba(15, 28, 50, 0.92);
+    border: 1px solid var(--border);
+    color: var(--txt);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(10px);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s;
+  }
+
+  .map-action-btn:hover {
+    background: #1e3a60;
+    border-color: var(--accent);
+  }
+
+  .map-action-btn.accent {
+    background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+    color: #06283f;
+    border-color: #38bdf8;
+  }
+
+  /* Map Legend */
+  #legend {
+    position: absolute;
+    top: 14px;
+    inset-inline-start: 14px;
+    z-index: 1000;
+    background: rgba(15, 28, 50, 0.92);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    font-size: 12px;
+    max-width: 220px;
+  }
+
+  #legend h3 {
+    font-size: 12.5px;
+    color: var(--accent);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .lg-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0;
+    color: #cbd5e1;
+  }
+
+  .lg-sw {
+    width: 14px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Map Badge Info */
+  #map-badge {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 900;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 12px;
+    background: rgba(10, 20, 36, 0.85);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+    white-space: nowrap;
+  }
+
+  #map-badge strong { font-size: 13px; color: #fff; }
+  #map-badge span { font-size: 10.5px; color: var(--dim); }
+
+  /* Detail Bottom Sheet / Panel on Map */
+  #panel {
+    position: absolute;
+    z-index: 1050;
+    background: rgba(15, 28, 50, 0.98);
+    border: 1px solid var(--border-accent);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(16px);
+    padding: 18px 20px calc(18px + env(safe-area-inset-bottom));
+    display: none;
+    max-height: 75vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    bottom: 0;
+    inset-inline: 0;
+    animation: sheetUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes sheetUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  #panel.open { display: block; }
+
+  @media (min-width: 768px) {
+    #panel {
+      top: 14px;
+      bottom: auto;
+      inset-inline: auto;
+      inset-inline-end: 14px;
+      width: 380px;
+      border-radius: 18px;
+      max-height: calc(100% - 28px);
+      padding: 18px;
+    }
+  }
+
+  .sheet-handle {
+    width: 44px;
+    height: 5px;
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.25);
+    margin: -6px auto 12px;
+  }
+
+  @media (min-width: 768px) {
+    .sheet-handle { display: none; }
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .panel-close-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--txt);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .panel-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.4;
+  }
+
+  .panel-sub {
+    font-size: 12px;
+    color: var(--dim);
+    margin-top: 3px;
+  }
+
+  .panel-areas-wrap {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .panel-areas-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--dim);
+    margin-bottom: 6px;
+  }
+
+  .panel-areas-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    list-style: none;
+  }
+
+  .panel-areas-list li {
+    font-size: 11px;
+    padding: 3px 8px;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 6px;
+    color: #bae6fd;
+  }
+
+  /* Map Timeline Scrubber at Bottom */
+  #timeline {
+    background: linear-gradient(180deg, rgba(13, 30, 56, 0.98) 0%, rgba(8, 19, 34, 0.98) 100%);
+    border-top: 1px solid var(--border);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    position: relative;
+    z-index: 1100;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .timeline-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  .tl-date-btns {
+    display: flex;
+    gap: 6px;
+  }
+
+  .tbtn {
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--dim);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .tbtn.active {
+    background: var(--accent);
+    color: #06283f;
+    border-color: var(--accent);
+    font-weight: 800;
+  }
+
+  .tl-time-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #tl-time {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--accent);
+    min-width: 75px;
+    text-align: center;
+    text-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+  }
+
+  #playbtn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+    color: #06283f;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+    transition: transform 0.15s;
+  }
+
+  #playbtn:hover { transform: scale(1.05); }
+
+  .timeline-slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .track-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: Consolas, monospace;
+  }
+
+  #tl-slider {
+    flex: 1;
+    height: 8px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    border-radius: 99px;
+  }
+
+  #tl-slider::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #38bdf8;
+    border: 3px solid #08192d;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3), 0 2px 8px rgba(0,0,0,0.4);
+    cursor: grab;
+  }
+
+  /* ---------- GPS SMART MODAL (Competitor Style) ---------- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 10, 20, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 2200;
+    display: none;
+    place-items: center;
+    padding: 16px;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .modal-overlay.open { display: grid; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .modal-card {
+    background: #0f1c32;
+    border: 1px solid var(--border-accent);
+    border-radius: 20px;
+    padding: 24px;
+    max-width: 440px;
+    width: 100%;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    text-align: center;
+    position: relative;
+    animation: zoomIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .modal-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    background: rgba(56, 189, 248, 0.15);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    color: var(--accent);
+    font-size: 26px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 16px;
+  }
+
+  .modal-card h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+
+  .modal-card p {
+    font-size: 13px;
+    color: var(--dim);
+    line-height: 1.8;
+    margin-bottom: 18px;
+  }
+
+  .modal-steps {
+    text-align: right;
+    background: var(--bg-card-inner);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 20px;
+    font-size: 12.5px;
+    color: #cbd5e1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .modal-steps-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .modal-steps-num {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #06283f;
+    font-weight: 800;
+    font-size: 11px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .modal-btns {
+    display: flex;
+    gap: 10px;
+  }
+
+  .modal-btn-confirm {
+    flex: 1;
+    height: 46px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+    color: #06283f;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .modal-btn-cancel {
+    height: 46px;
+    padding: 0 18px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--dim);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* ---------- PWA INSTALL POPUP ---------- */
+  #a2hs-popup {
+    position: fixed;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    z-index: 2100;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    width: min(440px, calc(100vw - 28px));
+    background: rgba(15, 28, 50, 0.98);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    border-radius: 16px;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s ease;
+  }
+
+  #a2hs-popup.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  #a2hs-popup img {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+
+  #a2hs-txt { flex: 1; min-width: 0; }
+  #a2hs-txt h4 { font-size: 13.5px; font-weight: 800; margin-bottom: 2px; }
+  #a2hs-txt p { font-size: 11.5px; color: var(--dim); margin: 0 0 6px; }
+  #a2hs-txt label { font-size: 10.5px; color: var(--muted); display: flex; align-items: center; gap: 5px; cursor: pointer; }
+
+  #a2hs-install {
+    background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+    color: #06283f;
+    border: none;
+    border-radius: 10px;
+    padding: 9px 16px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  #a2hs-close {
+    position: absolute;
+    top: 6px;
+    inset-inline-end: 6px;
+    background: none;
+    border: none;
+    color: var(--dim);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px;
+  }
+
+  #a2hs-ios {
+    display: none;
+    font-size: 11.5px;
+    color: var(--txt);
+    line-height: 2;
+    flex: 1;
+  }
+
+  #a2hs-ios b { color: var(--accent); }
+
+  #ios-refresh {
+    position: fixed;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    inset-inline-end: 14px;
+    z-index: 2050;
+    display: none;
+    background: #059669;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Toast Notification */
+  #toast {
+    position: fixed;
+    bottom: calc(75px + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 28, 50, 0.95);
+    color: #e0f2fe;
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    display: none;
+    z-index: 2300;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    white-space: nowrap;
+    text-align: center;
+    max-width: calc(100vw - 32px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Scrollbars */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #1e3a60; border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2e5485; }
+
+  /* Media Queries for Small Screens */
+  @media (max-width: 480px) {
+    .header-top { gap: 8px; }
+    .brand-text h1 { font-size: 15.5px; }
+    .brand-text .update-tag { font-size: 10.5px; }
+    .card-title { font-size: 14.5px; }
+    .time-val { font-size: 15px; }
+    #legend { display: none; }
+  }
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header id="header">
-  <div id="brand">
-    <div class="brand-mark">⚡</div>
-    <h1>نقشه لحظه‌ای قطعی برق قائم‌شهر
-      <small>وضعیت فیدرها روی نقشه · مرزها تقریبی‌اند</small>
-    </h1>
+  <div class="header-top">
+    <div class="brand-wrap">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-text">
+        <h1>جدول و نقشه قطعی برق قائم‌شهر</h1>
+        <div class="update-tag">
+          <span>بروزرسانی:</span>
+          <strong id="update-time" class="en">—</strong>
+        </div>
+      </div>
+    </div>
+    <div class="header-badges">
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        <span id="live-label">پایش فعال مازندران</span>
+      </div>
+    </div>
   </div>
-  <div id="live-pill"><span class="live-dot"></span><span id="live-label">داده در حال پایش</span></div>
-  <div id="qsearch-wrap">
-    <input id="qsearch" type="text" autocomplete="off" spellcheck="false"
-           placeholder="🔍 جستجوی محله، خیابان یا شماره فیدر…" aria-label="جستجوی فیدر">
-    <button id="qsearch-clear" type="button" title="پاک کردن جستجو">✕</button>
+
+  <!-- SEARCH BOX -->
+  <div class="search-section">
+    <div class="search-box-wrap">
+      <span class="search-icon">🔍</span>
+      <input id="qsearch" type="text" autocomplete="off" spellcheck="false"
+             placeholder="🔍 جستجوی نام محله، خیابان یا شماره فیدر..." aria-label="جستجوی فیدر">
+      <button id="qsearch-clear" type="button" title="پاک کردن جستجو">✕</button>
+      <div id="qsug" class="qsug"></div>
+    </div>
   </div>
-  <div id="stats">
-    <span class="chip"><span class="dot" style="background:var(--off)"></span>قطع <b id="st-off" class="en">0</b></span>
-    <span class="chip"><span class="dot" style="background:var(--on)"></span>وصل <b id="st-on" class="en">0</b></span>
-    <span class="chip"><span class="dot" style="background:var(--soon)"></span>به‌زودی <b id="st-soon" class="en">0</b></span>
-    <span class="chip"><span class="dot" style="background:var(--future)"></span>نامشخص <b id="st-unk" class="en">0</b></span>
-    <span class="chip" id="updated">—</span>
-    <span class="chip" id="ver-chip" title="نسخه‌ی برنامه — اگر این را نمی‌بینی، گوشی کش قدیمی دارد">نسخه ۲ ✓</span>
+
+  <!-- QUICK ACTION BUTTONS -->
+  <div class="quick-actions">
+    <button id="btn-gps-modal" class="action-btn" type="button">
+      <span>📍 موقعیت من</span>
+      <span class="new-badge">جدید</span>
+    </button>
+    <button id="btn-saved-filter" class="action-btn" type="button">
+      <span>📌 مناطق من</span>
+      <span id="saved-count-badge" class="btn-count">۰</span>
+    </button>
+    <button id="btn-date-today" class="action-btn active" type="button" data-date="today">
+      <span>📅 امروز</span>
+    </button>
+    <button id="btn-date-tomorrow" class="action-btn" type="button" data-date="tomorrow">
+      <span>📅 فردا</span>
+    </button>
   </div>
 </header>
 
+<!-- ⭐ SAVED FEEDERS BAR -->
 <div id="minebar"></div>
 
+<!-- VIEW SWITCHER TABS (خانه / نقشه) -->
 <div id="viewtabs" role="tablist">
-  <button id="tab-home" class="active" role="tab" aria-selected="true" title="فهرست وضعیت همه فیدرها">📋 خانه</button>
-  <button id="tab-map" role="tab" aria-selected="false" title="نقشه لحظه‌ای فیدرها">🗺 نقشه</button>
+  <button id="tab-home" class="view-tab-btn active" role="tab" aria-selected="true" title="جدول و فهرست خاموشی">
+    📋 جدول خاموشی (خانه)
+  </button>
+  <button id="tab-map" class="view-tab-btn" role="tab" aria-selected="false" title="نقشه زنده فیدرها">
+    🗺 نقشه تعاملی
+  </button>
 </div>
 
+<!-- ==================== VIEW 1: HOME (LIST VIEW) ==================== -->
 <main id="view-home" class="view">
-  <div id="home-head">
-    <div id="home-date" class="datebtns"></div>
-    <span id="home-sub">در حال دریافت…</span>
+  <!-- Status Filter Pills -->
+  <div class="filter-bar">
+    <button class="filter-pill active" data-filter="all">
+      همه (<b id="cnt-all" class="en">۴۷</b>)
+    </button>
+    <button class="filter-pill" data-filter="off">
+      <span class="f-dot" style="background:var(--off)"></span>
+      قطع (<b id="cnt-off" class="en">۰</b>)
+    </button>
+    <button class="filter-pill" data-filter="soon">
+      <span class="f-dot" style="background:var(--soon)"></span>
+      آماده‌باش (<b id="cnt-soon" class="en">۰</b>)
+    </button>
+    <button class="filter-pill" data-filter="on">
+      <span class="f-dot" style="background:var(--on)"></span>
+      وصل (<b id="cnt-on" class="en">۴۷</b>)
+    </button>
+    <button class="filter-pill" data-filter="saved">
+      <span>⭐ ذخیره‌شده</span>
+    </button>
   </div>
-  <div id="home-grid"></div>
+
+  <div class="home-container">
+    <div class="list-summary-bar">
+      <div>
+        <span id="home-day-title">برنامه خاموشی امروز</span> ·
+        <strong id="home-filtered-count">۴۷ منطقه</strong>
+      </div>
+      <div id="home-sync-status" class="en" style="font-size:11.5px; color:var(--dim);">
+        به وقت رسمی ایران
+      </div>
+    </div>
+
+    <!-- CARDS GRID -->
+    <div id="home-grid">
+      <div id="home-empty">در حال بارگذاری داده‌های خاموشی قائم‌شهر…</div>
+    </div>
+
+    <!-- 📞 EMERGENCY 121 CALL CARD -->
+    <div class="emergency-card">
+      <div class="emergency-info">
+        <h3>📞 اتفاقات و فوریت‌های برق قائم‌شهر (۱۲۱)</h3>
+        <p>ثبت خرابی شبکه، اتصالی سیم‌ها و گزارش قطعی‌های خارج از برنامه به صورت ۲۴ ساعته</p>
+      </div>
+      <a href="tel:121" class="emergency-btn">
+        <span>📞 تماس با ۱۲۱</span>
+      </a>
+    </div>
+
+    <!-- ❓ FAQ SECTION (Competitor Content + SEO) -->
+    <section class="faq-section">
+      <h2>❓ پرسش‌های متداول قطعی برق قائم‌شهر</h2>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-head" onclick="toggleFaq(this)">
+            <span>جدول قطعی برق قائمشهر امروز را از کجا می‌توان دید؟</span>
+            <span class="faq-arrow">▼</span>
+          </div>
+          <div class="faq-body">
+            جدول و برنامه دقیق خاموشی‌های امروز شهر قائم‌شهر در همین سامانه به صورت لحظه‌ای قابل مشاهده است. کافی است نام محله، خیابان یا شماره فیدر خود را در کادر جستجوی بالای صفحه وارد کنید تا برنامه دقیق و شمارش معکوس وصل شدن برق به شما نشان داده شود. همچنین می‌توانید از تب «نقشه تعاملی» وضعیت جغرافیایی را بررسی کنید.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-head" onclick="toggleFaq(this)">
+            <span>برنامه قطعی برق قائمشهر فردا چه زمانی منتشر می‌شود؟</span>
+            <span class="faq-arrow">▼</span>
+          </div>
+          <div class="faq-body">
+            برنامه خاموشی برق قائم‌شهر معمولاً عصر روز قبل توسط شرکت توزیع نیروی برق استان مازندران منتشر شده و بلافاصله در این سامانه در تب «📅 فردا» بارگذاری می‌شود. با کلیک روی دکمه «فردا» می‌توانید زمان‌بندی خاموشی‌های روز آینده را مشاهده نمایید.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-head" onclick="toggleFaq(this)">
+            <span>شماره تلفن خرابی و اداره برق قائمشهر چند است؟</span>
+            <span class="faq-arrow">▼</span>
+          </div>
+          <div class="faq-body">
+            برای ثبت و اعلام خاموشی‌ها، اتصالی سیم‌ها، افت ولتاژ یا هرگونه حادثه و خرابی شبکه برق در شهر قائم‌شهر و روستاهای تابعه، می‌توانید با سامانه سراسری فوریت‌های برق استان مازندران به شماره تلفن <b>۱۲۱</b> تماس حاصل فرمایید. این سامانه به صورت شبانه‌روزی و ۲۴ ساعته پاسخگوی شهروندان است.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-head" onclick="toggleFaq(this)">
+            <span>چگونه برنامه خاموشی برق محله خود در قائمشهر را پیدا کنم؟</span>
+            <span class="faq-arrow">▼</span>
+          </div>
+          <div class="faq-body">
+            ساده‌ترین روش این است که در کادر جستجوی بالای صفحه، نام خیابان اصلی یا فرعی محله خود (مثلاً خیابان ساری، بابل، ترک‌محله، کوچکسرا، کفشگرکلا، چمازکتی و...) را تایپ کنید، یا دکمه «📍 موقعیت من» را بزنید تا بر اساس GPS فیدر محل شما شناسایی شود.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-head" onclick="toggleFaq(this)">
+            <span>علت خاموشی‌های برنامه‌ریزی‌شده در قائمشهر چیست؟</span>
+            <span class="faq-arrow">▼</span>
+          </div>
+          <div class="faq-body">
+            خاموشی‌های نوبتی یا مدیریت مصرف در شهر قائم‌شهر معمولاً ناشی از ناترازی تولید و مصرف انرژی در شبکه سراسری برق، تعمیرات دوره‌ای ایستگاه‌های انتقال، و بهینه‌سازی خطوط توزیع است.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-head" onclick="toggleFaq(this)">
+            <span>آیا قطعی برق در قائمشهر دقیقاً مطابق با جدول انجام می‌شود؟</span>
+            <span class="faq-arrow">▼</span>
+          </div>
+          <div class="faq-body">
+            تلاش شرکت توزیع برق مازندران بر اجرای دقیق برنامه است، اما گاهی به دلیل کاهش بار مصرفی یا تغییر در سهمیه خاموشی استان، ممکن است قطعی برق در برخی محله‌های قائم‌شهر کمتر از زمان اعلام شده باشد یا اصلاً رخ ندهد.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 📍 NEARBY CITIES -->
+    <section class="cities-section">
+      <h3>📍 برنامه قطعی برق شهرهای استان مازندران</h3>
+      <div class="cities-grid">
+        <span class="city-chip">⚡ ساری</span>
+        <span class="city-chip">⚡ بابل</span>
+        <span class="city-chip">⚡ آمل</span>
+        <span class="city-chip">⚡ بابلسر</span>
+        <span class="city-chip">⚡ بهشهر</span>
+        <span class="city-chip">⚡ جویبار</span>
+        <span class="city-chip">⚡ سوادکوه</span>
+        <span class="city-chip">⚡ سوادکوه شمالی</span>
+        <span class="city-chip">⚡ سیمرغ</span>
+        <span class="city-chip">⚡ فریدونکنار</span>
+        <span class="city-chip">⚡ نکا</span>
+        <span class="city-chip">⚡ گلوگاه</span>
+        <span class="city-chip">⚡ نوشهر</span>
+        <span class="city-chip">⚡ چالوس</span>
+        <span class="city-chip">⚡ تنکابن</span>
+        <span class="city-chip">⚡ میاندرود</span>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      <p>سامانه مستقل و مردمی اطلاع‌رسانی خاموشی‌های قائم‌شهر</p>
+      <p>منبع داده: شرکت توزیع نیروی برق مازندران (maztozi.ir) · بروزرسانی خودکار هر ۵ دقیقه</p>
+    </footer>
+  </div>
 </main>
 
+<!-- ==================== VIEW 2: MAP VIEW ==================== -->
 <div id="view-map" class="view hidden">
-<div id="mapwrap">
-  <div id="map"></div>
-  <div id="map-badge">
-    <strong id="map-badge-title">نمای زنده فیدرها</strong>
-    <span id="map-badge-sub">در حال آماده‌سازی نقشه…</span>
-  </div>
-  <div id="map-actions">
-    <button id="locbtn" title="یافتن فیدر محل شما با GPS">📍 موقعیت من</button>
-    <button id="minebtn" title="بزرگنمایی به فیدر 402">🏠 خانه من</button>
-    <button id="fitbtn" title="نمایش همه فیدرها">⌖ همه فیدرها</button>
-    <button id="editbtn" title="ویرایش مرز مناطق">✏️ ویرایش مناطق</button>
-  </div>
-  <div id="map-side">
+  <div id="mapwrap">
+    <div id="map"></div>
+
+    <!-- Map Badge -->
+    <div id="map-badge">
+      <strong id="map-badge-title">نمای زنده فیدرها</strong>
+      <span id="map-badge-sub">در حال آماده‌سازی نقشه…</span>
+    </div>
+
+    <!-- Floating Actions on Map -->
+    <div id="map-actions">
+      <button id="map-loc-btn" class="map-action-btn accent" title="موقعیت‌یابی با GPS">📍 موقعیت من</button>
+      <button id="map-home-btn" class="map-action-btn" title="رفتن به منطقه من">🏠 خانه من</button>
+      <button id="map-fit-btn" class="map-action-btn" title="نمای همه فیدرها">⌖ همه فیدرها</button>
+    </div>
+
+    <!-- Map Legend -->
     <div id="legend">
       <h3>راهنمای وضعیت</h3>
-      <div class="lg"><span class="sw" style="background:var(--off)"></span>قطع برنامه‌ریزی‌شده</div>
-      <div class="lg"><span class="sw" style="background:var(--obs)"></span>قطع گزارش‌شده (زنده)</div>
-      <div class="lg"><span class="sw" style="background:var(--soon)"></span>خاموشی در ۲ ساعت آینده</div>
-      <div class="lg"><span class="sw" style="background:var(--on)"></span>وصل</div>
-      <div class="lg"><span class="sw" style="background:var(--future)"></span>بدون برنامه</div>
+      <div class="lg-row"><span class="lg-sw" style="background:var(--off)"></span>قطع برنامه‌ریزی‌شده</div>
+      <div class="lg-row"><span class="lg-sw" style="background:var(--obs)"></span>قطع گزارش‌شده (زنده)</div>
+      <div class="lg-row"><span class="lg-sw" style="background:var(--soon)"></span>خاموشی تا ۲ ساعت آینده</div>
+      <div class="lg-row"><span class="lg-sw" style="background:var(--on)"></span>وصل</div>
+      <div class="lg-row"><span class="lg-sw" style="background:var(--future)"></span>بدون برنامه</div>
+    </div>
+
+    <!-- Map Detail Sheet / Panel -->
+    <div id="panel"></div>
+  </div>
+
+  <!-- Timeline Scrubber -->
+  <div id="timeline">
+    <div class="timeline-top-row">
+      <div class="tl-date-btns">
+        <button id="tl-btn-today" class="tbtn active" data-date="today">امروز</button>
+        <button id="tl-btn-tomorrow" class="tbtn" data-date="tomorrow">فردا</button>
+      </div>
+      <div class="tl-time-box">
+        <div id="tl-time" class="en">--:--</div>
+        <button id="playbtn" title="پخش / توقف">▶</button>
+      </div>
+    </div>
+    <div class="timeline-slider-row">
+      <span class="track-label">00:00</span>
+      <input type="range" id="tl-slider" min="0" max="1439" value="0" step="1" aria-label="انتخاب زمان">
+      <span class="track-label">24:00</span>
     </div>
   </div>
-  <div id="panel"></div>
-  <div id="editbar">
-    <span class="hint">رأس زرد = بکش؛ روی خط آبی = رأس جدید؛ Alt+کلیک رأس زرد = حذف</span>
-    <button class="ebtn save" id="savebtn">💾 ذخیره</button>
-    <button class="ebtn cancel" id="cancelbtn">انصراف</button>
-  </div>
-  <div id="toast"></div>
 </div>
 
-<div id="timeline">
-  <div id="tl-top">
-    <div id="tl-date"></div>
-    <span id="tl-hint">برای دیدن وضعیت لحظه‌ای، زمان را روی نوار حرکت دهید</span>
-    <div id="tl-time-block"><span id="tl-time-label">زمان انتخاب‌شده</span><div id="tl-time" class="en">--:--</div><span id="clock-sync" title="زمان‌ها بر اساس ساعت سرور و منطقه‌ی زمانی ایران محاسبه می‌شود — مستقل از ساعت دستگاه شما">🛰 به وقت سرور</span></div>
-    <button id="playbtn" title="پخش خط زمانی">▶</button>
-  </div>
-  <div class="timeline-track">
-    <span class="track-label">00:00</span>
-    <input type="range" id="tl-slider" min="0" max="1439" value="0" step="1" aria-label="انتخاب زمان روز">
-    <span class="track-label">24:00</span>
+<!-- ==================== GPS SMART GUIDANCE MODAL ==================== -->
+<div id="gps-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="راهنمای موقعیت‌یابی">
+  <div class="modal-card">
+    <div class="modal-icon">📍</div>
+    <h3>شناسایی هوشمند موقعیت شما</h3>
+    <p>جهت یافتن برنامه دقیق قطعی برق محله شما، مرورگر نیازمند اجازه دسترسی به موقعیت مکانی (GPS) می‌باشد.</p>
+    <div class="modal-steps">
+      <div class="modal-steps-item">
+        <span class="modal-steps-num">۱</span>
+        <span>روی دکمه «تایید و موقعیت‌یابی» در زیر کلیک نمایید.</span>
+      </div>
+      <div class="modal-steps-item">
+        <span class="modal-steps-num">۲</span>
+        <span>در پیغام ظاهر شده در بالای صفحه، گزینه <b>Allow</b> یا <b>اجازه دادن</b> را انتخاب کنید.</span>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button id="gps-modal-confirm" class="modal-btn-confirm">📍 تایید و موقعیت‌یابی</button>
+      <button id="gps-modal-cancel" class="modal-btn-cancel">انصراف</button>
+    </div>
   </div>
 </div>
-</div><!-- /view-map -->
 
-  <div id="a2hs-popup" aria-hidden="true" role="dialog" aria-label="نصب برنامه">
-    <button id="a2hs-close" aria-label="بستن">✕</button>
-    <img src="icons/icon-144x144.png" alt="نقشه قطعی برق قائم‌شهر">
-    <div id="a2hs-txt">
-      <h4>📱 نصب نقشه قطعی برق</h4>
-      <p>برای دسترسی سریع، به صفحه اصلی گوشی خود اضافه کنید.</p>
-      <label><input type="checkbox" id="a2hs-never"> دیگر این پیام را نشان نده</label>
-    </div>
-    <button id="a2hs-install">نصب برنامه</button>
-    <div id="a2hs-ios">
-      <div>۱. در مرورگر سافاری دکمه <b>Share</b> را بزنید</div>
-      <div>۲. <b>Add to Home Screen</b> را انتخاب کنید</div>
-    </div>
+<!-- ==================== PWA INSTALL POPUP ==================== -->
+<div id="a2hs-popup" aria-hidden="true" role="dialog" aria-label="نصب برنامه">
+  <button id="a2hs-close" aria-label="بستن">✕</button>
+  <img src="icons/icon-144x144.png" alt="نقشه قطعی برق قائم‌شهر">
+  <div id="a2hs-txt">
+    <h4>📱 نصب جدول و نقشه قطعی برق</h4>
+    <p>برای دسترسی سریع و بدون فیلتر، به صفحه اصلی گوشی اضافه کنید.</p>
+    <label><input type="checkbox" id="a2hs-never"> دیگر این پیام را نشان نده</label>
   </div>
-  <button id="ios-refresh" title="پاک‌سازی کش و دریافت داده جدید">🔄 داده جدید</button>
+  <button id="a2hs-install">نصب برنامه</button>
+  <div id="a2hs-ios">
+    <div>۱. در مرورگر سافاری آیفون دکمه <b>Share</b> را بزنید.</div>
+    <div>۲. گزینه <b>Add to Home Screen</b> را انتخاب کنید.</div>
+  </div>
+</div>
+<button id="ios-refresh" title="پاک‌سازی کش و دریافت داده جدید">🔄 داده جدید</button>
 
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Leaflet JS -->
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
 "use strict";
-/* ---------- state ---------- */
+
+/* ---------- CONSTANTS & STATE ---------- */
 const COLORS = {
-  planned_off:"#ff5d68", observed_off:"#d9364b", on:"#27d98b",
-  soon:"#ffc44d", future:"#60758e", unknown:"#34495e"
+  planned_off: "#ef4444",
+  observed_off: "#dc2626",
+  on: "#10b981",
+  soon: "#f59e0b",
+  future: "#64748b",
+  unknown: "#334155"
 };
-const STATE_FA = {
-  planned_off:"قطع برنامه‌ریزی‌شده", observed_off:"قطع گزارش‌شده (زنده)",
-  on:"وصل", soon:"خاموشی در ۲ ساعت آینده", future:"آینده / بدون برنامه", unknown:"نامشخص"
-};
-const STROKE_PALETTE = ["#28536a","#2f6656","#6b5827","#65445c","#51477b","#245c63",
-                        "#6e3d49","#3c6249","#70482c","#6d5a23","#1e5a68","#5b4774"];
+
+const STROKE_PALETTE = [
+  "#38bdf8", "#34d399", "#fbbf24", "#f472b6", "#a78bfa",
+  "#2dd4bf", "#fb7185", "#4ade80", "#f97316", "#e879f9"
+];
+
 const MY_FEEDER = "402";
 const AREA = 31;
-let map, zones=[], activePlans={}, weekdays={}, hist={}, colorArr={};
-let curDate="", curMinute=0, tNowMin=0, liveNow=null, playing=false, playTimer=null;
-let serverOffsetMs=0;  /* device-clock drift, corrected from the server's clock */
-let liveNowMin=0;       /* minute-of-day (Tehran) of the real 'now' — drives the home view */
-let selectedFeeder=null, labelMarkers={}, zonesMeta=null, snapshotData=null;
-let territoryPolys={};
-/* editor state */
-let editMode=false, editFeeder=null, editVerts=[], vertMarkers=[], edgeMarkers=[], backupZones=null;
+const SAVED_KEY = "qaem_saved_feeders_v1";
 
-/* ---------- helpers ---------- */
+let map, zones = [], activePlans = {}, weekdays = {}, hist = {}, colorArr = {};
+let curDate = "", curMinute = 0, tNowMin = 0, liveNow = null, playing = false, playTimer = null;
+let serverOffsetMs = 0;
+let liveNowMin = 0;
+let selectedFeeder = null, labelMarkers = {}, zonesMeta = null, snapshotData = null;
+let territoryPolys = {}, polyLayers = {};
+let curView = "home";
+let currentFilter = "all";
+let searchQuery = "";
+
 const $ = id => document.getElementById(id);
-const pad = n => String(n).padStart(2,"0");
-function fmtMin(m){ return pad(Math.floor(m/60))+":"+pad(m%60); }
-/* ---------- server-clock sync: times must not depend on the visitor's device clock/timezone ---------- */
-function nowMs(){ return Date.now() + serverOffsetMs; }
-const TEHRAN_MIN = new Intl.DateTimeFormat("en-US",{timeZone:"Asia/Tehran",hour12:false,hour:"2-digit",minute:"2-digit"});
-function tehranMinOfDay(ms){
+const pad = n => String(n).padStart(2, "0");
+function fmtMin(m) { return pad(Math.floor(m / 60)) + ":" + pad(m % 60); }
+function toFaDigits(s) { return String(s ?? "").replace(/[0-9]/g, d => "۰۱۲۳۴۵۶۷۸۹"[+d]); }
+
+function esc(value) {
+  const entities = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+  return String(value ?? "").replace(/[&<>"']/g, ch => entities[ch]);
+}
+
+function toast(msg) {
+  const t = $("toast");
+  if (!t) return;
+  t.textContent = msg;
+  t.style.display = "block";
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.style.display = "none", 3200);
+}
+
+/* ---------- SERVER TIME SYNC ---------- */
+function nowMs() { return Date.now() + serverOffsetMs; }
+const TEHRAN_MIN = new Intl.DateTimeFormat("en-US", {
+  timeZone: "Asia/Tehran", hour12: false, hour: "2-digit", minute: "2-digit"
+});
+
+function tehranMinOfDay(ms) {
   const s = TEHRAN_MIN.format(new Date(ms));
   const mtc = s.match(/(\d{1,2}):(\d{2})/);
-  if(!mtc) return 0;
+  if (!mtc) return 0;
   let h = +mtc[1];
-  if(/PM/i.test(s) && h<12) h+=12;      /* engines that fall back to h12 */
-  if(/AM/i.test(s) && h===12) h=0;
-  return (h%24)*60 + (+mtc[2]);         /* engines that emit 24:xx for midnight */
+  if (/PM/i.test(s) && h < 12) h += 12;
+  if (/AM/i.test(s) && h === 12) h = 0;
+  return (h % 24) * 60 + (+mtc[2]);
 }
-function syncServerClock(resp, snap){
+
+function syncServerClock(resp, snap) {
   const httpDate = (resp && resp.headers) ? resp.headers.get("Date") : null;
   let serverMs = httpDate ? Date.parse(httpDate) : NaN;
-  let mode = "server";                   /* best: HTTP Date header (accurate server clock) */
-  if(!isFinite(serverMs)){ serverMs = (snap && snap.ts ? snap.ts : 0)*1000; mode = "snapshot"; }
+  let mode = "server";
+  if (!isFinite(serverMs)) { serverMs = (snap && snap.ts ? snap.ts : 0) * 1000; mode = "snapshot"; }
   const off = serverMs - Date.now();
-  if(isFinite(off) && Math.abs(off) <= 86400000){ serverOffsetMs = off; }
-  else { serverOffsetMs = 0; mode = "device"; }   /* nonsense header — trust the device */
-  const el = $("clock-sync");
-  if(el){
-    el.textContent = mode==="device" ? "🕐 به وقت دستگاه"
-                   : mode==="snapshot" ? "🛰 همگام تقریبی"
-                   : "🛰 به وقت سرور";
-  }
-  const driftMin = Math.round(Math.abs(off)/60000);
-  if(mode!=="device" && driftMin>90){
-    toast(`اختلاف ساعت دستگاه شما با زمان واقعی حدود ${driftMin} دقیقه است — زمان‌ها بر مبنای ساعت سرور نمایش داده می‌شوند`);
-  }
+  if (isFinite(off) && Math.abs(off) <= 86400000) { serverOffsetMs = off; }
+  else { serverOffsetMs = 0; mode = "device"; }
 }
-/* ---------- phase1 core (pure logic; no DOM) ---------- */
-function toFaDigits(s){ return String(s??"").replace(/[0-9]/g, d=>"۰۱۲۳۴۵۶۷۸۹"[+d]); }
-function normalizeFaCore(str, keepLen){
-  let out = String(str??"")
-    .replace(/[يى]/g,"ی").replace(/ك/g,"ک")
-    .replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه")
-    .replace(/[\u064B-\u0652\u0670\u0640]/g, keepLen?"\u0001":"")  /* اعراب + تطویل */
-    .replace(/[\u200c\u200e\u200f]/g, keepLen?"\u0002":"")          /* نیم‌فاصله + نشانه‌ها */
-    .replace(/[۰-۹]/g, d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d))
-    .replace(/[٠-٩]/g, d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d))
+
+/* ---------- PERSIAN TEXT NORMALIZATION & SEARCH ---------- */
+function normalizeFaCore(str, keepLen) {
+  let out = String(str ?? "")
+    .replace(/[يى]/g, "ی").replace(/ك/g, "ک")
+    .replace(/[أإآٱ]/g, "ا").replace(/ة/g, "ه")
+    .replace(/[\u064B-\u0652\u0670\u0640]/g, keepLen ? "\u0001" : "")
+    .replace(/[\u200c\u200e\u200f]/g, keepLen ? "\u0002" : "")
+    .replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+    .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
     .toLowerCase();
-  /* فاصله‌ها: در حالت مچ حذف می‌شوند («ترک‌محله» = «ترک محله»)، در حالت هایلایت با حفظ طول جایگزین */
-  out = keepLen ? out.replace(/\s/g,"\u0002") : out.replace(/\s+/g,"");
+  out = keepLen ? out.replace(/\s/g, "\u0002") : out.replace(/\s+/g, "");
   return out;
 }
-function normalizeFa(s){ return normalizeFaCore(s,false); }
-function normalizeFaPos(s){ return normalizeFaCore(s,true); }
-function queryKeywords(q){ return String(q??"").split(/\s+/).map(w=>normalizeFa(w)).filter(Boolean); }
-function feederHay(z){ return normalizeFa(`${z.feeder} ${z.name||""} ${(z.areas||[]).join(" ")}`); }
-function matchKws(hay, kws){ return kws.length>0 && kws.every(k=>k.length>0 && hay.includes(k)); }
-function searchZones(zs, q){
+function normalizeFa(s) { return normalizeFaCore(s, false); }
+function normalizeFaPos(s) { return normalizeFaCore(s, true); }
+function queryKeywords(q) { return String(q ?? "").split(/\s+/).map(w => normalizeFa(w)).filter(Boolean); }
+function feederHay(z) { return normalizeFa(`${z.feeder} ${z.name || ""} ${(z.areas || []).join(" ")}`); }
+function matchKws(hay, kws) { return kws.length > 0 && kws.every(k => k.length > 0 && hay.includes(k)); }
+
+function searchZones(zs, q) {
   const kws = queryKeywords(q);
-  if(!kws.length) return [];
-  return zs.filter(z=>matchKws(feederHay(z), kws)).slice(0,8);
+  if (!kws.length) return zs;
+  return zs.filter(z => matchKws(feederHay(z), kws));
 }
-function highlightParts(orig, kws){
+
+function highlightParts(orig, kws) {
   const pos = normalizeFaPos(orig);
   const flags = new Array(pos.length).fill(false);
-  for(const kw of kws){
-    const pkw = normalizeFaPos(kw); if(!pkw) continue;
+  for (const kw of kws) {
+    const pkw = normalizeFaPos(kw);
+    if (!pkw) continue;
     let i = pos.indexOf(pkw);
-    while(i!==-1){ for(let k=i;k<i+pkw.length;k++) flags[k]=true; i=pos.indexOf(pkw, i+pkw.length); }
+    while (i !== -1) {
+      for (let k = i; k < i + pkw.length; k++) flags[k] = true;
+      i = pos.indexOf(pkw, i + pkw.length);
+    }
   }
-  let html="", run=false;
-  for(let i=0;i<orig.length;i++){
-    const want=flags[i];
-    if(want && !run){ html+="<mark>"; run=true; }
-    if(!want && run){ html+="</mark>"; run=false; }
+  let html = "", run = false;
+  for (let i = 0; i < orig.length; i++) {
+    const want = flags[i];
+    if (want && !run) { html += "<mark>"; run = true; }
+    if (!want && run) { html += "</mark>"; run = false; }
     html += esc(orig[i]);
   }
-  if(run) html+="</mark>";
+  if (run) html += "</mark>";
   return html || esc(orig);
 }
-function pointInPoly(pt, poly){
-  let inside=false;
-  for(let i=0,j=poly.length-1;i<poly.length;j=i++){
-    const yi=poly[i][0], xi=poly[i][1], yj=poly[j][0], xj=poly[j][1];
-    if(((yi>pt[0])!==(yj>pt[0])) && (pt[1] < (xj-xi)*(pt[0]-yi)/(yj-yi)+xi)) inside=!inside;
+
+function shortFeederName(name) { return String(name || "").replace(/^فیدر\s*\d+\s*[—-]\s*/, ""); }
+
+/* ---------- SAVED (⭐ مناطق من) ---------- */
+function getSaved() {
+  try {
+    const a = JSON.parse(localStorage.getItem(SAVED_KEY));
+    return Array.isArray(a) ? a.filter(x => typeof x === "string") : [];
+  } catch { return []; }
+}
+
+function toggleSaved(feeder) {
+  let a = getSaved();
+  const exists = a.includes(feeder);
+  if (exists) a = a.filter(x => x !== feeder);
+  else a.push(feeder);
+  try { localStorage.setItem(SAVED_KEY, JSON.stringify(a)); } catch {}
+  renderMinebar();
+  renderHome();
+  if (selectedFeeder === feeder) {
+    const z = zones.find(x => x.feeder === feeder);
+    if (z) openPanel(z);
+  }
+  toast(exists ? `فیدر ${feeder} از مناطق من حذف شد` : `⭐ فیدر ${feeder} به مناطق من اضافه شد`);
+}
+
+function renderMinebar() {
+  const bar = $("minebar");
+  const badge = $("saved-count-badge");
+  const a = getSaved();
+  if (badge) badge.textContent = toFaDigits(a.length);
+  if (!bar) return;
+  if (!a.length) {
+    bar.classList.remove("open");
+    bar.innerHTML = "";
+    return;
+  }
+  bar.classList.add("open");
+  bar.innerHTML = `<span class="mb-label">⭐ مناطق من:</span>` + a.map(f => {
+    const z = zones.find(x => x.feeder === f);
+    if (!z) return "";
+    const code = colorArr[z.feeder] ? colorArr[z.feeder][curMinute] : 0;
+    const color = stateColor(code);
+    return `<button class="mb-chip" onclick="focusOnMap('${esc(f)}')" title="${esc(z.name)}">
+      <span class="mb-dot" style="background:${color}"></span>
+      <span class="en">${esc(f)}</span>
+      <span>${esc(shortFeederName(z.name).slice(0, 20))}</span>
+    </button>`;
+  }).join("") + `<button class="mb-chip" style="opacity:.7" onclick="clearAllSaved()" title="پاک کردن همه">✕ پاک</button>`;
+}
+
+function clearAllSaved() {
+  try { localStorage.setItem(SAVED_KEY, JSON.stringify([])); } catch {}
+  renderMinebar();
+  renderHome();
+  toast("لیست مناطق من پاک شد");
+}
+
+/* ---------- GEOMETRY & MAP HELPERS ---------- */
+function pointInPoly(pt, poly) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const yi = poly[i][0], xi = poly[i][1], yj = poly[j][0], xj = poly[j][1];
+    if (((yi > pt[0]) !== (yj > pt[0])) && (pt[1] < (xj - xi) * (pt[0] - yi) / (yj - yi) + xi)) inside = !inside;
   }
   return inside;
 }
-function distKm(a,b){
-  const R=6371, dLat=(b[0]-a[0])*Math.PI/180, dLon=(b[1]-a[1])*Math.PI/180;
-  const la1=a[0]*Math.PI/180, la2=b[0]*Math.PI/180;
-  const h=Math.sin(dLat/2)**2 + Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2;
-  return 2*R*Math.asin(Math.sqrt(h));
+
+function distKm(a, b) {
+  const R = 6371, dLat = (b[0] - a[0]) * Math.PI / 180, dLon = (b[1] - a[1]) * Math.PI / 180;
+  const la1 = a[0] * Math.PI / 180, la2 = b[0] * Math.PI / 180;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
 }
-function windowsOf(feeder){
-  const plan=((hist||{}).planned||{})[feeder]||[];
-  const obs=((hist||{}).observed||{})[feeder]||[];
-  const ws=[];
-  for(const r of obs) ws.push({s:(r.s??r[0]), e:(r.e??r[1]), type:"obs", addr:r.addr, reason:r.reason});
-  for(const w of plan) ws.push({s:(w[0]??w.s), e:(w[1]??w.e), type:"plan"});
-  ws.sort((a,b)=>a.s-b.s);
-  return ws;
+
+function centroidOf(poly) {
+  let a = 0, b = 0, n = poly.length;
+  for (const p of poly) { a += p[0]; b += p[1]; }
+  return [a / n, b / n];
 }
-function cardInfo(z, minute){
-  const hasAnyData = Object.keys(hist.planned||{}).length>0 || Object.keys(hist.observed||{}).length>0;
-  const defCode = hasAnyData ? 0 : 5;
-  const code = colorArr[z.feeder] ? colorArr[z.feeder][minute] : defCode;
-  const ws = windowsOf(z.feeder);
-  const active = ws.find(w=>minute>=w.s && minute<w.e && w.type==="obs")
-              || ws.find(w=>minute>=w.s && minute<w.e);
-  const next = ws.find(w=>w.s>minute);
-  return {code, active, next, windows:ws};
-}
-function cardBadge(code){
-  if(code===2) return {icon:"🔴", big:"برق رفت :(", sub:"قطع گزارش‌شده (زنده)"};
-  if(code===1) return {icon:"🔴", big:"برق رفت :(", sub:"قطع برنامه‌ریزی‌شده"};
-  if(code===3) return {icon:"🟡", big:"آماده باش :|", sub:"خاموشی نزدیک است"};
-  if(code===4) return {icon:"🗓", big:"برنامه‌ریزی‌شده", sub:"بعدتر در این روز"};
-  if(code===0) return {icon:"🟢", big:"وصل :)", sub:"بدون قطعی فعال"};
-  return {icon:"⚪", big:"بدون برنامه", sub:"داده‌ای ثبت نشده"};
-}
-function stateColor(code){
-  return code===2?COLORS.observed_off : code===1?COLORS.planned_off : code===3?COLORS.soon
-       : code===0?COLORS.on : COLORS.unknown;
-}
-function fmtCountdownFa(mins){
-  if(!isFinite(mins) || mins<0) mins=0;
-  const h=Math.floor(mins/60), m=mins%60;
-  if(h>0 && m>0) return `${toFaDigits(h)} ساعت و ${toFaDigits(m)} دقیقه`;
-  if(h>0) return `${toFaDigits(h)} ساعت`;
-  return `${toFaDigits(m)} دقیقه`;
-}
-function severityRank(code){ return code===2?0 : code===1?1 : code===3?2 : code===4?3 : code===0?4 : 5; }
-function esc(value){
-  const entities={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"};
-  return String(value ?? "").replace(/[&<>\"']/g, ch => entities[ch]);
-}
-const CODE_STATE = {0:"on",1:"planned_off",2:"observed_off",3:"soon",4:"future",5:"unknown"};
-const CODE_STATE_FA = {0:"وصل",1:"قطع برنامه‌ریزی‌شده",2:"قطع گزارش‌شده",3:"به‌زودی",4:"آینده",5:"بدون برنامه"};
-function codeState(code){ return CODE_STATE[code] || "unknown"; }
-function codeStateFa(code){ return CODE_STATE_FA[code] || "نامشخص"; }
-function currentCode(z){
-  const hasAnyData = Object.keys(hist.planned||{}).length>0 || Object.keys(hist.observed||{}).length>0;
-  return colorArr[z.feeder] ? colorArr[z.feeder][curMinute] : (hasAnyData?0:5);
-}
-function shortFeederName(name){ return String(name || "").replace(/^فیدر\s*\d+\s*[—-]\s*/, ""); }
-function prepareMapZones(rawZones){
-  const mapped=(rawZones||[]).map(z=>({...z, polygon:(z.polygon||[]).map(p=>[+p[0],+p[1]])}));
-  const feeder402=mapped.find(z=>z.feeder===MY_FEEDER);
-  const feeder382=mapped.find(z=>z.feeder==="382");
-  if(feeder402 && feeder382){
-    [feeder402.polygon, feeder382.polygon]=[feeder382.polygon, feeder402.polygon];
-  }
-  return mapped;
-}
-function toast(msg){
-  const t=$("toast"); t.textContent=msg; t.style.display="block";
-  clearTimeout(t._h); t._h=setTimeout(()=>t.style.display="none", 3000);
-}
-function inInterval(intervals, m){
-  if(!intervals) return null;
-  for(const it of intervals){
-    const s=it[0] ?? it.s, e=it[1] ?? it.e;
-    if(m>=s && (e===null || m<e)) return true;
-  }
-  return false;
-}
-function strokeOf(z){ return STROKE_PALETTE[(parseInt(z.feeder||"0",10)*7)%STROKE_PALETTE.length]; }
-function centroidOf(poly){
-  let a=0,b=0,n=poly.length;
-  for(const p of poly){ a+=p[0]; b+=p[1]; }
-  return [a/n, b/n];
-}
-function openPolygon(poly){
-  const points=(poly||[]).map(p=>[+p[0],+p[1]]);
-  if(points.length>1){
-    const first=points[0], last=points[points.length-1];
-    if(first[0]===last[0] && first[1]===last[1]) points.pop();
+
+function openPolygon(poly) {
+  const points = (poly || []).map(p => [+p[0], +p[1]]);
+  if (points.length > 1) {
+    const first = points[0], last = points[points.length - 1];
+    if (first[0] === last[0] && first[1] === last[1]) points.pop();
   }
   return points;
 }
-function clipHalfPlane(poly,a,b,c){
-  if(poly.length<3) return [];
-  const result=[];
-  const inside=p=>a*p[0]+b*p[1] <= c+1e-10;
-  const intersection=(s,e)=>{
-    const ds=a*s[0]+b*s[1]-c, de=a*e[0]+b*e[1]-c;
-    const t=ds/(ds-de);
-    return [s[0]+(e[0]-s[0])*t, s[1]+(e[1]-s[1])*t];
+
+function clipHalfPlane(poly, a, b, c) {
+  if (poly.length < 3) return [];
+  const result = [];
+  const inside = p => a * p[0] + b * p[1] <= c + 1e-10;
+  const intersection = (s, e) => {
+    const ds = a * s[0] + b * s[1] - c, de = a * e[0] + b * e[1] - c;
+    const t = ds / (ds - de);
+    return [s[0] + (e[0] - s[0]) * t, s[1] + (e[1] - s[1]) * t];
   };
-  for(let i=0;i<poly.length;i++){
-    const s=poly[i], e=poly[(i+1)%poly.length];
-    const sin=inside(s), ein=inside(e);
-    if(sin && ein) result.push(e);
-    else if(sin && !ein) result.push(intersection(s,e));
-    else if(!sin && ein) result.push(intersection(s,e),e);
+  for (let i = 0; i < poly.length; i++) {
+    const s = poly[i], e = poly[(i + 1) % poly.length];
+    const sin = inside(s), ein = inside(e);
+    if (sin && ein) result.push(e);
+    else if (sin && !ein) result.push(intersection(s, e));
+    else if (!sin && ein) result.push(intersection(s, e), e);
   }
   return result;
 }
-function buildTerritories(){
-  const centers=zones.map(z=>({feeder:z.feeder, point:centroidOf(openPolygon(z.polygon))}));
-  const territories={};
-  for(const z of zones){
-    const own=centers.find(c=>c.feeder===z.feeder);
-    let poly=openPolygon(z.polygon);
-    if(own){
-      for(const other of centers){
-        if(other===own) continue;
-        const [ix,iy]=own.point, [jx,jy]=other.point;
-        const a=2*(jx-ix), b=2*(jy-iy), c=jx*jx+jy*jy-ix*ix-iy*iy;
-        poly=clipHalfPlane(poly,a,b,c);
-        if(poly.length<3) break;
+
+function buildTerritories() {
+  const centers = zones.map(z => ({ feeder: z.feeder, point: centroidOf(openPolygon(z.polygon)) }));
+  const territories = {};
+  for (const z of zones) {
+    const own = centers.find(c => c.feeder === z.feeder);
+    let poly = openPolygon(z.polygon);
+    if (own) {
+      for (const other of centers) {
+        if (other === own) continue;
+        const [ix, iy] = own.point, [jx, jy] = other.point;
+        const a = 2 * (jx - ix), b = 2 * (jy - iy), c = jx * jx + jy * jy - ix * ix - iy * iy;
+        poly = clipHalfPlane(poly, a, b, c);
+        if (poly.length < 3) break;
       }
     }
-    territories[z.feeder]=poly.length>=3 ? poly.concat([poly[0]]) : z.polygon;
+    territories[z.feeder] = poly.length >= 3 ? poly.concat([poly[0]]) : z.polygon;
   }
   return territories;
 }
 
-/* ---------- map init ---------- */
-function initMap(){
-  map = L.map("map", {zoomControl:false}).setView([36.465, 52.862], 13);
+function strokeOf(z) {
+  return STROKE_PALETTE[(parseInt(z.feeder || "0", 10) * 7) % STROKE_PALETTE.length];
+}
+
+function inInterval(intervals, m) {
+  if (!intervals) return false;
+  for (const it of intervals) {
+    const s = it[0] ?? it.s, e = it[1] ?? it.e;
+    if (m >= s && (e === null || m < e)) return true;
+  }
+  return false;
+}
+
+function windowsOf(feeder) {
+  const plan = ((hist || {}).planned || {})[feeder] || [];
+  const obs = ((hist || {}).observed || {})[feeder] || [];
+  const ws = [];
+  for (const r of obs) ws.push({ s: (r.s ?? r[0]), e: (r.e ?? r[1]), type: "obs", addr: r.addr, reason: r.reason });
+  for (const w of plan) ws.push({ s: (w[0] ?? w.s), e: (w[1] ?? w.e), type: "plan" });
+  ws.sort((a, b) => a.s - b.s);
+  return ws;
+}
+
+function cardInfo(z, minute) {
+  const hasAnyData = Object.keys(hist.planned || {}).length > 0 || Object.keys(hist.observed || {}).length > 0;
+  const defCode = hasAnyData ? 0 : 5;
+  const code = colorArr[z.feeder] ? colorArr[z.feeder][minute] : defCode;
+  const ws = windowsOf(z.feeder);
+  const active = ws.find(w => minute >= w.s && minute < w.e && w.type === "obs")
+              || ws.find(w => minute >= w.s && minute < w.e);
+  const next = ws.find(w => w.s > minute);
+  return { code, active, next, windows: ws };
+}
+
+function stateColor(code) {
+  return code === 2 ? COLORS.observed_off : code === 1 ? COLORS.planned_off
+       : code === 3 ? COLORS.soon : code === 0 ? COLORS.on : COLORS.unknown;
+}
+
+function fmtCountdownFa(mins) {
+  if (!isFinite(mins) || mins < 0) mins = 0;
+  const h = Math.floor(mins / 60), m = mins % 60;
+  if (h > 0 && m > 0) return `${toFaDigits(h)} ساعت و ${toFaDigits(m)} دقیقه`;
+  if (h > 0) return `${toFaDigits(h)} ساعت`;
+  return `${toFaDigits(m)} دقیقه`;
+}
+
+function severityRank(code) {
+  return code === 2 ? 0 : code === 1 ? 1 : code === 3 ? 2 : code === 4 ? 3 : code === 0 ? 4 : 5;
+}
+
+/* ---------- COLOR ARRAY BUILDER ---------- */
+function buildColorArr() {
+  colorArr = {};
+  const hasAnyData = Object.keys(hist.planned || {}).length > 0 || Object.keys(hist.observed || {}).length > 0 || (hist.unmapped || []).length > 0;
+  for (const z of zones) {
+    const arr = new Uint8Array(1440);
+    const obs = (hist.observed || {})[z.feeder] || [];
+    const plan = (hist.planned || {})[z.feeder] || [];
+    for (let m = 0; m < 1440; m++) {
+      if (inInterval(obs, m)) arr[m] = 2; // observed_off
+      else if (inInterval(plan, m)) arr[m] = 1; // planned_off
+      else if (!hasAnyData) arr[m] = 5; // unknown
+      else if (m < tNowMin) arr[m] = 0; // past
+      else {
+        let soon = false;
+        for (const [s] of plan) { if (s > m && s - m <= 120) { soon = true; break; } }
+        arr[m] = soon ? 3 : 0;
+      }
+    }
+    colorArr[z.feeder] = arr;
+  }
+}
+
+/* ---------- MAP INITIALIZATION ---------- */
+function initMap() {
+  map = L.map("map", { zoomControl: false, attributionControl: true }).setView([36.465, 52.862], 13);
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom:18, attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+    maxZoom: 18,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
   }).addTo(map);
-  L.control.zoom({position:"topright"}).addTo(map);
+  L.control.zoom({ position: "topright" }).addTo(map);
+  map.on("click", (e) => {
+    const target = e.originalEvent && e.originalEvent.target;
+    if (target && target.closest && target.closest(".leaflet-interactive")) return;
+    closePanel();
+  });
 }
 
-/* ---------- zone state at minute ---------- */
-function zoneColor(z, m){
-  const f=z.feeder;
-  if(m===curMinute && liveNow && liveNow.zones){
-    const ln = liveNow.zones.find(x=>x.feeder===f);
-    if(ln){
-      if(ln.state==="observed_off") return COLORS.observed_off;
-      if(ln.state==="planned_off") return COLORS.planned_off;
-      if(ln.state==="on"){
-        const pt = (activePlans[curDate]||{})[AREA]||{};
-        for(const t of (pt[f]||[])){
-          const sm = +t.split(":")[0]*60 + +t.split(":")[1];
-          if(sm>m && sm-m<=120) return COLORS.soon;
-        }
-        return COLORS.on;
-      }
-      return COLORS.unknown;
-    }
-  }
-  const obs = (hist.observed||{})[f]||[];
-  const plan = (hist.planned||{})[f]||[];
-  const hasAnyData = Object.keys(hist.planned||{}).length>0 || Object.keys(hist.observed||{}).length>0;
-  if(inInterval(obs,m)) return COLORS.observed_off;
-  if(inInterval(plan,m)) return COLORS.planned_off;
-  if(!hasAnyData) return COLORS.unknown;
-  if(m < tNowMin) return COLORS.on;
-  for(const [s] of plan){ if(s>m && s-m<=120) return COLORS.soon; }
-  return COLORS.on; // بدون برنامه یا آینده دور = وصل
-}
-
-function buildColorArr(){
-  colorArr={};
-  const hasAnyData = Object.keys(hist.planned||{}).length>0 || Object.keys(hist.observed||{}).length>0 || (hist.unmapped||[]).length>0;
-  for(const z of zones){
-    const arr=new Uint8Array(1440);
-    for(let m=0;m<1440;m++){
-      const obs=(hist.observed||{})[z.feeder]||[];
-      const plan=(hist.planned||{})[z.feeder]||[];
-      if(inInterval(obs,m)) arr[m]=2;
-      else if(inInterval(plan,m)) arr[m]=1;
-      else if(!hasAnyData) arr[m]=5; // واقعا داده نداریم -> نامشخص (فردا هنوز منتشر نشده)
-      else if(m<tNowMin) arr[m]=0;
-      else{
-        let soon=false;
-        for(const [s] of plan){ if(s>m && s-m<=120){ soon=true; break; } }
-        // بدون برنامه یا آینده دور = وصل (سبز)
-        arr[m] = soon?3 : 0;
-      }
-    }
-    colorArr[z.feeder]=arr;
-  }
-}
-
-/* ---------- draw ---------- */
-const polyLayers={};
-function drawZones(){
-  territoryPolys=buildTerritories();
-  for(const z of zones){
-    const territory=territoryPolys[z.feeder]||z.polygon;
-    const latlngs=territory.map(p=>[p[0],p[1]]);
+function drawZones() {
+  territoryPolys = buildTerritories();
+  for (const z of zones) {
+    const territory = territoryPolys[z.feeder] || z.polygon;
+    const latlngs = territory.map(p => [p[0], p[1]]);
     const layer = L.polygon(latlngs, {
-      className:z.feeder===MY_FEEDER ? "my-zone" : "zone-shape",
-      color:strokeOf(z), weight:z.feeder===MY_FEEDER?2.3:1.05, opacity:.84, fillOpacity:.25
+      color: strokeOf(z),
+      weight: z.feeder === MY_FEEDER ? 2.5 : 1.2,
+      opacity: 0.85,
+      fillOpacity: 0.28
     }).addTo(map);
-    layer.bindTooltip(`<b>${esc(z.name)}</b><br><span>فیدر <span class="en">${esc(z.feeder)}</span></span>`, {direction:"top"});
-    layer.on("click", ()=>{ if(editMode){ startEditZone(z); } else { selectZone(z); } });
-    layer.on("mouseover", ()=>{
-      if(!editMode){
-        if(z.feeder!==MY_FEEDER && labelMarkers[z.feeder]) labelMarkers[z.feeder].setOpacity(1);
-        if(selectedFeeder!==z.feeder) layer.setStyle({weight:2.2, fillOpacity:.42});
-      }
+
+    layer.bindTooltip(`<b>${esc(z.name)}</b><br><span>فیدر <span class="en">${esc(z.feeder)}</span></span>`, { direction: "top" });
+    layer.on("click", () => selectZone(z));
+    layer.on("mouseover", () => {
+      if (z.feeder !== MY_FEEDER && labelMarkers[z.feeder]) labelMarkers[z.feeder].setOpacity(1);
+      if (selectedFeeder !== z.feeder) layer.setStyle({ weight: 2.4, fillOpacity: 0.45 });
     });
-    layer.on("mouseout", ()=>{
-      if(!editMode){
-        if(z.feeder!==MY_FEEDER && labelMarkers[z.feeder]) labelMarkers[z.feeder].setOpacity(0);
-        applyColors();
-      }
+    layer.on("mouseout", () => {
+      if (z.feeder !== MY_FEEDER && labelMarkers[z.feeder]) labelMarkers[z.feeder].setOpacity(0);
+      applyColors();
     });
-    polyLayers[z.feeder]=layer;
-    const ctr=centroidOf(z.polygon);
-    const my=z.feeder===MY_FEEDER;
-    const icon=L.divIcon({className:"zlbl"+(my?" my":""), html:`<span class="en">${esc(z.feeder)}</span>`,
-                          iconSize:[42,23], iconAnchor:[21,11.5]});
-    labelMarkers[z.feeder]=L.marker(ctr,{icon, interactive:false, opacity:my?1:0, zIndexOffset: my?2200:2000}).addTo(map);
+
+    polyLayers[z.feeder] = layer;
+    const ctr = centroidOf(z.polygon);
+    const my = z.feeder === MY_FEEDER;
+    const icon = L.divIcon({
+      className: "zlbl" + (my ? " my" : ""),
+      html: `<span class="en">${esc(z.feeder)}</span>`,
+      iconSize: [44, 24],
+      iconAnchor: [22, 12]
+    });
+    labelMarkers[z.feeder] = L.marker(ctr, { icon, interactive: false, opacity: my ? 1 : 0, zIndexOffset: my ? 2200 : 2000 }).addTo(map);
   }
 }
-function applyColors(){
-  const idxColor = {0:COLORS.on,1:COLORS.planned_off,2:COLORS.observed_off,3:COLORS.soon,4:COLORS.future,5:COLORS.unknown};
-  for(const z of zones){
-    const layer=polyLayers[z.feeder]; if(!layer) continue;
-    const code = colorArr[z.feeder][curMinute];
+
+function applyColors() {
+  const idxColor = { 0: COLORS.on, 1: COLORS.planned_off, 2: COLORS.observed_off, 3: COLORS.soon, 4: COLORS.future, 5: COLORS.unknown };
+  for (const z of zones) {
+    const layer = polyLayers[z.feeder];
+    if (!layer) continue;
+    const code = colorArr[z.feeder] ? colorArr[z.feeder][curMinute] : 0;
     layer.setStyle({
-      fillColor: idxColor[code], fillOpacity: (selectedFeeder===z.feeder || editFeeder===z.feeder)?.48:.24,
-      color: (z.feeder===MY_FEEDER)? "#b9932e" : strokeOf(z),
-      weight: (z.feeder===MY_FEEDER||selectedFeeder===z.feeder)? 2.6 : 1.05
+      fillColor: idxColor[code],
+      fillOpacity: (selectedFeeder === z.feeder) ? 0.52 : 0.28,
+      color: (z.feeder === MY_FEEDER) ? "#facc15" : strokeOf(z),
+      weight: (z.feeder === MY_FEEDER || selectedFeeder === z.feeder) ? 2.8 : 1.2
     });
-    if(selectedFeeder && selectedFeeder!==z.feeder && editMode===false && !myZone(z)) layer.setStyle({fillOpacity:.12});
+    if (selectedFeeder && selectedFeeder !== z.feeder) {
+      layer.setStyle({ fillOpacity: 0.12 });
+    }
   }
 }
-function myZone(z){ return z.feeder===MY_FEEDER; }
-function selectZone(z){
-  selectedFeeder = (selectedFeeder===z.feeder)? null : z.feeder;
-  if(selectedFeeder){
+
+function selectZone(z) {
+  selectedFeeder = (selectedFeeder === z.feeder) ? null : z.feeder;
+  if (selectedFeeder) {
     polyLayers[z.feeder].bringToFront();
     openPanel(z);
-  } else { closePanel(); }
+  } else {
+    closePanel();
+  }
   applyColors();
 }
-function renderStats(){
-  let off=0, on=0, soon=0, unk=0;
-  for(const z of zones){
-    const c = currentCode(z);
-    if(c===1||c===2) off++; else if(c===0) on++; else if(c===3) soon++; else if(c===5) unk++; else on++; // 4 legacy -> on
-  }
-  $("st-off").textContent=off; $("st-on").textContent=on;
-  $("st-soon").textContent=soon; $("st-unk").textContent=unk;
-  // اگر هیچ نامشخص واقعی نداریم، چیپ را کم‌رنگ کن
-  const unkChip = document.querySelector("#stats .chip:nth-child(4)");
-  if(unkChip) unkChip.style.opacity = unk===0 ? "0.45" : "1";
-}
-function refreshSelectedPanel(){
-  if(selectedFeeder){
-    const z=zones.find(x=>x.feeder===selectedFeeder);
-    if(z) openPanel(z);
-  }
+
+function closePanel() {
+  const p = $("panel");
+  if (p) p.classList.remove("open");
+  selectedFeeder = null;
+  applyColors();
 }
 
-/* ---------- panel ---------- */
-function openPanel(z){
-  const p=$("panel");
-  const pt=(activePlans[curDate]||{})[AREA]||{};
-  const timesToday=pt[z.feeder]||[];
-  const timesTmrw=((activePlans[zonesMeta.tomorrow]||{})[AREA]||{})[z.feeder]||[];
-  const obs=(hist.observed||{})[z.feeder]||[];
-  const isMy=z.feeder===MY_FEEDER;
-  const savedNow=getSaved().includes(z.feeder);
-  const todayPills=timesToday.length?timesToday.map(t=>`<span class="schedule-pill">${esc(t)}</span>`).join(""):"<span class=\"schedule-empty\">برنامه‌ای ثبت نشده</span>";
-  const tomorrowPills=timesTmrw.length?timesTmrw.map(t=>`<span class="schedule-pill">${esc(t)}</span>`).join(""):"<span class=\"schedule-empty\">برنامه‌ای ثبت نشده</span>";
-  const eventHtml=obs.length?`<div class="panel-section"><div class="section-title"><span>گزارش‌های زنده</span><span><span class="en">${obs.length}</span> مورد</span></div><ul class="event-list">${obs.slice(-3).map(o=>`<li><span class="en">${esc(o.time||"")}</span> — ${esc(o.addr||"")} ${o.reason?`(${esc(o.reason)})`:""}</li>`).join("")}</ul></div>`:"";
-  const areasHtml=z.areas&&z.areas.length?`<div class="panel-section"><div class="section-title">محله‌های تحت پوشش</div><ul class="area-list">${z.areas.map(a=>`<li>${esc(a)}</li>`).join("")}</ul></div>`:"";
-  const html=`<button class="close" aria-label="بستن" onclick="closePanel()">✕</button>
-    <div class="panel-kicker"><span class="kicker-dot"></span><span>امور برق قائم‌شهر · فیدر <span class="en">${esc(z.feeder)}</span></span>
-      <button class="starbtn" onclick="toggleSaved('${esc(z.feeder)}')" title="افزودن/حذف از مناطق من">${savedNow?"★ ذخیره شد":"☆ ذخیره"}</button>
-      <button class="sharebtn" onclick="shareFeeder('${esc(z.feeder)}')" title="اشتراک‌گذاری لینک این فیدر">🔗 اشتراک</button></div>
-    <div class="panel-title">${esc(shortFeederName(z.name))}</div>
-    <div class="panel-sub">نمایش وضعیت، برنامه خاموشی و محله‌های تحت پوشش</div>
-    ${statusCardHtml(z, curMinute)}
-    <div class="panel-grid"><div class="metric"><span class="metric-label">برنامه امروز</span><strong class="metric-value en">${timesToday.length?timesToday.join(" · "):"—"}</strong></div><div class="metric"><span class="metric-label">برنامه فردا</span><strong class="metric-value en">${timesTmrw.length?timesTmrw.join(" · "):"—"}</strong></div></div>
-    <div class="panel-section"><div class="section-title"><span>امروز</span><span class="en">${esc(curDate)}</span></div><div class="schedule-pills">${todayPills}</div></div>
-    <div class="panel-section"><div class="section-title"><span>فردا</span><span class="en">${esc(zonesMeta.tomorrow)}</span></div><div class="schedule-pills">${tomorrowPills}</div></div>
-    ${eventHtml}${areasHtml}
-    <div class="note">⚠ مرز این فیدر تقریبی است و از روی داده متنی سامانه رسمی ساخته شده.</div>`;
-  p.innerHTML=html; p.classList.add("open");
-}
-function stateNow(z){
-  if(liveNow && liveNow.zones){
-    const ln=liveNow.zones.find(x=>x.feeder===z.feeder);
-    if(ln) return ln.state;
+/* ---------- PANEL / BOTTOM SHEET (MAP VIEW) ---------- */
+function openPanel(z) {
+  const p = $("panel");
+  if (!p) return;
+  const isSaved = getSaved().includes(z.feeder);
+  const ci = cardInfo(z, curMinute);
+  const ws = windowsOf(z.feeder);
+
+  let statusBadgeHtml = "";
+  let countdownText = "";
+  let timeBoxHtml = "";
+  let progressHtml = "";
+
+  if (ci.active) {
+    statusBadgeHtml = `<span class="status-badge state-off">🔴 ${ci.active.type === "obs" ? "قطع گزارش‌شده" : "برق رفت :("}</span>`;
+    countdownText = `⏳ زمان تا وصل شدن: <b>${fmtCountdownFa(ci.active.e - curMinute)}</b> دیگر`;
+    timeBoxHtml = `
+      <div class="card-time-box">
+        <div class="time-item"><span class="time-label">شروع قطعی</span><span class="time-val">${fmtMin(ci.active.s)}</span></div>
+        <div class="time-arrow">◀</div>
+        <div class="time-item"><span class="time-label">پایان تقریبی</span><span class="time-val">${fmtMin(ci.active.e)}</span></div>
+      </div>`;
+    const total = Math.max(1, ci.active.e - ci.active.s);
+    const el = curMinute - ci.active.s;
+    const pct = Math.max(2, Math.min(100, Math.round(el / total * 100)));
+    progressHtml = `<div class="card-progress"><div class="card-progress-bar" style="width:${pct}%"></div></div>`;
+  } else if (ci.next) {
+    statusBadgeHtml = `<span class="status-badge state-soon">🟡 آماده باش :|</span>`;
+    countdownText = `🔔 زمان تا شروع قطعی: <b>${fmtCountdownFa(ci.next.s - curMinute)}</b> دیگر`;
+    timeBoxHtml = `
+      <div class="card-time-box">
+        <div class="time-item"><span class="time-label">شروع برنامه</span><span class="time-val">${fmtMin(ci.next.s)}</span></div>
+        <div class="time-arrow">◀</div>
+        <div class="time-item"><span class="time-label">پایان تقریبی</span><span class="time-val">${fmtMin(ci.next.e)}</span></div>
+      </div>`;
+  } else if (ws.length) {
+    statusBadgeHtml = `<span class="status-badge state-on">🟢 برق وصله :)</span>`;
+    countdownText = `برنامه خاموشی این منطقه در ساعت‌های قبلی پایان یافته است.`;
+  } else {
+    statusBadgeHtml = `<span class="status-badge state-on">🟢 برق وصله :)</span>`;
+    countdownText = `در حال حاضر برنامه قطعی برای این منطقه ثبت نشده است.`;
   }
-  return "unknown";
-}
-function closePanel(){ $("panel").classList.remove("open"); selectedFeeder=null; applyColors(); }
-function closePanelFromMap(e){
-  if(editMode || !selectedFeeder) return;
-  const target=e && e.originalEvent && e.originalEvent.target;
-  if(target && target.closest && target.closest(".leaflet-interactive")) return;
-  closePanel();
+
+  const areasList = (z.areas || []).map(a => `<li>${esc(a)}</li>`).join("");
+
+  p.innerHTML = `
+    <div class="sheet-handle"></div>
+    <div class="panel-header">
+      <div>
+        <div class="panel-title">
+          <span class="feeder-num en">فیدر ${esc(z.feeder)}</span> — ${esc(shortFeederName(z.name))}
+        </div>
+        <div class="panel-sub">امور برق قائم‌شهر · ساعت ${fmtMin(curMinute)}</div>
+      </div>
+      <button class="panel-close-btn" onclick="closePanel()" title="بستن">✕</button>
+    </div>
+
+    <div class="card-top">
+      ${statusBadgeHtml}
+      <button class="card-save-btn ${isSaved ? 'saved' : ''}" onclick="toggleSaved('${esc(z.feeder)}')">
+        ${isSaved ? '★ ذخیره شد' : '☆ ذخیره'}
+      </button>
+    </div>
+
+    ${timeBoxHtml}
+    ${progressHtml}
+    <div class="card-countdown">${countdownText}</div>
+
+    ${z.areas && z.areas.length ? `
+      <div class="panel-areas-wrap">
+        <div class="panel-areas-title">محله‌های تحت پوشش فیدر ${esc(z.feeder)}:</div>
+        <ul class="panel-areas-list">${areasList}</ul>
+      </div>` : ''}
+
+    <div class="card-footer" style="margin-top:14px;">
+      <div class="card-loc">📍 قائم‌شهر · ${esc(curDate)}</div>
+      <div class="card-actions">
+        <button class="card-btn" onclick="shareFeeder('${esc(z.feeder)}')">🔗 اشتراک‌گذاری</button>
+      </div>
+    </div>
+  `;
+
+  p.classList.add("open");
 }
 
-/* ---------- timeline ---------- */
-function buildDateButtons(){
-  for(const id of ["tl-date","home-date"]){
-    const d=$(id); if(!d) continue; d.innerHTML="";
-    for(const date of [zonesMeta.today, zonesMeta.tomorrow]){
-      const b=document.createElement("button");
-      b.className="tbtn"+(date===curDate?" active":"");
-      b.dataset.date=date;
-      b.textContent=`${weekdays[date]||""} ${date} ${date===zonesMeta.today?"(امروز)":"(فردا)"}`;
-      b.onclick=()=>{ setDate(date); };
-      d.appendChild(b);
-    }
+/* ---------- HOME VIEW CARDS RENDERER ---------- */
+function renderHome() {
+  const grid = $("home-grid");
+  if (!grid || !zonesMeta) return;
+
+  const isToday = curDate === zonesMeta.today;
+  const refNow = liveNowMin || ((snapshotData.history || {}).today || {}).t_now_minute || 0;
+  const savedList = getSaved();
+
+  // Search filtering
+  let filtered = searchZones(zones, searchQuery);
+
+  // Status filtering
+  if (currentFilter === "off") {
+    filtered = filtered.filter(z => {
+      const c = colorArr[z.feeder] ? colorArr[z.feeder][refNow] : 0;
+      return c === 1 || c === 2;
+    });
+  } else if (currentFilter === "soon") {
+    filtered = filtered.filter(z => {
+      const c = colorArr[z.feeder] ? colorArr[z.feeder][refNow] : 0;
+      return c === 3;
+    });
+  } else if (currentFilter === "on") {
+    filtered = filtered.filter(z => {
+      const c = colorArr[z.feeder] ? colorArr[z.feeder][refNow] : 0;
+      return c === 0;
+    });
+  } else if (currentFilter === "saved") {
+    filtered = filtered.filter(z => savedList.includes(z.feeder));
   }
-}
-async function setDate(date){
-  curDate=date;
-  document.querySelectorAll("#tl-date .tbtn, #home-date .tbtn").forEach(b=>{
-    b.classList.toggle("active", b.dataset.date===date);
+
+  // Update counts
+  let countOff = 0, countSoon = 0, countOn = 0;
+  for (const z of zones) {
+    const c = colorArr[z.feeder] ? colorArr[z.feeder][refNow] : 0;
+    if (c === 1 || c === 2) countOff++;
+    else if (c === 3) countSoon++;
+    else countOn++;
+  }
+
+  if ($("cnt-all")) $("cnt-all").textContent = toFaDigits(zones.length);
+  if ($("cnt-off")) $("cnt-off").textContent = toFaDigits(countOff);
+  if ($("cnt-soon")) $("cnt-soon").textContent = toFaDigits(countSoon);
+  if ($("cnt-on")) $("cnt-on").textContent = toFaDigits(countOn);
+
+  if ($("home-day-title")) {
+    $("home-day-title").textContent = isToday
+      ? `جدول خاموشی امروز (${weekdays[curDate] || ''} ${curDate})`
+      : `برنامه خاموشی فردا (${weekdays[curDate] || ''} ${curDate})`;
+  }
+
+  if ($("home-filtered-count")) {
+    $("home-filtered-count").textContent = `${toFaDigits(filtered.length)} منطقه از ${toFaDigits(zones.length)}`;
+  }
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div id="home-empty">🔍 هیچ فیدری مطابق با جستجو یا فیلتر پیدا نشد.<br>نام محله دیگری را امتحان کنید یا فیلترها را ریست نمایید.</div>`;
+    return;
+  }
+
+  // Sort: Active outages first, then upcoming, then normal
+  const sorted = filtered.slice().sort((a, b) => {
+    const ciA = cardInfo(a, refNow);
+    const ciB = cardInfo(b, refNow);
+    const rankA = severityRank(ciA.code);
+    const rankB = severityRank(ciB.code);
+    if (rankA !== rankB) return rankA - rankB;
+    const timeA = ciA.next ? ciA.next.s : 9999;
+    const timeB = ciB.next ? ciB.next.s : 9999;
+    return timeA - timeB;
   });
-  hist = snapshotData.history[date===zonesMeta.today?"today":"tomorrow"];
-  tNowMin = date===zonesMeta.today ? hist.t_now_minute : -1;
+
+  grid.innerHTML = sorted.map(z => {
+    const isSaved = savedList.includes(z.feeder);
+    const ci = cardInfo(z, refNow);
+    const ws = windowsOf(z.feeder);
+
+    let statusBadgeHtml = "";
+    let countdownHtml = "";
+    let timeBoxHtml = "";
+    let progressHtml = "";
+
+    if (ci.active) {
+      statusBadgeHtml = `<span class="status-badge state-off">🔴 ${ci.active.type === "obs" ? "قطع گزارش‌شده" : "برق رفت :("}</span>`;
+      countdownHtml = `⏳ زمان تا وصل شدن: <b>${fmtCountdownFa(ci.active.e - refNow)} دیگر</b>`;
+      timeBoxHtml = `
+        <div class="card-time-box">
+          <div class="time-item"><span class="time-label">شروع</span><span class="time-val">${fmtMin(ci.active.s)}</span></div>
+          <div class="time-arrow">◀</div>
+          <div class="time-item"><span class="time-label">پایان تقریبی</span><span class="time-val">${fmtMin(ci.active.e)}</span></div>
+        </div>`;
+      const total = Math.max(1, ci.active.e - ci.active.s);
+      const el = refNow - ci.active.s;
+      const pct = Math.max(2, Math.min(100, Math.round(el / total * 100)));
+      progressHtml = `<div class="card-progress"><div class="card-progress-bar" style="width:${pct}%"></div></div>`;
+    } else if (ci.next) {
+      statusBadgeHtml = `<span class="status-badge state-soon">🟡 آماده باش :|</span>`;
+      countdownHtml = `🔔 زمان تا شروع قطعی: <b>${fmtCountdownFa(ci.next.s - refNow)} دیگر</b>`;
+      timeBoxHtml = `
+        <div class="card-time-box">
+          <div class="time-item"><span class="time-label">شروع</span><span class="time-val">${fmtMin(ci.next.s)}</span></div>
+          <div class="time-arrow">◀</div>
+          <div class="time-item"><span class="time-label">پایان تقریبی</span><span class="time-val">${fmtMin(ci.next.e)}</span></div>
+        </div>`;
+    } else if (ws.length && isToday) {
+      const last = ws[ws.length - 1];
+      statusBadgeHtml = `<span class="status-badge state-on">🟢 برق وصله :)</span>`;
+      countdownHtml = `در حال حاضر برنامه قطعی فعالی برای این منطقه ثبت نشده است.`;
+      timeBoxHtml = `
+        <div class="card-time-box" style="opacity:0.7;">
+          <div class="time-item"><span class="time-label">برنامه اعلامی قبلی</span><span class="time-val">${fmtMin(last.s)}</span></div>
+          <div class="time-arrow">◀</div>
+          <div class="time-item"><span class="time-label">پایان</span><span class="time-val">${fmtMin(last.e)}</span></div>
+        </div>`;
+    } else if (!isToday && ws.length) {
+      const first = ws[0];
+      const toStart = (1440 - refNow) + first.s;
+      statusBadgeHtml = `<span class="status-badge state-soon">🟡 برنامه‌ریزی‌شده</span>`;
+      countdownHtml = `🔔 زمان تا شروع: <b>${fmtCountdownFa(toStart)} دیگر</b>`;
+      timeBoxHtml = `
+        <div class="card-time-box">
+          <div class="time-item"><span class="time-label">شروع فردا</span><span class="time-val">${fmtMin(first.s)}</span></div>
+          <div class="time-arrow">◀</div>
+          <div class="time-item"><span class="time-label">پایان تقریبی</span><span class="time-val">${fmtMin(first.e)}</span></div>
+        </div>`;
+    } else {
+      statusBadgeHtml = `<span class="status-badge state-on">🟢 برق وصله :)</span>`;
+      countdownHtml = `در حال حاضر برنامه قطعی برای این منطقه ثبت نشده است.`;
+    }
+
+    return `
+      <div class="feeder-card" data-feeder="${esc(z.feeder)}">
+        <div class="card-top">
+          ${statusBadgeHtml}
+          <button class="card-save-btn ${isSaved ? 'saved' : ''}" onclick="toggleSaved('${esc(z.feeder)}')">
+            ${isSaved ? '★ ذخیره شد' : '☆ ذخیره'}
+          </button>
+        </div>
+
+        <div class="card-day-tag">
+          <span>📅 ${isToday ? 'امروز' : 'فردا'}</span>
+          <span>· فیدر <span class="en">${esc(z.feeder)}</span></span>
+        </div>
+
+        <div class="card-title">
+          <span class="feeder-num en">${esc(z.feeder)}-</span>
+          ${esc(shortFeederName(z.name))}
+        </div>
+
+        ${timeBoxHtml}
+        ${progressHtml}
+
+        <div class="card-countdown">
+          ${countdownHtml}
+        </div>
+
+        <div class="card-footer">
+          <div class="card-loc">📍 قائم‌شهر · ${esc(curDate)}</div>
+          <div class="card-actions">
+            <button class="card-btn primary" onclick="focusOnMap('${esc(z.feeder)}')">🗺 مشاهده روی نقشه</button>
+            <button class="card-btn" onclick="shareFeeder('${esc(z.feeder)}')">🔗 اشتراک</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+/* ---------- VIEW NAVIGATION ---------- */
+function showView(v) {
+  curView = v;
+  $("view-home").classList.toggle("hidden", v !== "home");
+  $("view-map").classList.toggle("hidden", v !== "map");
+  $("tab-home").classList.toggle("active", v === "home");
+  $("tab-map").classList.toggle("active", v === "map");
+  $("tab-home").setAttribute("aria-selected", v === "home");
+  $("tab-map").setAttribute("aria-selected", v === "map");
+
+  if (v === "map") {
+    requestAnimationFrame(() => {
+      if (map) map.invalidateSize();
+    });
+  } else {
+    renderHome();
+  }
+
+  try {
+    const fm = (location.hash || "").match(/f=(\d+)/);
+    history.replaceState(null, "", v === "map" ? ("#map" + (fm ? "#f=" + fm[1] : "")) : location.pathname + location.search);
+  } catch {}
+}
+
+function focusOnMap(feeder) {
+  showView("map");
+  setTimeout(() => {
+    focusFeeder(feeder);
+  }, 120);
+}
+
+function focusFeeder(feeder) {
+  const z = zones.find(x => x.feeder === feeder);
+  if (!z) return;
+  map.flyTo(centroidOf(z.polygon), 14, { duration: 0.6 });
+  selectedFeeder = feeder;
+  openPanel(z);
+  applyColors();
+}
+
+/* ---------- DATE SWITCHING ---------- */
+async function setDate(date) {
+  curDate = date;
+  const isToday = date === zonesMeta.today;
+
+  $("btn-date-today").classList.toggle("active", isToday);
+  $("btn-date-tomorrow").classList.toggle("active", !isToday);
+  $("tl-btn-today").classList.toggle("active", isToday);
+  $("tl-btn-tomorrow").classList.toggle("active", !isToday);
+
+  hist = snapshotData.history[isToday ? "today" : "tomorrow"];
+  tNowMin = isToday ? hist.t_now_minute : -1;
   buildColorArr();
-  curMinute = date===zonesMeta.today ? tNowMin : 0;
+
+  curMinute = isToday ? tNowMin : 0;
+  $("tl-slider").value = curMinute;
+  $("tl-time").textContent = fmtMin(curMinute);
+
+  updateMapBadge();
+  applyColors();
+  renderMinebar();
+  renderHome();
+  updateDocTitle();
+}
+
+function tick() {
+  curMinute = (curMinute + 1) % 1440;
   $("tl-slider").value = curMinute;
   $("tl-time").textContent = fmtMin(curMinute);
   updateMapBadge();
-  applyColors(); renderStats(); refreshSelectedPanel();
-  renderMinebar();
-  if(curView==="home") renderHome();
-}
-function tick(){
-  curMinute=(curMinute+1)%1440;
-  $("tl-slider").value=curMinute;
-  $("tl-time").textContent=fmtMin(curMinute);
-  updateMapBadge();
-  applyColors(); renderStats(); refreshSelectedPanel(); renderMinebar();
-  if(curView==="home") renderHome();
-}
-function togglePlay(){
-  playing=!playing;
-  $("playbtn").textContent=playing?"⏸":"▶";
-  if(playing){
-    const spd = curMinute>=tNowMin-1 ? 60 : 30;
-    playTimer=setInterval(tick, spd);
-  } else if(playTimer){ clearInterval(playTimer); playTimer=null; }
-}
-
-/* ---------- editor ---------- */
-const vIcon = L.divIcon({className:"vmark", iconSize:[12,12], iconAnchor:[6,6]});
-const eIcon = L.divIcon({className:"emark", iconSize:[9,9], iconAnchor:[4.5,4.5]});
-
-function enterEdit(){
-  editMode=true; selectedFeeder=null; closePanel();
-  $("editbtn").classList.add("on"); $("editbtn").textContent="✏️ ویرایش مناطق (فعال)";
-  $("editbar").classList.add("open");
-  backupZones = JSON.parse(JSON.stringify(zones));
-  toast("حالت ویرایش: روی یک منطقه کلیک کنید تا مرز آن را ویرایش کنید");
-}
-function exitEdit(restore){
-  editMode=false; editFeeder=null; $("editbtn").classList.remove("on");
-  $("editbtn").textContent="✏️ ویرایش مناطق";
-  $("editbar").classList.remove("open");
-  clearEditMarkers();
-  if(restore && backupZones){ zones=backupZones; }
-  backupZones=null;
-  rebuildLayers();
   applyColors();
-}
-function clearEditMarkers(){
-  for(const m of vertMarkers) m.remove();
-  for(const m of edgeMarkers) m.remove();
-  vertMarkers=[]; edgeMarkers=[];
-}
-function startEditZone(z){
-  if(editFeeder===z.feeder) return;
-  editFeeder=z.feeder;
-  clearEditMarkers();
-  polyLayers[z.feeder].bringToFront();
-  // strip closing duplicate
-  editVerts = z.polygon.map(p=>[p[0],p[1]]);
-  if(editVerts.length>1){
-    const a=editVerts[0], b=editVerts[editVerts.length-1];
-    if(a[0]===b[0] && a[1]===b[1]) editVerts.pop();
+  if (selectedFeeder) {
+    const z = zones.find(x => x.feeder === selectedFeeder);
+    if (z) openPanel(z);
   }
-  buildVertexMarkers();
-  applyColors();
-  toast(`ویرایش فیدر ${z.feeder} — رأس‌ها را بکشید`);
-}
-function buildVertexMarkers(){
-  for(let i=0;i<editVerts.length;i++) addVertexMarker(i, editVerts[i]);
-  rebuildEdgeMarkers();
-}
-function addVertexMarker(i, latlng){
-  const m=L.marker(latlng,{icon:vIcon, draggable:true, zIndexOffset:3000});
-  m._vi=i;
-  m.on("drag", ()=>{
-    editVerts[m._vi]=[m.getLatLng().lat, m.getLatLng().lng];
-    refreshEditPolygon();
-  });
-  m.on("dragend", ()=>rebuildEdgeMarkers());
-  m.on("click", (e)=>{
-    if(e.originalEvent.altKey && editVerts.length>3){
-      removeVertex(m._vi);
-    }
-  });
-  m.addTo(map); vertMarkers.push(m);
-}
-function rebuildEdgeMarkers(){
-  for(const m of edgeMarkers) m.remove();
-  edgeMarkers=[];
-  const n=editVerts.length;
-  for(let i=0;i<n;i++){
-    const a=editVerts[i], b=editVerts[(i+1)%n];
-    const mid=[(a[0]+b[0])/2,(a[1]+b[1])/2];
-    const em=L.marker(mid,{icon:eIcon, zIndexOffset:2900});
-    em._ei=i;
-    em.on("click", ()=>{
-      editVerts.splice(em._ei+1, 0, [mid[0],mid[1]]);
-      for(const vm of vertMarkers) vm.remove();
-      vertMarkers=[];
-      for(let j=0;j<editVerts.length;j++) addVertexMarker(j, editVerts[j]);
-      refreshEditPolygon();
-    });
-    em.addTo(map); edgeMarkers.push(em);
-  }
-}
-function removeVertex(i){
-  editVerts.splice(i,1);
-  for(const m of vertMarkers) m.remove();
-  vertMarkers=[];
-  for(let j=0;j<editVerts.length;j++) addVertexMarker(j, editVerts[j]);
-  refreshEditPolygon();
-}
-function refreshEditPolygon(){
-  if(editFeeder && polyLayers[editFeeder] && editVerts.length>=3){
-    polyLayers[editFeeder].setLatLngs([editVerts.concat([editVerts[0]])]);
-  }
-}
-async function saveZones(){
-  if(!editFeeder) return;
-  if(editVerts.length<3){ toast("حداقل ۳ رأس لازم است"); return; }
-  const poly = editVerts.concat([editVerts[0]]);
-  const z=zones.find(x=>x.feeder===editFeeder);
-  if(z){
-    z.polygon = poly.map(p=>[+p[0].toFixed(6), +p[1].toFixed(6)]);
-    labelMarkers[editFeeder].setLatLng(centroidOf(z.polygon));
-  }
-  try{
-    const r = await fetch("/api/zones", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify(zones)
-    });
-    const d = await r.json();
-    if(d.ok){ toast(`ذخیره شد — ${d.count} زون (بکاپ خودکار ساخته شد)`); exitEdit(false); }
-    else toast("خطا: "+(d.error||"نامشخص"));
-  }catch(e){ toast("خطا در ذخیره"); }
-}
-function cancelEdit(){ exitEdit(true); toast("تغییرات لغو شد"); }
-
-/* ---------- live refresh (static: computed from the embedded snapshot) ---------- */
-function computeNowStates(minute){
-  const hasData = Object.keys(hist.planned||{}).length>0 || Object.keys(hist.observed||{}).length>0;
-  return zones.map(z=>{
-    const f=z.feeder;
-    if(inInterval((hist.observed||{})[f]||[], minute)) return {feeder:f, name:z.name, area:AREA, state:"observed_off"};
-    if(inInterval((hist.planned||{})[f]||[], minute)) return {feeder:f, name:z.name, area:AREA, state:"planned_off"};
-    return {feeder:f, name:z.name, area:AREA, state: hasData?"on":"unknown"};
-  });
-}
-function refreshNow(){
-  const nowMin = tehranMinOfDay(nowMs());
-  liveNowMin = nowMin;
-  if(curDate===zonesMeta.today){
-    liveNow = {ts:nowMs()/1000, minute:nowMin, zones:computeNowStates(nowMin)};
-    const prevTNow=tNowMin;
-    tNowMin=nowMin;
-    if(curMinute===prevTNow && curMinute!==tNowMin){
-      curMinute=tNowMin; $("tl-slider").value=curMinute; $("tl-time").textContent=fmtMin(curMinute);
-    }
-  } else {
-    liveNow=null; tNowMin=-1;
-  }
-  buildColorArr();
-  const meta=snapshotData.meta||{};
-  const stamp=new Date(snapshotData.ts*1000).toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Tehran"});
-  $("updated").innerHTML = `آخرین داده <span class="en">${stamp}</span> · ${meta.poll_ok?"✓ سالم":"✗ خطا"}`;
-  $("live-label").textContent = meta.poll_ok ? "پایش فعال داده‌ها" : "آخرین poll با خطا مواجه شد";
-  updateMapBadge();
-  applyColors(); renderStats(); refreshSelectedPanel();
-  renderMinebar();
-  if(curView==="home") renderHome();
-}
-function updateMapBadge(){
-  if(!zonesMeta || !$("map-badge-title")) return;
-  const dayLabel=curDate===zonesMeta.today?"امروز":"فردا";
-  $("map-badge-title").textContent=`${zones.length} فیدر · ${dayLabel}`;
-  $("map-badge-sub").textContent=`مرزبندی بدون هم‌پوشانی · ساعت ${fmtMin(curMinute)} · تقریبی`;
 }
 
-/* ---------- phase1: status card / saved zones / search / gps / list ---------- */
-function statusCardHtml(z, minute){
-  const ci=cardInfo(z, minute);
-  const b=cardBadge(ci.code);
-  const color=stateColor(ci.code);
-  let countHtml="", barHtml="", timesHtml="";
-  if(ci.active){
-    const total=Math.max(1, ci.active.e-ci.active.s), el=minute-ci.active.s;
-    const pct=Math.max(2, Math.min(100, Math.round(el/total*100)));
-    countHtml=`<div class="sc-count">⏳ ${fmtCountdownFa(ci.active.e-minute)} تا وصل شدن</div>`;
-    barHtml=`<div class="sc-bar"><i style="width:${pct}%;background:${color}"></i></div>`;
-    timesHtml=`<div class="sc-times"><span>شروع ${fmtMin(ci.active.s)}</span><span>پایان تقریبی ${fmtMin(ci.active.e)}</span></div>`;
-  } else if(ci.next){
-    countHtml=`<div class="sc-count">🔔 ${fmtCountdownFa(ci.next.s-minute)} تا شروع</div>`;
-    barHtml=`<div class="sc-bar"><i style="width:0%;background:${COLORS.soon}"></i></div>`;
-    timesHtml=`<div class="sc-times"><span>شروع ${fmtMin(ci.next.s)}</span><span>پایان تقریبی ${fmtMin(ci.next.e)}</span></div>`;
-  } else if(ci.code===0){
-    barHtml=`<div class="sc-bar"><i style="width:100%;background:${COLORS.on}"></i></div>`;
-  }
-  const sub=ci.active&&ci.active.type==="obs" ? "قطع گزارش‌شده (زنده)" : b.sub;
-  return `<div class="sc">
-    <span class="sc-badge" style="color:${color}">${b.icon} ${b.big}</span>
-    <span class="sc-sub">${sub} · در زمان انتخاب‌شده روی نوار زمان</span>
-    ${countHtml}${barHtml}${timesHtml}
-  </div>`;
-}
-/* ⭐ مناطق من */
-const SAVED_KEY="qaem_saved_feeders_v1";
-function getSaved(){
-  try{ const a=JSON.parse(localStorage.getItem(SAVED_KEY)); return Array.isArray(a)?a.filter(x=>typeof x==="string"):[]; }
-  catch{ return []; }
-}
-async function pushSavedToServer(list){
-  try{
-    const r = await fetch("/api/saved", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(list)});
-    if(!r.ok) throw new Error("no server");
-  }catch(e){
-    // static Pages - ignore
+function togglePlay() {
+  playing = !playing;
+  $("playbtn").textContent = playing ? "⏸" : "▶";
+  if (playing) {
+    const spd = curMinute >= tNowMin - 1 ? 60 : 30;
+    playTimer = setInterval(tick, spd);
+  } else if (playTimer) {
+    clearInterval(playTimer);
+    playTimer = null;
   }
 }
-async function syncSavedFromServer(){
-  try{
-    const r = await fetch("/api/saved", {cache:"no-store"});
-    if(!r.ok) return;
-    const data = await r.json();
-    if(!Array.isArray(data)) return;
-    const local = getSaved();
-    if(data.length===0 && local.length>0){
-      await pushSavedToServer(local);
-      return;
-    }
-    if(data.length>0){
-      // server wins
-      try{ localStorage.setItem(SAVED_KEY, JSON.stringify(data)); }catch{}
-      renderMinebar();
-      // synced silently
-    }
-  }catch(e){}
+
+function updateMapBadge() {
+  if (!zonesMeta || !$("map-badge-title")) return;
+  const dayLabel = curDate === zonesMeta.today ? "امروز" : "فردا";
+  $("map-badge-title").textContent = `${toFaDigits(zones.length)} فیدر · ${dayLabel}`;
+  $("map-badge-sub").textContent = `ساعت ${fmtMin(curMinute)} · مرزهای تقریبی`;
 }
-function toggleSaved(feeder){
-  let a=getSaved();
-  if(a.includes(feeder)) a=a.filter(x=>x!==feeder); else a.push(feeder);
-  try{ localStorage.setItem(SAVED_KEY, JSON.stringify(a)); }catch{}
-  pushSavedToServer(a);
-  renderMinebar();
-  if(selectedFeeder===feeder){ const z=zones.find(x=>x.feeder===feeder); if(z) openPanel(z); }
-  // silent
+
+/* ---------- SEARCH & AUTOCOMPLETE ---------- */
+let qsIndex = -1;
+function hideSug() {
+  const b = $("qsug");
+  if (b) b.classList.remove("open");
+  qsIndex = -1;
 }
-function renderMinebar(){
-  const bar=$("minebar"); if(!bar) return;
-  const a=getSaved();
-  if(!a.length){ bar.classList.remove("open"); bar.innerHTML=""; return; }
-  bar.classList.add("open");
-  bar.innerHTML=`<span class="mb-label">⭐ مناطق من:</span>`+a.map(f=>{
-    const z=zones.find(x=>x.feeder===f); if(!z) return "";
-    return `<button class="mb-chip" onclick="focusOnMap('${esc(f)}')" title="${esc(z.name)}">
-      <span class="mb-dot" style="background:${stateColor(currentCode(z))}"></span>
-      <span class="en">${esc(f)}</span><span>${esc(shortFeederName(z.name).slice(0,24))}</span></button>`;
-  }).join("") + `<button class="mb-chip" style="opacity:.6" onclick="clearAllSaved()" title="پاک کردن همه">✕ پاک</button>`;
-}
-function clearAllSaved(){
-  try{ localStorage.setItem(SAVED_KEY, JSON.stringify([])); }catch{}
-  pushSavedToServer([]);
-  renderMinebar();
-  // silent
-}
-function focusFeeder(feeder){
-  const z=zones.find(x=>x.feeder===feeder); if(!z) return;
-  map.flyTo(centroidOf(z.polygon), 14, {duration:.5});
-  selectedFeeder=feeder; openPanel(z); applyColors();
-}
-/* 🔍 جستجو */
-let qsIndex=-1;
-function hideSug(){ const b=$("qsug"); if(b) b.classList.remove("open"); qsIndex=-1; }
-function renderSug(q){
-  const box=$("qsug"); if(!box) return;
-  const kws=queryKeywords(q);
-  if(!kws.length){ hideSug(); return; }
-  const res=searchZones(zones, q);
-  if(!res.length){
-    box.innerHTML=`<div class="qs-empty">🔍 چیزی پیدا نشد — نام محله، خیابان یا شماره فیدر را امتحان کنید</div>`;
-    box.classList.add("open"); return;
+
+function renderSug(q) {
+  const box = $("qsug");
+  if (!box) return;
+  const kws = queryKeywords(q);
+  if (!kws.length) { hideSug(); return; }
+  const res = searchZones(zones, q).slice(0, 8);
+  if (!res.length) {
+    box.innerHTML = `<div class="qs-empty">🔍 موردی پیدا نشد — نام محله، خیابان یا شماره فیدر را وارد کنید</div>`;
+    box.classList.add("open");
+    return;
   }
-  box.innerHTML=res.map(z=>{
-    const hl=highlightParts(shortFeederName(z.name), kws);
-    const sub=esc((z.areas||[]).slice(0,3).join("، ")||z.name);
+  box.innerHTML = res.map(z => {
+    const hl = highlightParts(shortFeederName(z.name), kws);
+    const sub = esc((z.areas || []).slice(0, 3).join("، ") || z.name);
     return `<div class="qs-item" data-f="${esc(z.feeder)}">
       <span class="qs-name"><span class="en">${esc(z.feeder)}</span> — ${hl}</span>
-      <span class="qs-sub">${sub}</span></div>`;
+      <span class="qs-sub">${sub}</span>
+    </div>`;
   }).join("");
   box.classList.add("open");
-  box.querySelectorAll(".qs-item").forEach(el=>{
-    el.addEventListener("pointerdown", ev=>{
+
+  box.querySelectorAll(".qs-item").forEach(el => {
+    el.addEventListener("pointerdown", ev => {
       ev.preventDefault();
-      const f=el.dataset.f;
+      const f = el.dataset.f;
       hideSug();
-      const inp=$("qsearch"); inp.value=""; $("qsearch-clear").style.display="none";
+      const inp = $("qsearch");
+      inp.value = "";
+      searchQuery = "";
+      $("qsearch-clear").style.display = "none";
       focusOnMap(f);
     });
   });
 }
-function initSearch(){
-  const inp=$("qsearch"), wrap=$("qsearch-wrap"), clear=$("qsearch-clear");
-  const box=document.createElement("div"); box.className="qsug"; box.id="qsug"; wrap.appendChild(box);
-  inp.addEventListener("input", ()=>{
-    clear.style.display = inp.value ? "block" : "none";
-    qsIndex=-1; renderSug(inp.value);
-  });
-  inp.addEventListener("keydown", e=>{
-    const items=[...box.querySelectorAll(".qs-item")];
-    if(e.key==="ArrowDown" || e.key==="ArrowUp"){
-      e.preventDefault();
-      if(!items.length) return;
-      qsIndex = e.key==="ArrowDown" ? Math.min(qsIndex+1, items.length-1) : Math.max(qsIndex-1, 0);
-      items.forEach((el,i)=>el.classList.toggle("focused", i===qsIndex));
-      items[qsIndex].scrollIntoView({block:"nearest"});
-    } else if(e.key==="Enter"){
-      const pick = qsIndex>=0 ? items[qsIndex] : items[0];
-      if(pick){ e.preventDefault(); pick.dispatchEvent(new Event("pointerdown")); }
-    } else if(e.key==="Escape"){ hideSug(); inp.blur(); }
-  });
-  inp.addEventListener("blur", ()=>setTimeout(hideSug, 160));
-  clear.addEventListener("click", ()=>{ inp.value=""; clear.style.display="none"; hideSug(); inp.focus(); });
-}
-/* 📍 موقعیت من (GPS) */
-let locMarker=null;
-function locateMe(){
-  if(!navigator.geolocation){ toast("مرورگر شما موقعیت‌یابی را پشتیبانی نمی‌کند"); return; }
-  // locating
-  navigator.geolocation.getCurrentPosition(pos=>{
-    const pt=[pos.coords.latitude, pos.coords.longitude];
-    if(locMarker) map.removeLayer(locMarker);
-    locMarker=L.circleMarker(pt,{radius:7,color:"#38bdf8",weight:2,fillColor:"#38bdf8",fillOpacity:.55}).addTo(map);
-    const hit=zones.find(z=>pointInPoly(pt, z.polygon));
-    if(hit){
-      map.flyTo(pt, 14, {duration:.6});
-      focusFeeder(hit.feeder);
-      // found
-    } else {
-      let best=null, bd=1e9;
-      for(const z of zones){ const d=distKm(pt, centroidOf(z.polygon)); if(d<bd){ bd=d; best=z; } }
-      if(best){
-        map.flyTo(pt, 12, {duration:.6});
-        // out of area
-      }
-    }
-  }, err=>{
-    toast(err.code===1 ? "دسترسی به موقعیت رد شد" : "موقعیت در دسترس نیست");
-  }, {enableHighAccuracy:true, timeout:12000, maximumAge:60000});
-}
-/* 🏠/🗺 نماها: خانه (فهرست) و نقشه */
-let curView="home";
-function showView(v){
-  curView=v;
-  $("view-home").classList.toggle("hidden", v!=="home");
-  $("view-map").classList.toggle("hidden", v!=="map");
-  $("tab-home").classList.toggle("active", v==="home");
-  $("tab-map").classList.toggle("active", v==="map");
-  $("tab-home").setAttribute("aria-selected", v==="home");
-  $("tab-map").setAttribute("aria-selected", v==="map");
-  if(v==="map"){ requestAnimationFrame(()=>{ if(map) map.invalidateSize(); }); }
-  else { renderHome(); }
-  try{
-    const fm=(location.hash||"").match(/f=(\d+)/);
-    history.replaceState(null, "", v==="map" ? ("#map"+(fm?"#f="+fm[1]:"")) : location.pathname + location.search);
-  }catch{}
-}
-function focusOnMap(feeder){
-  showView("map");
-  setTimeout(()=>focusFeeder(feeder), 90);   /* بعد از invalidateSize */
-}
-/* 📋 نمای خانه: فهرست کارت‌ها بر اساس «الان» (امروز) یا برنامه فردا */
-function renderHome(){
-  const grid=$("home-grid"); if(!grid) return;
-  const isToday = curDate===zonesMeta.today;
-  const refNow = liveNowMin || ((snapshotData.history||{}).today||{}).t_now_minute || 0;
-  const stamp = new Date((snapshotData.ts||0)*1000)
-    .toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Tehran"});
-  $("home-sub").textContent =
-    `${isToday?"امروز":"برنامه فردا"} · ${toFaDigits(zones.length)} فیدر · به‌روزرسانی ${stamp}`;
-  const rows = zones.map(z=>{
-    const ws=windowsOf(z.feeder);
-    if(isToday){
-      const ci=cardInfo(z, refNow);
-      return {z, ci, ws, sort: severityRank(ci.code)*100000 + (ci.next?ci.next.s:20000)};
-    }
-    return {z, ci:null, ws, sort: ws.length?ws[0].s:20000};
-  }).sort((a,b)=> a.sort-b.sort || ((+a.z.feeder||0)-(+b.z.feeder||0)));
 
-  if(!rows.some(r=>r.ws.length)){
-    grid.innerHTML=`<div id="home-empty">📡 در حال حاضر خاموشی ثبت‌شده‌ای در سامانه رسمی نیست.<br>برنامه امروز پاک است — ساعات دیگر دوباره بررسی کنید.</div>`;
+function initSearch() {
+  const inp = $("qsearch");
+  const clear = $("qsearch-clear");
+  const box = $("qsug");
+
+  inp.addEventListener("input", () => {
+    searchQuery = inp.value.trim();
+    clear.style.display = searchQuery ? "flex" : "none";
+    qsIndex = -1;
+    renderSug(searchQuery);
+    renderHome(); // Instant live filtering in home view!
+  });
+
+  inp.addEventListener("keydown", e => {
+    const items = [...box.querySelectorAll(".qs-item")];
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (!items.length) return;
+      qsIndex = e.key === "ArrowDown" ? Math.min(qsIndex + 1, items.length - 1) : Math.max(qsIndex - 1, 0);
+      items.forEach((el, i) => el.classList.toggle("focused", i === qsIndex));
+      items[qsIndex].scrollIntoView({ block: "nearest" });
+    } else if (e.key === "Enter") {
+      const pick = qsIndex >= 0 ? items[qsIndex] : items[0];
+      if (pick) { e.preventDefault(); pick.dispatchEvent(new Event("pointerdown")); }
+    } else if (e.key === "Escape") {
+      hideSug();
+      inp.blur();
+    }
+  });
+
+  inp.addEventListener("blur", () => setTimeout(hideSug, 180));
+  clear.addEventListener("click", () => {
+    inp.value = "";
+    searchQuery = "";
+    clear.style.display = "none";
+    hideSug();
+    renderHome();
+    inp.focus();
+  });
+}
+
+/* ---------- GPS LOCATION & SMART MODAL ---------- */
+let locMarker = null;
+
+function showGpsModal() {
+  const m = $("gps-modal");
+  if (m) m.classList.add("open");
+}
+
+function hideGpsModal() {
+  const m = $("gps-modal");
+  if (m) m.classList.remove("open");
+}
+
+function executeGpsLocate() {
+  hideGpsModal();
+  if (!navigator.geolocation) {
+    toast("مرورگر شما موقعیت‌یابی (GPS) را پشتیبانی نمی‌کند");
     return;
   }
-  grid.innerHTML=rows.map(({z,ci,ws})=>{
-    const times=ws.length
-      ? ws.map(w=>`${fmtMin(w.s)}–${fmtMin(w.e)}${w.type==="obs"?" ⚡":""}`).join(" · ")
-      : "بدون برنامه ثبت‌شده";
-    let badgeHtml, cnt;
-    if(ci){
-      const b=cardBadge(ci.code);
-      badgeHtml=`<span class="mb-dot" style="background:${stateColor(ci.code)}"></span>`;
-      cnt = ci.active ? `⏳ ${fmtCountdownFa(ci.active.e-refNow)} تا وصل شدن`
-          : ci.next ? `🔔 ${fmtCountdownFa(ci.next.s-refNow)} تا شروع`
-          : (ci.code===0 ? "🟢 وصل" : "—");
-      return cardHtml(z, ci.code, times, cnt, badgeHtml);
-    }
-    /* فردا: همه برنامه‌ریزی‌شده؛ شمارش از همین الان */
-    const first=ws[0];
-    const toStart = first ? (1440-refNow)+first.s : null;
-    cnt = toStart!=null ? `🔔 ${fmtCountdownFa(toStart)} تا شروع` : "—";
-    return cardHtml(z, 4, times, cnt, `<span class="mb-dot" style="background:${stateColor(4)}"></span>`);
-  }).join("");
+  toast("در حال شناسایی موقعیت مکانی شما…");
 
-  function cardHtml(z, code, times, cnt, badgeHtml){
-    const b=cardBadge(code);
-    return `<div class="lv-card" onclick="focusOnMap('${esc(z.feeder)}')">
-      <div class="lv-title">${badgeHtml}
-        ${esc(shortFeederName(z.name))}<span class="en">فیدر ${esc(z.feeder)}</span></div>
-      <div class="lv-times">${esc(times)}</div>
-      <div class="lv-count">${b.icon} ${cnt}</div></div>`;
-  }
-}
+  navigator.geolocation.getCurrentPosition(pos => {
+    const pt = [pos.coords.latitude, pos.coords.longitude];
+    if (locMarker) map.removeLayer(locMarker);
+    locMarker = L.circleMarker(pt, {
+      radius: 8, color: "#38bdf8", weight: 3, fillColor: "#38bdf8", fillOpacity: 0.65
+    }).addTo(map);
 
-/* ---------- phase2: PWA — نصب، آفلاین، iOS refresh ---------- */
-let deferredPrompt=null;
-function isMobileUA(){
-  const ua=navigator.userAgent.toLowerCase();
-  return /iphone|ipad|ipod|android|mobile/.test(ua) ||
-    (navigator.maxTouchPoints>1 && /macintosh|intel mac/.test(ua));
-}
-function isStandalone(){
-  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true;
-}
-function hideA2hs(){
-  const p=$("a2hs-popup"); if(!p) return;
-  p.classList.remove("show"); p.setAttribute("aria-hidden","true");
-}
-function initA2hsPopup(){
-  const p=$("a2hs-popup"); if(!p) return;
-  const install=$("a2hs-install"), iosBox=$("a2hs-ios"), close=$("a2hs-close");
-  const test=location.search.includes("test_pwa=1");
-  if(!test){
-    try{ if(localStorage.getItem("a2hsNeverShow")==="true") return; }catch{}
-    if(isStandalone()) return;
-    const t=+(localStorage.getItem("a2hsDismissedTime")||0);
-    if(t && (Date.now()-t)/3.6e6 < 24) return;   /* کوول‌داون ۲۴ ساعته */
-    if(!isMobileUA()) return;                     /* فقط موبایل/تبلت */
-  }
-  const show=()=>{
-    const ua=navigator.userAgent.toLowerCase();
-    const isIOS=/iphone|ipad|ipod/.test(ua) || (navigator.maxTouchPoints>1 && /macintosh/.test(ua));
-    const isAndroid=/android/.test(ua);
-    if(isIOS){
-      const safari=/^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-      if(!safari && !test) return;
-      install.style.display="none"; iosBox.style.display="block"; $("a2hs-txt").style.display="none";
-    } else if(isAndroid){
-      install.style.display="block"; iosBox.style.display="none";
-    }
-    p.classList.add("show"); p.setAttribute("aria-hidden","false");
-  };
-  setTimeout(show, 3000);
-  close.addEventListener("click", ()=>{
-    const never=$("a2hs-never");
-    try{
-      if(never && never.checked) localStorage.setItem("a2hsNeverShow","true");
-      else localStorage.setItem("a2hsDismissedTime", String(Date.now()));
-    }catch{}
-    hideA2hs();
-  });
-  install.addEventListener("click", ()=>{
-    if(deferredPrompt){
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; hideA2hs(); });
+    const hit = zones.find(z => pointInPoly(pt, z.polygon));
+    if (hit) {
+      toast(`📍 موقعیت شما در محدوده فیدر ${hit.feeder} شناسایی شد`);
+      focusOnMap(hit.feeder);
     } else {
-      toast("از منوی مرورگر، گزینه Install app یا Add to Home screen را بزنید");
-      hideA2hs();
-    }
-  });
-}
-function initIosRefresh(){
-  const ua=navigator.userAgent;
-  const iosPwa=/iphone|ipad|ipod/i.test(ua) && window.navigator.standalone===true;
-  if(!iosPwa) return;
-  const b=$("ios-refresh"); b.style.display="block";
-  b.addEventListener("click", async ()=>{
-    toast("پاک‌سازی کش و بارگذاری مجدد…");
-    try{ if("caches" in window){ (await caches.keys()).forEach(n=>caches.delete(n)); } }catch{}
-    try{
-      if("serviceWorker" in navigator){
-        (await navigator.serviceWorker.getRegistrations()).forEach(r=>r.unregister());
+      let best = null, bd = 1e9;
+      for (const z of zones) {
+        const d = distKm(pt, centroidOf(z.polygon));
+        if (d < bd) { bd = d; best = z; }
       }
-    }catch{}
-    location.href=location.pathname+"?v="+Date.now();
-  });
+      if (best) {
+        toast(`نزدیک‌ترین فیدر به شما: فیدر ${best.feeder} (فاصله ${bd.toFixed(1)} کیلومتر)`);
+        focusOnMap(best.feeder);
+      } else {
+        toast("موقعیت شما خارج از محدوده شهر قائم‌شهر است");
+      }
+    }
+  }, err => {
+    toast(err.code === 1 ? "اجازه دسترسی به موقعیت مکانی داده نشد" : "خطا در دریافت موقعیت مکانی GPS");
+  }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 });
 }
-function initPwa(){
-  if("serviceWorker" in navigator){
-    const reg=()=>navigator.serviceWorker.register("sw.js").catch(()=>{});
-    if(document.readyState==="complete") reg();
+
+/* ---------- FAQ ACCORDION TOGGLE ---------- */
+function toggleFaq(headerEl) {
+  const item = headerEl.parentElement;
+  item.classList.toggle("open");
+}
+
+/* ---------- SHARE & DEEP-LINK ---------- */
+function shareFeeder(feeder) {
+  const url = location.origin + location.pathname + `#map#f=${feeder}`;
+  const text = `⚡ وضعیت و برنامه قطعی برق فیدر ${feeder} قائم‌شهر:`;
+  if (navigator.share) {
+    navigator.share({ title: document.title, text, url }).catch(() => {});
+    return;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => toast("🔗 لینک فیدر کپی شد")).catch(() => {});
+  } else {
+    toast("🔗 " + url);
+  }
+}
+
+function updateDocTitle() {
+  const wd = (weekdays || {})[curDate] || "";
+  const day = curDate === zonesMeta.today ? "امروز" : "فردا";
+  const t = `جدول و نقشه قطعی برق قائم‌شهر — ${day} ${wd} ${curDate}`;
+  document.title = "⚡ " + t;
+}
+
+function parseHashTarget() {
+  const h = location.hash || "";
+  const fm = h.match(/f=(\d+)/);
+  const feeder = fm ? fm[1] : null;
+  return { map: h.indexOf("map") !== -1, feeder: feeder && zones.some(z => z.feeder === feeder) ? feeder : null };
+}
+
+/* ---------- PWA & CACHING ---------- */
+let deferredPrompt = null;
+function initPwa() {
+  if ("serviceWorker" in navigator) {
+    const reg = () => navigator.serviceWorker.register("sw.js").catch(() => {});
+    if (document.readyState === "complete") reg();
     else window.addEventListener("load", reg);
   }
-  window.addEventListener("beforeinstallprompt", (e)=>{ e.preventDefault(); deferredPrompt=e; });
-  window.addEventListener("appinstalled", ()=>{ deferredPrompt=null; hideA2hs(); });
-  window.addEventListener("pageshow", (e)=>{ if(e.persisted) window.location.reload(); });
-  initA2hsPopup();
-  initIosRefresh();
-}
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+  window.addEventListener("appinstalled", () => {
+    deferredPrompt = null;
+    const p = $("a2hs-popup");
+    if (p) p.classList.remove("show");
+  });
 
-/* ---------- phase4: dynamic title, feeder deep-link, share ---------- */
-function updateDocTitle(){
-  const wd=(weekdays||{})[curDate]||"";
-  const day=curDate===zonesMeta.today?"امروز":"فردا";
-  const t=`نقشه قطعی برق قائم‌شهر — ${day} ${wd} ${curDate}`;
-  document.title="⚡ "+t;
-  const og=document.querySelector('meta[property="og:title"]');
-  if(og) og.setAttribute("content", t);
-}
-function parseHashTarget(){
-  const h=location.hash||"";
-  const fm=h.match(/f=(\d+)/);
-  const feeder=fm?fm[1]:null;
-  return {map:h.indexOf("map")!==-1, feeder: feeder && zones.some(z=>z.feeder===feeder) ? feeder : null};
-}
-function shareFeeder(feeder){
-  const url=location.origin+location.pathname+`#map#f=${feeder}`;
-  const text=`⚡ وضعیت فیدر ${feeder} — نقشه قطعی برق قائم‌شهر`;
-  if(navigator.share){ navigator.share({title:document.title, text, url}).catch(()=>{}); return; }
-  const done=()=>toast("🔗 لینک کپی شد");
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(url).then(done).catch(()=>fallbackCopy(url, done));
-  } else fallbackCopy(url, done);
-}
-function fallbackCopy(text, done){
-  const ta=document.createElement("textarea");
-  ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
-  document.body.appendChild(ta); ta.select();
-  try{ document.execCommand("copy"); done(); }catch(e){}
-  document.body.removeChild(ta);
-}
+  const p = $("a2hs-popup");
+  if (p) {
+    const install = $("a2hs-install"), close = $("a2hs-close"), iosBox = $("a2hs-ios");
+    setTimeout(() => {
+      try {
+        if (localStorage.getItem("a2hsNeverShow") === "true") return;
+      } catch {}
+      const isMobile = /iphone|ipad|ipod|android|mobile/.test(navigator.userAgent.toLowerCase());
+      if (!isMobile) return;
+      const isIOS = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+      if (isIOS) {
+        install.style.display = "none";
+        iosBox.style.display = "block";
+        $("a2hs-txt").style.display = "none";
+      }
+      p.classList.add("show");
+    }, 3500);
 
-/* ---------- boot ---------- */
-(async function boot(){
-  initMap();
-  map.on("click", closePanelFromMap);
-  const snapResp = await fetch("snapshot.json",{cache:"no-store"});
-  zonesMeta = await snapResp.json();
-  snapshotData = zonesMeta;
-  syncServerClock(snapResp, zonesMeta);
-  if(snapResp.headers && snapResp.headers.get("X-From-Cache")==="1"){
-    $("live-label").textContent="آفلاین — آخرین داده ذخیره‌شده";
-    toast("حالت آفلاین: آخرین داده ذخیره‌شده نمایش داده می‌شود");
+    close.addEventListener("click", () => {
+      const never = $("a2hs-never");
+      if (never && never.checked) {
+        try { localStorage.setItem("a2hsNeverShow", "true"); } catch {}
+      }
+      p.classList.remove("show");
+    });
+
+    install.addEventListener("click", () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => { deferredPrompt = null; p.classList.remove("show"); });
+      } else {
+        toast("از منوی مرورگر خود، گزینه Add to Home screen یا Install را بزنید");
+        p.classList.remove("show");
+      }
+    });
   }
-  zones = prepareMapZones(zonesMeta.zones);
+}
+
+/* ---------- LIVE REFRESH ---------- */
+function refreshNow() {
+  const nowMin = tehranMinOfDay(nowMs());
+  liveNowMin = nowMin;
+
+  if (curDate === zonesMeta.today) {
+    const prevTNow = tNowMin;
+    tNowMin = nowMin;
+    if (curMinute === prevTNow && curMinute !== tNowMin) {
+      curMinute = tNowMin;
+      $("tl-slider").value = curMinute;
+      $("tl-time").textContent = fmtMin(curMinute);
+    }
+  }
+
+  buildColorArr();
+
+  const stamp = new Date((snapshotData.ts || Date.now() / 1000) * 1000)
+    .toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Tehran" });
+
+  if ($("update-time")) {
+    const wd = (weekdays || {})[zonesMeta.today] || "";
+    $("update-time").textContent = `${wd} ${zonesMeta.today} ساعت ${stamp}`;
+  }
+
+  updateMapBadge();
+  applyColors();
+  renderMinebar();
+  renderHome();
+}
+
+/* ---------- BOOTSTRAP ---------- */
+(async function boot() {
+  initMap();
+  initSearch();
+  initPwa();
+
+  // Load snapshot data
+  try {
+    const snapResp = await fetch("snapshot.json", { cache: "no-store" });
+    zonesMeta = await snapResp.json();
+    snapshotData = zonesMeta;
+    syncServerClock(snapResp, zonesMeta);
+
+    if (snapResp.headers && snapResp.headers.get("X-From-Cache") === "1") {
+      $("live-label").textContent = "آفلاین — آخرین داده کش";
+      toast("حالت آفلاین: نمایش آخرین داده‌های ذخیره‌شده");
+    }
+  } catch (e) {
+    toast("خطا در بارگذاری اولیه داده‌ها");
+    return;
+  }
+
+  zones = zonesMeta.zones.map(z => ({
+    ...z,
+    polygon: (z.polygon || []).map(p => [+p[0], +p[1]])
+  }));
+
+  // Fix 402/382 polygon overlap if any
+  const f402 = zones.find(z => z.feeder === MY_FEEDER);
+  const f382 = zones.find(z => z.feeder === "382");
+  if (f402 && f382) {
+    [f402.polygon, f382.polygon] = [f382.polygon, f402.polygon];
+  }
+
   activePlans = zonesMeta.active;
   weekdays = zonesMeta.weekdays;
   curDate = zonesMeta.today;
-  buildDateButtons();
+
   drawZones();
   await setDate(curDate);
   updateDocTitle();
-  $("tl-slider").addEventListener("input", e=>{
-    if(playing) togglePlay();
-    curMinute=+e.target.value;
-    $("tl-time").textContent=fmtMin(curMinute);
-    updateMapBadge();
-    applyColors(); renderStats(); refreshSelectedPanel();
+
+  // Events setup
+  $("tab-home").addEventListener("click", () => showView("home"));
+  $("tab-map").addEventListener("click", () => showView("map"));
+
+  $("btn-date-today").addEventListener("click", () => setDate(zonesMeta.today));
+  $("btn-date-tomorrow").addEventListener("click", () => setDate(zonesMeta.tomorrow));
+  $("tl-btn-today").addEventListener("click", () => setDate(zonesMeta.today));
+  $("tl-btn-tomorrow").addEventListener("click", () => setDate(zonesMeta.tomorrow));
+
+  $("btn-gps-modal").addEventListener("click", showGpsModal);
+  $("map-loc-btn").addEventListener("click", showGpsModal);
+  $("gps-modal-confirm").addEventListener("click", executeGpsLocate);
+  $("gps-modal-cancel").addEventListener("click", hideGpsModal);
+  $("gps-modal").addEventListener("click", (e) => {
+    if (e.target === $("gps-modal")) hideGpsModal();
   });
-  $("playbtn").addEventListener("click", togglePlay);
-  $("minebtn").addEventListener("click", ()=>{
+
+  $("btn-saved-filter").addEventListener("click", () => {
+    currentFilter = currentFilter === "saved" ? "all" : "saved";
+    document.querySelectorAll(".filter-pill").forEach(p => {
+      p.classList.toggle("active", p.dataset.filter === currentFilter);
+    });
+    renderHome();
+  });
+
+  document.querySelectorAll(".filter-pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".filter-pill").forEach(p => p.classList.remove("active"));
+      btn.classList.add("active");
+      currentFilter = btn.dataset.filter;
+      renderHome();
+    });
+  });
+
+  $("map-home-btn").addEventListener("click", () => {
     const target = getSaved()[0] || MY_FEEDER;
-    const z = zones.find(x=>x.feeder===target);
-    if(z){ map.flyTo(centroidOf(z.polygon), 14, {duration:.45}); selectedFeeder=target; openPanel(z); applyColors(); }
+    focusFeeder(target);
   });
-  $("fitbtn").addEventListener("click", ()=>{
-    if(!zones.length) return;
-    const bounds=L.latLngBounds([]);
-    zones.forEach(z=>z.polygon.forEach(p=>bounds.extend([p[0],p[1]])));
-    map.fitBounds(bounds.pad(.04), {padding:[20,20], duration:.5});
-    toast("نمای همه فیدرها");
+
+  $("map-fit-btn").addEventListener("click", () => {
+    if (!zones.length) return;
+    const bounds = L.latLngBounds([]);
+    zones.forEach(z => z.polygon.forEach(p => bounds.extend([p[0], p[1]])));
+    map.fitBounds(bounds.pad(0.04), { padding: [20, 20], duration: 0.5 });
   });
-  $("editbtn").addEventListener("click", ()=>{ editMode? exitEdit(false) : enterEdit(); });
-  $("savebtn").addEventListener("click", saveZones);
-  $("cancelbtn").addEventListener("click", cancelEdit);
-  $("editbtn").style.display="none"; // editing zones is local-server only
-  initSearch();
+
+  $("tl-slider").addEventListener("input", (e) => {
+    if (playing) togglePlay();
+    curMinute = +e.target.value;
+    $("tl-time").textContent = fmtMin(curMinute);
+    updateMapBadge();
+    applyColors();
+    if (selectedFeeder) {
+      const z = zones.find(x => x.feeder === selectedFeeder);
+      if (z) openPanel(z);
+    }
+  });
+
+  $("playbtn").addEventListener("click", togglePlay);
+
   renderMinebar();
-  syncSavedFromServer();
-  $("locbtn").addEventListener("click", locateMe);
-  $("tab-home").addEventListener("click", ()=>showView("home"));
-  $("tab-map").addEventListener("click", ()=>showView("map"));
-  initPwa();
-  const tgt=parseHashTarget();
+
+  const tgt = parseHashTarget();
   showView(tgt.feeder ? "map" : (tgt.map ? "map" : "home"));
-  if(tgt.feeder) setTimeout(()=>focusFeeder(tgt.feeder), 150);
+  if (tgt.feeder) setTimeout(() => focusFeeder(tgt.feeder), 200);
+
   refreshNow();
   setInterval(refreshNow, 30000);
 })();

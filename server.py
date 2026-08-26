@@ -208,6 +208,11 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def do_HEAD(self):
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.end_headers()
+
     def do_GET(self):
         parsed = urlparse(self.path)
         p = parsed.path
@@ -217,6 +222,15 @@ class Handler(BaseHTTPRequestHandler):
             # the online static map boots from this file — serve it locally too
             return self._send_file(os.path.join(BASE, "web", "snapshot.json"),
                                    "application/json; charset=utf-8")
+        if p == "/manifest.json":
+            return self._send_file(os.path.join(BASE, "web", "manifest.json"),
+                                   "application/json; charset=utf-8")
+        if p == "/sw.js":
+            return self._send_file(os.path.join(BASE, "web", "sw.js"),
+                                   "application/javascript; charset=utf-8")
+        if p.startswith("/icons/"):
+            icon_path = os.path.join(BASE, "web", p.lstrip("/"))
+            return self._send_file(icon_path, "image/png")
         if p == "/api/zones":
             return self._send(build_zones_payload())
         if p == "/api/now":
