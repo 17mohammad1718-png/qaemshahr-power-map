@@ -2,8 +2,15 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
 <title>⚡ نقشه لحظه‌ای قطعی برق قائم‌شهر</title>
+<meta name="description" content="وضعیت لحظه‌ای قطعی و وصل برق فیدرهای قائم‌شهر روی نقشه — برنامه خاموشی امروز و فردا، شمارش معکوس وصل شدن، مناطق من و جستجوی محله. داده از سامانه رسمی توزیع برق مازندران.">
+<meta property="og:site_name" content="نقشه قطعی برق قائم‌شهر">
+<meta property="og:type" content="website">
+<meta property="og:title" content="نقشه لحظه‌ای قطعی برق قائم‌شهر">
+<meta property="og:description" content="وضعیت لحظه‌ای قطعی و وصل برق فیدرهای قائم‌شهر روی نقشه، با برنامه امروز و فردا و شمارش معکوس.">
+<meta property="og:image" content="icons/icon-512x512.png">
+<meta name="twitter:card" content="summary">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192x192.png">
@@ -22,10 +29,12 @@
   }
   *{box-sizing:border-box; margin:0; padding:0}
   html,body{height:100%}
+  @supports (height:100dvh){ html,body{height:100dvh} }  /* موبایل: دقیقاً هماندازه‌ی صفحه‌ی قابل‌دیدن (نوار آدرس جمع/باز) */
   body{
     background:var(--bg); color:var(--txt);
     font-family:Vazirmatn, "Segoe UI", Tahoma, sans-serif;
     display:flex; flex-direction:column; overflow:hidden;
+    -webkit-text-size-adjust:100%; text-size-adjust:100%;
   }
   .en{font-family:Consolas, "Courier New", Vazirmatn, sans-serif; direction:ltr; unicode-bidi:embed}
   #header{
@@ -130,6 +139,9 @@
   .starbtn{margin-inline-start:auto; background:var(--panel2); border:1px solid var(--line); color:#fde047;
     border-radius:8px; cursor:pointer; font-size:12px; padding:3px 10px; font-family:inherit}
   .starbtn:hover{border-color:var(--accent)}
+  .sharebtn{background:var(--panel2); border:1px solid var(--line); color:var(--accent);
+    border-radius:8px; cursor:pointer; font-size:12px; padding:3px 10px; font-family:inherit; margin-inline-start:6px}
+  .sharebtn:hover{border-color:var(--accent)}
   .sc{background:var(--panel2); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin:10px 0 2px}
   .sc-badge{display:inline-flex; align-items:center; gap:6px; font-weight:700; font-size:14.5px}
   .sc-sub{display:block; font-size:11px; color:var(--dim); margin-top:3px}
@@ -162,7 +174,7 @@
   .lv-card .lv-times{font-size:11px; color:var(--dim); margin-top:6px}
   .lv-card .lv-count{font-size:11.5px; margin-top:5px; color:var(--txt)}
   /* ---- phase 2: PWA install popup + iOS refresh ---- */
-  #a2hs-popup{position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(16px);
+  #a2hs-popup{position:fixed; bottom:calc(18px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%) translateY(16px);
     z-index:2100; display:flex; align-items:center; gap:12px; padding:14px 16px;
     width:min(430px, calc(100vw - 28px)); background:rgba(13,26,45,.98);
     border:1px solid rgba(85,216,255,.35); border-radius:16px;
@@ -180,7 +192,7 @@
     color:var(--dim); cursor:pointer; font-size:12px; padding:4px}
   #a2hs-ios{display:none; font-size:11.5px; color:var(--txt); line-height:2; flex:1}
   #a2hs-ios b{color:var(--accent)}
-  #ios-refresh{position:fixed; bottom:16px; inset-inline-end:14px; z-index:2050; display:none;
+  #ios-refresh{position:fixed; bottom:calc(16px + env(safe-area-inset-bottom)); inset-inline-end:14px; z-index:2050; display:none;
     background:#059669; color:#fff; border:none; border-radius:10px; padding:10px 14px; font-size:13px;
     font-family:inherit; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.3)}
   #ios-refresh:hover{background:#047857}
@@ -252,7 +264,8 @@
   }
   body{background:radial-gradient(circle at 50% -20%,#123252 0%,var(--bg) 48%,#040a13 100%)}
   #header{
-    position:relative; z-index:1200; min-height:76px; padding:12px 18px; gap:14px;
+    position:relative; z-index:1200; min-height:76px; padding:12px 18px;
+    padding-top:max(12px, env(safe-area-inset-top)); gap:14px;
     background:linear-gradient(110deg,rgba(13,30,51,.98),rgba(9,22,39,.94));
     border-bottom:1px solid rgba(85,216,255,.16); box-shadow:0 10px 30px rgba(0,0,0,.24);
   }
@@ -343,7 +356,7 @@
   #panel .note{padding:8px 9px;margin-top:12px;border-radius:9px;background:rgba(255,196,77,.08);border:1px solid rgba(255,196,77,.16);color:#e9c875;font-size:10px}
   #panel .close{top:12px;inset-inline-start:11px;width:29px;height:29px;border-radius:9px;background:rgba(255,255,255,.06);font-size:16px;transition:background .15s,color .15s}
   #panel .close:hover{background:rgba(255,255,255,.14);color:#fff}
-  #timeline{position:relative;z-index:1100;padding:12px 18px 14px;background:linear-gradient(180deg,rgba(13,29,49,.98),rgba(8,19,34,.98));border-top:1px solid rgba(85,216,255,.14);box-shadow:0 -10px 28px rgba(0,0,0,.18)}
+  #timeline{position:relative; z-index:1100; padding:12px 18px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(13,29,49,.98),rgba(8,19,34,.98));border-top:1px solid rgba(85,216,255,.14);box-shadow:0 -10px 28px rgba(0,0,0,.18)}
   #tl-top{align-items:center;gap:12px}
   #tl-date{gap:6px}
   .tbtn{padding:7px 13px;border-radius:10px;background:rgba(19,42,66,.78);border-color:rgba(133,169,199,.16);color:#9bb6c8}
@@ -360,7 +373,7 @@
   #tl-slider{height:6px;flex:1;accent-color:var(--accent)}
   #tl-slider::-webkit-slider-runnable-track{height:6px;border-radius:99px;background:linear-gradient(90deg,#183c58,#2e6980)}
   #tl-slider::-webkit-slider-thumb{width:17px;height:17px;margin-top:-5.5px;border:3px solid #082033;border-radius:50%;background:#9defff;box-shadow:0 0 0 3px rgba(85,216,255,.22),0 2px 8px rgba(0,0,0,.35)}
-  #toast{bottom:82px;left:50%;inset-inline-start:auto;transform:translateX(-50%);background:rgba(8,32,50,.95);border-color:rgba(85,216,255,.6);box-shadow:0 8px 24px rgba(0,0,0,.32);backdrop-filter:blur(10px)}
+  #toast{bottom:calc(82px + env(safe-area-inset-bottom));left:50%;inset-inline-start:auto;transform:translateX(-50%);background:rgba(8,32,50,.95);border-color:rgba(85,216,255,.6);box-shadow:0 8px 24px rgba(0,0,0,.32);backdrop-filter:blur(10px)}
   @media (max-width:900px){
     #header{padding:10px 13px}
     #brand{min-width:240px}
@@ -369,44 +382,53 @@
     #panel{width:min(350px,calc(100% - 28px));inset-inline-end:14px;top:14px}
   }
   @media (max-width:640px){
-    #header{min-height:0;padding:10px 11px;gap:8px}
+    #header{min-height:0;padding:10px 11px;padding-top:max(10px, env(safe-area-inset-top));gap:8px}
     #brand{min-width:0;flex:1;gap:8px}
     .brand-mark{width:32px;height:32px;border-radius:10px;font-size:17px}
-    #header h1{font-size:14px;line-height:1.35}
+    #header h1{font-size:14px;line-height:1.35;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     #header h1 small{font-size:9px;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     #live-pill{padding:6px 8px;font-size:9px}
     #stats{width:100%;margin:0;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
     #stats::-webkit-scrollbar{display:none}
     .chip{padding:6px 9px;font-size:10px}
     #updated{font-size:9px}
-    #map-badge{top:10px;padding:6px 11px;border-radius:11px}
+    #map-badge{top:10px;padding:6px 11px;border-radius:11px;max-width:calc(100% - 20px)}
     #map-badge strong{font-size:11px}
     #map-badge span{font-size:9px}
-    #map-actions{top:auto;bottom:12px;inset-inline-end:11px;flex-direction:row}
+    #map-actions{top:auto;bottom:calc(12px + env(safe-area-inset-bottom));inset-inline-end:11px;flex-direction:row}
     #map .leaflet-top.leaflet-right{top:10px;right:11px}
-    #map-actions button{min-width:0;padding:9px 10px;font-size:11px}
+    #map-actions button{min-width:0;min-height:44px;padding:9px 11px;font-size:11px}
     #map-actions #fitbtn{font-size:0;width:40px}
     #map-actions #fitbtn::before{content:"⌖";font-size:19px}
     #map-actions #locbtn{font-size:0;width:40px}
     #map-actions #locbtn::before{content:"📍";font-size:17px}
     #qsearch-wrap{order:9;flex-basis:100%;max-width:none}
+    #qsearch{font-size:16px}  /* iOS: زیر ۱۶px موقع فوکوس زوم می‌کند */
     #viewtabs{padding:7px 10px}
-    #viewtabs button{flex:1 1 0;padding:8px 10px;font-size:12.5px}
+    #viewtabs button{flex:1 1 0;padding:10px 12px;font-size:12.5px}
     #map-side{top:10px;inset-inline-start:10px;width:calc(100% - 20px);max-width:224px;gap:7px}
     #legend{display:none}
-    #panel{top:auto;bottom:10px;inset-inline-end:10px;width:calc(100% - 20px);max-height:58%;padding:14px;border-radius:15px}
+    #panel{top:auto;bottom:calc(10px + env(safe-area-inset-bottom));inset-inline-end:10px;width:calc(100% - 20px);max-height:58%;padding:14px;border-radius:15px}
     #panel .panel-title{font-size:15px}
-    #timeline{padding:9px 11px 11px}
+    #timeline{padding:9px 11px calc(11px + env(safe-area-inset-bottom))}
     #tl-top{display:grid;grid-template-columns:1fr auto auto;gap:7px}
     #tl-date{grid-column:1/-1;overflow-x:auto;scrollbar-width:none}
     #tl-date::-webkit-scrollbar{display:none}
-    .tbtn{white-space:nowrap;padding:6px 10px;font-size:11px}
+    .tbtn{white-space:nowrap;padding:8px 12px;font-size:11px}
     #tl-time-block{grid-column:2;grid-row:2;min-width:72px}
     #tl-time{font-size:20px;min-width:72px}
     #tl-time-label{font-size:8px}
-    #playbtn{grid-column:3;grid-row:2;width:38px;height:38px}
+    #playbtn{grid-column:3;grid-row:2;width:44px;height:44px;font-size:16px}
     #tl-hint{grid-column:1;grid-row:2;font-size:9px;line-height:1.4}
     .timeline-track{gap:5px}
+    .mb-chip{padding:6px 12px}
+    .qs-item{padding:10px 14px}
+    .starbtn,.sharebtn{padding:5px 12px}
+  }
+  @media (max-width:400px){
+    #header h1 small{max-width:150px}
+    #tl-hint{font-size:8px}
+    .chip{padding:5px 7px;font-size:9px}
   }
   @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
@@ -907,7 +929,8 @@ function openPanel(z){
   const areasHtml=z.areas&&z.areas.length?`<div class="panel-section"><div class="section-title">محله‌های تحت پوشش</div><ul class="area-list">${z.areas.map(a=>`<li>${esc(a)}</li>`).join("")}</ul></div>`:"";
   const html=`<button class="close" aria-label="بستن" onclick="closePanel()">✕</button>
     <div class="panel-kicker"><span class="kicker-dot"></span><span>امور برق قائم‌شهر · فیدر <span class="en">${esc(z.feeder)}</span></span>
-      <button class="starbtn" onclick="toggleSaved('${esc(z.feeder)}')" title="افزودن/حذف از مناطق من">${savedNow?"★ ذخیره شد":"☆ ذخیره"}</button></div>
+      <button class="starbtn" onclick="toggleSaved('${esc(z.feeder)}')" title="افزودن/حذف از مناطق من">${savedNow?"★ ذخیره شد":"☆ ذخیره"}</button>
+      <button class="sharebtn" onclick="shareFeeder('${esc(z.feeder)}')" title="اشتراک‌گذاری لینک این فیدر">🔗 اشتراک</button></div>
     <div class="panel-title">${esc(shortFeederName(z.name))}</div>
     <div class="panel-sub">نمایش وضعیت، برنامه خاموشی و محله‌های تحت پوشش</div>
     ${statusCardHtml(z, curMinute)}
@@ -1315,7 +1338,10 @@ function showView(v){
   $("tab-map").setAttribute("aria-selected", v==="map");
   if(v==="map"){ requestAnimationFrame(()=>{ if(map) map.invalidateSize(); }); }
   else { renderHome(); }
-  try{ history.replaceState(null, "", v==="map" ? "#map" : location.pathname + location.search); }catch{}
+  try{
+    const fm=(location.hash||"").match(/f=(\d+)/);
+    history.replaceState(null, "", v==="map" ? ("#map"+(fm?"#f="+fm[1]:"")) : location.pathname + location.search);
+  }catch{}
 }
 function focusOnMap(feeder){
   showView("map");
@@ -1459,6 +1485,38 @@ function initPwa(){
   initIosRefresh();
 }
 
+/* ---------- phase4: dynamic title, feeder deep-link, share ---------- */
+function updateDocTitle(){
+  const wd=(weekdays||{})[curDate]||"";
+  const day=curDate===zonesMeta.today?"امروز":"فردا";
+  const t=`نقشه قطعی برق قائم‌شهر — ${day} ${wd} ${curDate}`;
+  document.title="⚡ "+t;
+  const og=document.querySelector('meta[property="og:title"]');
+  if(og) og.setAttribute("content", t);
+}
+function parseHashTarget(){
+  const h=location.hash||"";
+  const fm=h.match(/f=(\d+)/);
+  const feeder=fm?fm[1]:null;
+  return {map:h.indexOf("map")!==-1, feeder: feeder && zones.some(z=>z.feeder===feeder) ? feeder : null};
+}
+function shareFeeder(feeder){
+  const url=location.origin+location.pathname+`#map#f=${feeder}`;
+  const text=`⚡ وضعیت فیدر ${feeder} — نقشه قطعی برق قائم‌شهر`;
+  if(navigator.share){ navigator.share({title:document.title, text, url}).catch(()=>{}); return; }
+  const done=()=>toast("🔗 لینک کپی شد");
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(done).catch(()=>fallbackCopy(url, done));
+  } else fallbackCopy(url, done);
+}
+function fallbackCopy(text, done){
+  const ta=document.createElement("textarea");
+  ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); done(); }catch(e){}
+  document.body.removeChild(ta);
+}
+
 /* ---------- boot ---------- */
 (async function boot(){
   initMap();
@@ -1478,6 +1536,7 @@ function initPwa(){
   buildDateButtons();
   drawZones();
   await setDate(curDate);
+  updateDocTitle();
   $("tl-slider").addEventListener("input", e=>{
     if(playing) togglePlay();
     curMinute=+e.target.value;
@@ -1509,7 +1568,9 @@ function initPwa(){
   $("tab-home").addEventListener("click", ()=>showView("home"));
   $("tab-map").addEventListener("click", ()=>showView("map"));
   initPwa();
-  showView(location.hash.indexOf("map")!==-1 ? "map" : "home");
+  const tgt=parseHashTarget();
+  showView(tgt.feeder ? "map" : (tgt.map ? "map" : "home"));
+  if(tgt.feeder) setTimeout(()=>focusFeeder(tgt.feeder), 150);
   refreshNow();
   setInterval(refreshNow, 30000);
 })();
