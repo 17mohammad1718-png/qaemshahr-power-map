@@ -1660,6 +1660,166 @@
     .time-val { font-size: 15px; }
     #legend { display: none; }
   }
+
+  /* ---------- MOBILE SINGLE COLUMN WITH FULL DETAILS ---------- */
+  @media (max-width: 768px) {
+    #home-grid {
+      grid-template-columns: 1fr !important;
+      gap: 12px !important;
+    }
+    .home-container {
+      padding: 10px 12px 110px !important;
+      max-width: 100% !important;
+    }
+    .feeder-card {
+      border-radius: 14px;
+      padding: 14px;
+      gap: 10px;
+    }
+    .feeder-card .card-areas-mobile {
+      display: flex !important;
+    }
+    .filter-bar {
+      padding: 10px 12px;
+      gap: 6px;
+    }
+    .list-summary-bar {
+      padding: 8px 2px 12px;
+    }
+  }
+
+  /* Card areas - detailed view for mobile (single column) */
+  .card-areas-mobile {
+    display: none;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 2px;
+    list-style: none;
+    padding: 0;
+  }
+  .card-areas-mobile li {
+    font-size: 11px;
+    padding: 4px 8px;
+    background: rgba(56, 189, 248, 0.10);
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    border-radius: 7px;
+    color: #bae6fd;
+    list-style: none;
+    line-height: 1.4;
+  }
+  .card-areas-title-mobile {
+    font-size: 11px;
+    color: var(--dim);
+    font-weight: 700;
+    margin-top: 6px;
+    display: none;
+  }
+  @media (max-width: 768px) {
+    .card-areas-title-mobile { display: block; }
+  }
+
+  /* ---------- INSTALL BUTTON (PWA) ---------- */
+  #btn-install-app {
+    display: none;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: 0 2px 12px rgba(16, 185, 129, 0.35);
+    animation: installPulse 2s infinite;
+  }
+  #btn-install-app.show,
+  #btn-install-app.ios-visible {
+    display: inline-flex;
+  }
+  @keyframes installPulse {
+    0%, 100% { box-shadow: 0 2px 12px rgba(16, 185, 129, 0.35); }
+    50% { box-shadow: 0 4px 18px rgba(16, 185, 129, 0.55); }
+  }
+  #btn-install-app:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+
+  /* Mobile bottom install bar */
+  #mobile-install-bar {
+    position: fixed;
+    bottom: 0;
+    inset-inline: 0;
+    z-index: 2000;
+    background: linear-gradient(180deg, rgba(15, 28, 50, 0.98) 0%, rgba(7, 16, 30, 0.98) 100%);
+    border-top: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(14px);
+    animation: slideUpBar 0.35s cubic-bezier(0.16,1,0.3,1);
+  }
+  @keyframes slideUpBar {
+    from { transform: translateY(100%); opacity:0; }
+    to { transform: translateY(0); opacity:1; }
+  }
+  #mobile-install-bar.show { display: flex; }
+  #mobile-install-bar .mib-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+  }
+  #mobile-install-bar .mib-text { flex: 1; min-width: 0; }
+  #mobile-install-bar .mib-text strong {
+    font-size: 13px;
+    color: #fff;
+    display: block;
+    line-height: 1.3;
+  }
+  #mobile-install-bar .mib-text span {
+    font-size: 11px;
+    color: var(--dim);
+    line-height: 1.4;
+  }
+  #mobile-install-bar .mib-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  #mobile-install-bar .mib-install {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(16,185,129,0.35);
+    white-space: nowrap;
+  }
+  #mobile-install-bar .mib-install:active { transform: scale(0.97); }
+  #mobile-install-bar .mib-close {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border);
+    color: var(--dim);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  @media (min-width: 769px) {
+    #mobile-install-bar { display: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -1701,6 +1861,9 @@
     <button id="btn-gps-modal" class="action-btn" type="button">
       <span>📍 موقعیت من</span>
       <span class="new-badge">جدید</span>
+    </button>
+    <button id="btn-install-app" class="action-btn install-btn" type="button" title="نصب اپلیکیشن روی گوشی">
+      <span>📲 نصب اپ</span>
     </button>
     <button id="btn-saved-filter" class="action-btn" type="button">
       <span>📌 مناطق من</span>
@@ -1948,6 +2111,19 @@
       <button id="gps-modal-confirm" class="modal-btn-confirm">📍 تایید و موقعیت‌یابی</button>
       <button id="gps-modal-cancel" class="modal-btn-cancel">انصراف</button>
     </div>
+  </div>
+</div>
+
+<!-- ==================== MOBILE BOTTOM INSTALL BAR (single column + install) ==================== -->
+<div id="mobile-install-bar" role="dialog" aria-label="نصب اپلیکیشن" aria-hidden="true">
+  <div class="mib-icon">📲</div>
+  <div class="mib-text">
+    <strong>نصب اپ قطعی برق قائم‌شهر</strong>
+    <span>دسترسی سریع، آفلاین و بدون فیلتر — فقط یک ستون با جزئیات کامل در موبایل</span>
+  </div>
+  <div class="mib-actions">
+    <button id="mib-install" class="mib-install">نصب</button>
+    <button id="mib-close" class="mib-close" aria-label="بستن">✕</button>
   </div>
 </div>
 
@@ -2604,6 +2780,14 @@ function renderHome() {
       countdownHtml = `در حال حاضر برنامه قطعی برای این منطقه ثبت نشده است.`;
     }
 
+    // Mobile detailed areas - visible only on mobile single column layout
+    const areasMobileList = (z.areas || []).slice(0, 8).map(a => `<li>${esc(a)}</li>`).join("");
+    const remainingAreas = (z.areas || []).length - 8;
+    const areasMobileHtml = areasMobileList ? `
+      <div class="card-areas-title-mobile">📍 محله‌های تحت پوشش (جزئیات کامل در موبایل):</div>
+      <ul class="card-areas-mobile">${areasMobileList}${remainingAreas > 0 ? `<li>+${toFaDigits(remainingAreas)} محله دیگر</li>` : ''}</ul>
+    ` : '';
+
     return `
       <div class="feeder-card" data-feeder="${esc(z.feeder)}">
         <div class="card-top">
@@ -2629,6 +2813,8 @@ function renderHome() {
         <div class="card-countdown">
           ${countdownHtml}
         </div>
+
+        ${areasMobileHtml}
 
         <div class="card-footer">
           <div class="card-loc">📍 قائم‌شهر · ${esc(curDate)}</div>
@@ -2907,8 +3093,85 @@ function parseHashTarget() {
   return { map: h.indexOf("map") !== -1, feeder: feeder && zones.some(z => z.feeder === feeder) ? feeder : null };
 }
 
-/* ---------- PWA & CACHING ---------- */
+/* ---------- PWA & CACHING + INSTALL BUTTONS FOR MOBILE ---------- */
 let deferredPrompt = null;
+function isStandalone() {
+  return window.matchMedia && window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+}
+function isIOSDevice() {
+  return /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+}
+function isMobileDevice() {
+  return /iphone|ipad|ipod|android|mobile/.test(navigator.userAgent.toLowerCase());
+}
+function showInstallButtons() {
+  const btn = $("btn-install-app");
+  const bar = $("mobile-install-bar");
+  if (isStandalone()) {
+    if (btn) { btn.classList.remove("show", "ios-visible"); }
+    if (bar) { bar.classList.remove("show"); }
+    return;
+  }
+  if (btn) {
+    if (isIOSDevice()) {
+      btn.classList.add("ios-visible");
+      btn.classList.remove("show");
+    } else if (deferredPrompt) {
+      btn.classList.add("show");
+      btn.classList.remove("ios-visible");
+    } else if (isMobileDevice()) {
+      // Show for mobile even without prompt, to guide to manual install
+      btn.classList.add("show");
+    }
+  }
+  // Bottom bar only for mobile and not dismissed
+  try {
+    if (localStorage.getItem("mobileInstallDismissed") === "true") return;
+  } catch {}
+  if (bar && isMobileDevice() && !isStandalone()) {
+    // Show after slight delay
+    setTimeout(() => {
+      if (!isStandalone()) bar.classList.add("show");
+    }, 2000);
+  }
+}
+function triggerInstall() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choice) => {
+      if (choice && choice.outcome === 'accepted') {
+        toast("✅ در حال نصب اپلیکیشن...");
+      }
+      deferredPrompt = null;
+      const p = $("a2hs-popup");
+      if (p) p.classList.remove("show");
+      const bar = $("mobile-install-bar");
+      if (bar) bar.classList.remove("show");
+      const btn = $("btn-install-app");
+      if (btn) btn.classList.remove("show");
+    }).catch(() => {
+      deferredPrompt = null;
+    });
+  } else if (isIOSDevice()) {
+    const p = $("a2hs-popup");
+    if (p) {
+      const install = $("a2hs-install");
+      const iosBox = $("a2hs-ios");
+      if (install) install.style.display = "none";
+      if (iosBox) iosBox.style.display = "block";
+      const txt = $("a2hs-txt");
+      if (txt) txt.style.display = "none";
+      p.classList.add("show");
+    } else {
+      toast("در سافاری: دکمه Share → Add to Home Screen را بزنید");
+    }
+  } else {
+    const p = $("a2hs-popup");
+    if (p) p.classList.add("show");
+    else toast("از منوی مرورگر، گزینه نصب برنامه یا Add to Home Screen را انتخاب کنید");
+  }
+}
 function initPwa() {
   if ("serviceWorker" in navigator) {
     const reg = () => navigator.serviceWorker.register("sw.js").catch(() => {});
@@ -2918,11 +3181,20 @@ function initPwa() {
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     deferredPrompt = e;
+    showInstallButtons();
+    // Also update popup install button if present
+    const pInstall = $("a2hs-install");
+    if (pInstall) pInstall.style.display = "";
   });
   window.addEventListener("appinstalled", () => {
     deferredPrompt = null;
     const p = $("a2hs-popup");
     if (p) p.classList.remove("show");
+    const bar = $("mobile-install-bar");
+    if (bar) bar.classList.remove("show");
+    const btn = $("btn-install-app");
+    if (btn) btn.classList.remove("show", "ios-visible");
+    toast("✅ اپلیکیشن با موفقیت نصب شد!");
   });
 
   const p = $("a2hs-popup");
@@ -2932,18 +3204,33 @@ function initPwa() {
       try {
         if (localStorage.getItem("a2hsNeverShow") === "true") return;
       } catch {}
-      const isMobile = /iphone|ipad|ipod|android|mobile/.test(navigator.userAgent.toLowerCase());
-      if (!isMobile) return;
-      const isIOS = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
-      if (isIOS) {
-        install.style.display = "none";
-        iosBox.style.display = "block";
-        $("a2hs-txt").style.display = "none";
+      const isMobile = isMobileDevice();
+      if (!isMobile) {
+        // On desktop, don't auto-show popup, but keep install button if prompt available
+        showInstallButtons();
+        return;
       }
-      p.classList.add("show");
+      const isIOS = isIOSDevice();
+      if (isIOS) {
+        if (install) install.style.display = "none";
+        if (iosBox) iosBox.style.display = "block";
+        const txt = $("a2hs-txt");
+        if (txt) txt.style.display = "none";
+      }
+      // Only auto-show if not standalone and not dismissed
+      if (!isStandalone()) {
+        try {
+          if (localStorage.getItem("a2hsNeverShow") !== "true") {
+            p.classList.add("show");
+          }
+        } catch {
+          p.classList.add("show");
+        }
+      }
+      showInstallButtons();
     }, 3500);
 
-    close.addEventListener("click", () => {
+    if (close) close.addEventListener("click", () => {
       const never = $("a2hs-never");
       if (never && never.checked) {
         try { localStorage.setItem("a2hsNeverShow", "true"); } catch {}
@@ -2951,16 +3238,38 @@ function initPwa() {
       p.classList.remove("show");
     });
 
-    install.addEventListener("click", () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => { deferredPrompt = null; p.classList.remove("show"); });
-      } else {
-        toast("از منوی مرورگر خود، گزینه Add to Home screen یا Install را بزنید");
-        p.classList.remove("show");
-      }
+    if (install) install.addEventListener("click", () => {
+      triggerInstall();
     });
   }
+
+  // Header install button
+  const headerInstallBtn = $("btn-install-app");
+  if (headerInstallBtn) {
+    headerInstallBtn.addEventListener("click", () => {
+      triggerInstall();
+    });
+  }
+
+  // Mobile bottom bar buttons
+  const mibInstall = $("mib-install");
+  const mibClose = $("mib-close");
+  const mibBar = $("mobile-install-bar");
+  if (mibInstall) {
+    mibInstall.addEventListener("click", () => {
+      triggerInstall();
+    });
+  }
+  if (mibClose && mibBar) {
+    mibClose.addEventListener("click", () => {
+      mibBar.classList.remove("show");
+      try { localStorage.setItem("mobileInstallDismissed", "true"); } catch {}
+    });
+  }
+
+  // Initial check for iOS to show button even without prompt
+  setTimeout(showInstallButtons, 800);
+  window.addEventListener("resize", showInstallButtons);
 }
 
 /* ---------- LIVE REFRESH ---------- */
