@@ -4,7 +4,7 @@
    - snapshot.json: stale-while-revalidate = نمایش فوری از کش + به‌روزرسانی بی‌صدا در پس‌زمینه
    - استاتیک‌های خودِ سایت و CDN (leaflet/فونت): cache-first
 */
-const CACHE = "qaem-power-v1";
+const CACHE = "qaem-power-v2";
 const PRECACHE = [
   "./",
   "index.html",
